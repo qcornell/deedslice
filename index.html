@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeedSlice — Tokenize Real Estate on Hedera</title>
+  <meta name="description" content="The easiest way to tokenize real estate on Hedera. NFT deed records, fractional ownership tokens, and on-chain audit trails — no developers required.">
+  
+  <meta property="og:title" content="DeedSlice — Tokenize Real Estate on Hedera">
+  <meta property="og:description" content="NFT deed records, fractional share tokens, on-chain audit trails. Self-service property tokenization.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://deedslice.com">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deedslice">
+  
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "DeedSlice",
+    "url": "https://deedslice.com",
+    "description": "Real estate tokenization infrastructure built on Hedera Hashgraph",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web"
+  }
+  </script>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <img src="logo.png" alt="DeedSlice" class="nav-logo-img">
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#how-it-works">How It Works</a>
+        <a href="#features">Features</a>
+        <a href="#demo">Demo</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-actions">
+        <a href="#early-access" class="btn btn-primary btn-nav">Get Early Access</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO (LIGHT) ===================== -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <!-- LEFT: Copy -->
+        <div class="hero-content reveal">
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Built on Hedera Hashgraph
+          </div>
+          <h1 class="hero-title">
+            Tokenize real estate<br>
+            <span class="hero-title-light">assets with confidence.</span>
+          </h1>
+          <p class="hero-sub">
+            Create structured digital ownership for property. NFT deed records, fractional shares, and verifiable audit trails — built on Hedera.
+          </p>
+          <div class="hero-ctas">
+            <a href="#early-access" class="btn btn-primary btn-lg">Request Early Access</a>
+            <a href="#demo" class="btn btn-secondary btn-lg">View Demo <span class="btn-arrow">→</span></a>
+          </div>
+          <div class="hero-trust">
+            <div class="hero-trust-text">Trusted by asset managers &amp; real estate operators</div>
+            <div class="hero-trust-chips">
+              <span class="trust-chip">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.8 4v8M11.2 4v8M4.8 7.2h6.4M4.8 8.8h6.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Hedera
+              </span>
+              <span class="trust-chip">HTS</span>
+              <span class="trust-chip">HCS</span>
+              <span class="trust-chip">dappily-agent-kit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Premium Device Mockup -->
+        <div class="hero-visual reveal">
+          <div class="mockup-glow"></div>
+          <div class="device-mock">
+            <div class="device-topbar">
+              <div class="device-dots"><span></span><span></span><span></span></div>
+              <div class="device-url">deedslice.com/console</div>
+              <div class="device-spacer"></div>
+            </div>
+            <div class="device-screen">
+              <div class="mock-dash">
+                <div class="mock-header">
+                  <div>
+                    <div class="mock-title">Willowbrook Apartments</div>
+                    <div class="mock-subtitle">Multi-Family · Hedera</div>
+                  </div>
+                  <div class="mock-val">
+                    <div class="mock-val-label">Valuation</div>
+                    <div class="mock-val-amount">$2,400,000</div>
+                  </div>
+                </div>
+                <div class="mock-property-img">
+                  <img src="0x0.png" alt="Property" loading="eager">
+                  <div class="mock-property-overlay">
+                    <span class="mock-property-badge">● Live</span>
+                  </div>
+                </div>
+                <div class="mock-cards">
+                  <div class="mock-card">
+                    <div class="mock-card-label">NFT Deed</div>
+                    <div class="mock-card-value">0.0.912480</div>
+                    <div class="mock-card-status">Minted ✓</div>
+                  </div>
+                  <div class="mock-card">
+                    <div class="mock-card-label">Share Token</div>
+                    <div class="mock-card-value">DS-WBRK</div>
+                    <div class="mock-card-status">2,400 slices</div>
+                  </div>
+                  <div class="mock-card">
+                    <div class="mock-card-label">Audit Trail</div>
+                    <div class="mock-card-value">0.0.912483</div>
+                    <div class="mock-card-status">5 entries ✓</div>
+                  </div>
+                </div>
+                <div class="mock-chart-row">
+                  <div class="mock-pie-section">
+                    <div class="mock-section-label">Ownership</div>
+                    <div class="mock-pie-wrap">
+                      <svg class="mock-pie" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#0D9488" stroke-width="3" stroke-dasharray="60 40" stroke-dashoffset="25"/>
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#4F46E5" stroke-width="3" stroke-dasharray="25 75" stroke-dashoffset="-35"/>
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#F59E0B" stroke-width="3" stroke-dasharray="15 85" stroke-dashoffset="-60"/>
+                      </svg>
+                      <div class="mock-pie-legend">
+                        <div><span style="color:#0D9488">●</span> Sponsor 60%</div>
+                        <div><span style="color:#4F46E5">●</span> Inv. A 25%</div>
+                        <div><span style="color:#F59E0B">●</span> Inv. B 15%</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mock-log-section">
+                    <div class="mock-section-label">Audit Log</div>
+                    <div class="mock-log-item"><span class="mock-log-dot green"></span>Property tokenized</div>
+                    <div class="mock-log-item"><span class="mock-log-dot green"></span>NFT Deed #1 minted</div>
+                    <div class="mock-log-item"><span class="mock-log-dot blue"></span>HCS topic created</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS (LIGHT) ===================== -->
+  <section class="section section-light" id="how-it-works">
+    <div class="container">
+      <div class="section-header center reveal">
+        <span class="section-tag">How It Works</span>
+        <h2>Three steps to tokenized property.</h2>
+        <p class="section-desc">From property details to on-chain assets in under five minutes.</p>
+      </div>
+      <div class="steps-row">
+        <div class="step-card reveal">
+          <div class="step-num">1</div>
+          <h3>Describe</h3>
+          <p>Enter property details — name, valuation, number of slices. Or describe it in plain English and let AI configure the structure.</p>
+        </div>
+        <div class="step-connector reveal">
+          <svg width="32" height="12" viewBox="0 0 32 12"><path d="M0 6h28M24 1l6 5-6 5" stroke="#CBD5E1" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-num">2</div>
+          <h3>Structure</h3>
+          <p>DeedSlice auto-creates your on-chain bundle: NFT master deed, fungible share tokens, and an HCS audit trail — all linked.</p>
+        </div>
+        <div class="step-connector reveal">
+          <svg width="32" height="12" viewBox="0 0 32 12"><path d="M0 6h28M24 1l6 5-6 5" stroke="#CBD5E1" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-num">3</div>
+          <h3>Deploy</h3>
+          <p>One click deploys everything to Hedera. Your investor dashboard goes live — share ownership, transfer slices, audit every action.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURES (LIGHT) ===================== -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header center reveal">
+        <span class="section-tag">Capabilities</span>
+        <h2>Everything you need to structure<br>property as a digital asset.</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon">📜</div>
+          <h3>NFT Master Deeds</h3>
+          <p>Each property gets a unique NFT on Hedera Token Service — the immutable on-chain record serving as the digital deed.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">🪙</div>
+          <h3>Fractional Share Tokens</h3>
+          <p>HTS fungible tokens represent ownership slices. Configurable supply, decimals, and transfer controls.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">📋</div>
+          <h3>HCS Audit Trails</h3>
+          <p>Every action logged to Hedera Consensus Service — document hashes, transfers, valuations. Tamper-proof forever.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">🤖</div>
+          <h3>AI-Powered Structuring</h3>
+          <p>Describe your property in English. The Forge engine validates and generates verified on-chain assets automatically.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">📊</div>
+          <h3>Investor Dashboard</h3>
+          <p>Clean dashboard for token holders. Ownership distribution, transfer history, document vault, valuation tracking.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">⚡</div>
+          <h3>REST API &amp; Webhooks</h3>
+          <p>Programmatic access to every feature. Webhooks for transfers, valuations, and audit entries. Build on top of DeedSlice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROBLEM / SOLUTION (LIGHT) ===================== -->
+  <section class="section section-light" id="problem">
+    <div class="container">
+      <div class="section-header center reveal">
+        <span class="section-tag">Why DeedSlice</span>
+        <h2>Property tokenization shouldn't require<br>a dev team and a legal army.</h2>
+      </div>
+      <div class="ps-grid">
+        <div class="ps-col reveal">
+          <h3 class="ps-heading ps-old">The old way</h3>
+          <div class="ps-item">
+            <div class="ps-icon ps-icon-old">✕</div>
+            <div><strong>$50,000+ setup fees</strong><br><span>Enterprise platforms gate access behind five-figure contracts.</span></div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-icon ps-icon-old">✕</div>
+            <div><strong>"Contact Sales" walls</strong><br><span>Fill a form, wait for a call, maybe tokenize in 3 months.</span></div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-icon ps-icon-old">✕</div>
+            <div><strong>Requires blockchain developers</strong><br><span>Token structures and smart contracts need engineers at $150/hr.</span></div>
+          </div>
+        </div>
+        <div class="ps-col reveal">
+          <h3 class="ps-heading ps-new">The DeedSlice way</h3>
+          <div class="ps-item">
+            <div class="ps-icon ps-icon-new">✓</div>
+            <div><strong>$99/month. Self-service.</strong><br><span>Sign up, enter property details, deploy to Hedera. No gatekeepers.</span></div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-icon ps-icon-new">✓</div>
+            <div><strong>AI structures your assets</strong><br><span>Describe your property. Our engine configures on-chain structure automatically.</span></div>
+          </div>
+          <div class="ps-item">
+            <div class="ps-icon ps-icon-new">✓</div>
+            <div><strong>Infrastructure, not a marketplace</strong><br><span>We create the digital asset layer. No securities risk — you're using a tool.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LIVE DEMO (LIGHT) ===================== -->
+  <section class="section" id="demo">
+    <div class="container">
+      <div class="section-header center reveal">
+        <span class="section-tag">Interactive Demo</span>
+        <h2>See it in action.</h2>
+        <p class="section-desc">Tokenize a property on Hedera right now. No sign-up required.</p>
+      </div>
+      
+      <div class="demo-wrapper reveal">
+        <div class="demo-window">
+          <div class="demo-topbar">
+            <div class="demo-dots"><span></span><span></span><span></span></div>
+            <div class="demo-title-bar">DeedSlice Console</div>
+            <div></div>
+          </div>
+          
+          <!-- Step 1: Input -->
+          <div class="demo-step active" id="demoStep1">
+            <div class="demo-step-header">
+              <span class="demo-step-num">1</span>
+              <span class="demo-step-title">Property Details</span>
+            </div>
+            <div class="demo-form">
+              <div class="demo-field">
+                <label>Property Name</label>
+                <input type="text" id="demoName" value="2960 Boxelder Drive">
+              </div>
+              <div class="demo-row">
+                <div class="demo-field">
+                  <label>Valuation (USD)</label>
+                  <input type="text" id="demoValue" value="425000">
+                </div>
+                <div class="demo-field">
+                  <label>Total Slices</label>
+                  <input type="text" id="demoSlices" value="1000">
+                </div>
+              </div>
+              <div class="demo-field">
+                <label>Property Type</label>
+                <select id="demoType">
+                  <option value="residential" selected>Residential</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="multi-family">Multi-Family</option>
+                  <option value="land">Vacant Land</option>
+                </select>
+              </div>
+              <button class="btn btn-primary btn-lg" id="demoTokenize" style="margin-top:8px">
+                Tokenize Property →
+              </button>
+            </div>
+          </div>
+          
+          <!-- Step 2: Deploy -->
+          <div class="demo-step" id="demoStep2">
+            <div class="demo-step-header">
+              <span class="demo-step-num">2</span>
+              <span class="demo-step-title">Deploying to Hedera</span>
+            </div>
+            <div class="deploy-log" id="deployLog"></div>
+          </div>
+          
+          <!-- Step 3: Dashboard -->
+          <div class="demo-step" id="demoStep3">
+            <div class="demo-step-header">
+              <span class="demo-step-num">3</span>
+              <span class="demo-step-title">Property Dashboard</span>
+            </div>
+            <div class="dashboard-preview">
+              <div class="dash-top">
+                <div>
+                  <h3 class="dash-name" id="dashName">2960 Boxelder Drive</h3>
+                  <div class="dash-meta">
+                    <span class="dash-badge type">Residential</span>
+                    <span class="dash-badge live">● Live</span>
+                  </div>
+                </div>
+                <div class="dash-valuation">
+                  <div class="dash-val-label">Total Valuation</div>
+                  <div class="dash-val-amount" id="dashValue">$425,000</div>
+                  <div class="dash-val-slice" id="dashSlicePrice">$425 / slice</div>
+                </div>
+              </div>
+              <div class="dash-grid">
+                <div class="dash-card">
+                  <div class="dash-card-head">📜 NFT Master Deed</div>
+                  <div class="dash-card-body">
+                    <div class="dash-row"><span>Token ID</span><code id="dashNftId">0.0.8841201</code></div>
+                    <div class="dash-row"><span>Serial</span><code>#1</code></div>
+                    <div class="dash-row"><span>Status</span><span class="dash-ok">Minted ✓</span></div>
+                  </div>
+                </div>
+                <div class="dash-card">
+                  <div class="dash-card-head">🪙 Share Token</div>
+                  <div class="dash-card-body">
+                    <div class="dash-row"><span>Token ID</span><code id="dashTokenId">0.0.8841203</code></div>
+                    <div class="dash-row"><span>Symbol</span><code id="dashSymbol">DS-2960</code></div>
+                    <div class="dash-row"><span>Supply</span><code id="dashSupply">1,000</code></div>
+                  </div>
+                </div>
+                <div class="dash-card">
+                  <div class="dash-card-head">📋 Audit Trail</div>
+                  <div class="dash-card-body">
+                    <div class="dash-row"><span>Topic ID</span><code id="dashTopicId">0.0.8841205</code></div>
+                    <div class="dash-row"><span>Messages</span><code id="dashMsgCount">3</code></div>
+                    <div class="dash-row"><span>Status</span><span class="dash-ok">Active ✓</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-bottom-row">
+                <div class="dash-chart-card">
+                  <div class="dash-card-head">Ownership</div>
+                  <div class="dash-pie-area">
+                    <svg class="dash-pie-svg" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="15.915" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                      <circle cx="18" cy="18" r="15.915" fill="none" stroke="#0D9488" stroke-width="3" stroke-dasharray="80 20" stroke-dashoffset="25"/>
+                      <circle cx="18" cy="18" r="15.915" fill="none" stroke="#4F46E5" stroke-width="3" stroke-dasharray="10 90" stroke-dashoffset="-55"/>
+                      <circle cx="18" cy="18" r="15.915" fill="none" stroke="#F59E0B" stroke-width="3" stroke-dasharray="10 90" stroke-dashoffset="-65"/>
+                    </svg>
+                    <div class="dash-pie-legend">
+                      <div><span class="legend-dot" style="background:#0D9488"></span> Owner — 80%</div>
+                      <div><span class="legend-dot" style="background:#4F46E5"></span> Investor A — 10%</div>
+                      <div><span class="legend-dot" style="background:#F59E0B"></span> Investor B — 10%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="dash-chart-card">
+                  <div class="dash-card-head">Audit Log</div>
+                  <div class="dash-log-area">
+                    <div class="dash-log-entry"><span class="log-dot green"></span> Property tokenized — 1,000 slices</div>
+                    <div class="dash-log-entry"><span class="log-dot green"></span> NFT Deed #1 minted</div>
+                    <div class="dash-log-entry"><span class="log-dot blue"></span> HCS topic initialized</div>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-actions">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('early-access').scrollIntoView({behavior:'smooth'})">Get Full Access</button>
+                <button class="btn btn-secondary btn-sm" id="demoReset">Reset Demo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== STATS BAR (LIGHT — moved way down) ===================== -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <div class="stat-number">15</div>
+          <div class="stat-label">Verified On-Chain Actions</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">$0.001</div>
+          <div class="stat-label">Per Transaction</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">&lt;5s</div>
+          <div class="stat-label">Transaction Finality</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">On-Chain Transparency</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TECH (dark — now the FIRST dark section) ===================== -->
+  <section class="section section-dark" id="tech">
+    <div class="container">
+      <div class="section-header center reveal">
+        <span class="section-tag">Under the Hood</span>
+        <h2>Built on infrastructure you can trust.</h2>
+        <p class="section-desc">Powered by dappily-agent-kit — 15 verified Hedera actions.</p>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card reveal">
+          <div class="tech-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M12 10v20M28 10v20M12 18h16M12 22h16" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Hedera Hashgraph</h3>
+          <p>Enterprise-grade DLT. 10,000+ TPS, $0.001/tx, carbon-negative. Governed by Google, IBM, Boeing, FedEx.</p>
+        </div>
+        <div class="tech-card reveal">
+          <div class="tech-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="14" stroke="#0D9488" stroke-width="2.5"/><path d="M15 20l3 3 7-7" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>dappily-agent-kit</h3>
+          <p>Open-source Hedera action SDK. 15 verified actions. The engine DeedSlice is built on.</p>
+          <a href="https://github.com/dappily/dappily-agent-kit" class="tech-link" target="_blank" rel="noopener">View on GitHub →</a>
+        </div>
+        <div class="tech-card reveal">
+          <div class="tech-icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 6l14 9v10l-14 9-14-9V15l14-9z" stroke="#0D9488" stroke-width="2.5" stroke-linejoin="round"/><circle cx="20" cy="20" r="3" fill="#0D9488" opacity="0.4"/></svg>
+          </div>
+          <h3>The Forge (AI)</h3>
+          <p>Plain English → validated spec → deterministic code → verified. AI never writes raw code.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRICING ===================== -->
+  <section class="section section-light" id="pricing">
+    <div class="container">
+      <div class="section-header center reveal">
+        <span class="section-tag">Pricing</span>
+        <h2>Transparent pricing. No surprises.</h2>
+        <p class="section-desc">Transparent pricing. No surprises.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <div class="price-tier">Starter</div>
+          <div class="price-amount"><span class="price-dollar">$</span><span class="price-value">0</span><span class="price-period">/mo</span></div>
+          <p class="price-desc">Explore for free.</p>
+          <ul class="price-list">
+            <li class="yes">1 property</li>
+            <li class="yes">NFT deed + share tokens</li>
+            <li class="yes">Basic dashboard</li>
+            <li class="yes">HCS audit log</li>
+            <li class="no">Mainnet deployment</li>
+            <li class="no">API access</li>
+          </ul>
+          <a href="#early-access" class="btn btn-secondary btn-full">Start Free</a>
+        </div>
+        <div class="price-card featured reveal">
+          <div class="price-badge">Most Popular</div>
+          <div class="price-tier">Pro</div>
+          <div class="price-amount"><span class="price-dollar">$</span><span class="price-value">99</span><span class="price-period">/mo</span></div>
+          <p class="price-desc">For property owners going live.</p>
+          <ul class="price-list">
+            <li class="yes">5 properties (mainnet)</li>
+            <li class="yes">Everything in Starter</li>
+            <li class="yes">Mainnet deployment</li>
+            <li class="yes">Full investor dashboard</li>
+            <li class="yes">Document vault (HCS)</li>
+            <li class="yes">AI structuring</li>
+            <li class="yes">Email support</li>
+          </ul>
+          <a href="#early-access" class="btn btn-primary btn-full">Get Early Access</a>
+          <div class="price-note">+ $199 per property tokenization</div>
+        </div>
+        <div class="price-card reveal">
+          <div class="price-tier">Enterprise</div>
+          <div class="price-amount"><span class="price-dollar">$</span><span class="price-value">499</span><span class="price-period">/mo</span></div>
+          <p class="price-desc">For platforms at scale.</p>
+          <ul class="price-list">
+            <li class="yes">Unlimited properties</li>
+            <li class="yes">Everything in Pro</li>
+            <li class="yes">Full REST API</li>
+            <li class="yes">Webhooks</li>
+            <li class="yes">White-label dashboard</li>
+            <li class="yes">Compliance templates</li>
+            <li class="yes">Priority support</li>
+          </ul>
+          <a href="#early-access" class="btn btn-secondary btn-full">Contact Us</a>
+          <div class="price-note">Custom tokenization pricing</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FAQ ===================== -->
+  <section class="section" id="faq">
+    <div class="container-sm">
+      <div class="section-header center reveal">
+        <span class="section-tag">FAQ</span>
+        <h2>Common questions.</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item reveal">
+          <button class="faq-q"><span>What exactly does DeedSlice do?</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <div class="faq-a"><p>DeedSlice is property tokenization infrastructure on Hedera. For each property we create an NFT master deed, fungible share tokens for fractional ownership, and an HCS audit trail. You get a dashboard to manage everything.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q"><span>Is this a marketplace or investment platform?</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <div class="faq-a"><p>No. DeedSlice is infrastructure — a tokenization engine and management dashboard. We don't broker transactions, hold funds, or promise returns. We create the digital asset layer for your property.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q"><span>Why Hedera instead of Ethereum?</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <div class="faq-a"><p>Hedera is purpose-built for real-world assets. Governed by Google, IBM, FedEx. $0.001 transactions, 3-5 second finality, carbon-negative. HTS provides native token operations without smart contract risks.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q"><span>Do I need a developer?</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <div class="faq-a"><p>No. Enter property details, let AI configure the structure, click deploy. The Enterprise plan includes API access if you want to build custom integrations.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q"><span>What about legal compliance?</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <div class="faq-a"><p>DeedSlice creates digital infrastructure — tokens, records, audit trails. Legal structuring depends on your jurisdiction. We provide compliance templates and recommend qualified counsel. We're infrastructure, not a marketplace.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-q"><span>Can I try it before paying?</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <div class="faq-a"><p>Yes. Starter is free forever. The demo above works right now, no sign-up. Upgrade to Pro when you're ready to scale.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA ===================== -->
+  <section class="section-cta" id="early-access">
+    <div class="container-sm">
+      <h2 class="cta-title reveal">Ready to tokenize your first property?</h2>
+      <p class="cta-desc reveal">Join the early access list. Be among the first to structure real estate as digital assets on Hedera.</p>
+      <form class="cta-form reveal" id="ctaForm">
+        <div class="cta-input-wrap">
+          <input type="email" id="ctaEmail" placeholder="your@email.com" required>
+          <button type="submit" class="btn btn-primary">Request Access →</button>
+        </div>
+        <div class="cta-note">Free forever. No credit card required.</div>
+      </form>
+      <div class="cta-success" id="ctaSuccess">
+        <p>✓ You're on the list. We'll be in touch soon.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">
+            <img src="logo2.png" alt="DeedSlice" class="nav-logo-img">
+          </a>
+          <p class="footer-tagline">Tokenize real estate on Hedera.<br>In minutes, not months.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#features">Features</a>
+          <a href="#demo">Demo</a>
+          <a href="#pricing">Pricing</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="https://github.com/dappily/dappily-agent-kit" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://hedera.com" target="_blank" rel="noopener">Hedera</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="https://x.com/deedslice" target="_blank" rel="noopener">𝕏 @deedslice</a>
+          <a href="mailto:info@deedslice.com">info@deedslice.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 DeedSlice · Powered by <a href="https://dappily.io" target="_blank" rel="noopener">Dappily</a> & <a href="https://hedera.com" target="_blank" rel="noopener">Hedera</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
