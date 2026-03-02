@@ -112,9 +112,9 @@ export async function POST(req: NextRequest) {
       .eq("id", user.id);
 
     return NextResponse.json({
+      ...result,
       ok: true,
       propertyId: property.id,
-      ...result,
     });
   } catch (err) {
     console.error("Tokenize error:", err);
