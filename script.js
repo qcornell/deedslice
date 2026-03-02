@@ -162,16 +162,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Email form
-  const form = document.getElementById('ctaForm');
-  const success = document.getElementById('ctaSuccess');
-  if (form) {
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      if (document.getElementById('ctaEmail').value) {
-        form.style.display = 'none';
-        success.classList.add('show');
-      }
-    });
-  }
+  // (Email form removed — CTA now links directly to console)
 });

@@ -16,14 +16,14 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-ds-card border-r border-ds-border flex flex-col z-40">
-      {/* Logo */}
+      {/* Logo — links back to main site */}
       <div className="h-16 flex items-center px-6 border-b border-ds-border">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <a href="https://deedslice.com" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-ds-accent to-ds-orange flex items-center justify-center text-white font-bold text-sm">
             DS
           </div>
           <span className="text-lg font-semibold">DeedSlice</span>
-        </Link>
+        </a>
       </div>
 
       {/* Nav */}
