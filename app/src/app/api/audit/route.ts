@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({
-      ok: true,
       ...hcsResult,
+      ok: true,
     });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
