@@ -1,21 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase/client";
 import type { Profile } from "@/types/database";
 
 const PLAN_DETAILS = {
-  starter: { name: "Starter", price: "Free", color: "text-ds-muted", properties: "1 testnet", features: ["1 property (testnet)", "NFT deed + share tokens", "Basic dashboard", "HCS audit log"] },
-  pro: { name: "Pro", price: "$99/mo", color: "text-ds-accent-text", properties: "5 mainnet", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (HCS)", "AI structuring", "Email support", "+$199 per property tokenization"] },
-  enterprise: { name: "Enterprise", price: "$499/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "Full REST API", "Webhooks", "White-label dashboard", "Priority support", "Custom domain"] },
+  starter: { name: "Starter", price: "Free", color: "text-ds-muted", properties: "1 property", features: ["1 property", "NFT deed + share tokens", "Basic dashboard", "HCS audit log"] },
+  pro: { name: "Pro", price: "$99.99/mo", color: "text-ds-accent-text", properties: "5 properties", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (HCS)", "AI structuring", "Email support", "+$199 per additional tokenization"] },
+  enterprise: { name: "Enterprise", price: "$499.99/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "Full REST API", "Webhooks", "White-label dashboard", "Priority support", "Custom domain"] },
 };
 
 export default function SettingsPage() {
   const { session, user } = useAuth();
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [upgradeSuccess, setUpgradeSuccess] = useState<string | null>(null);
+
+  // Check for upgrade success redirect
+  useEffect(() => {
+    const upgraded = searchParams.get("upgraded");
+    if (upgraded) {
+      setUpgradeSuccess(upgraded);
+      // Clean URL without reload
+      window.history.replaceState({}, "", "/dashboard/settings");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user) return;
@@ -78,6 +91,18 @@ export default function SettingsPage() {
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
       <h1 className="text-2xl font-bold heading-tight mb-8">Settings</h1>
+
+      {/* Upgrade success banner */}
+      {upgradeSuccess && (
+        <div className="mb-6 bg-ds-green/10 border border-ds-green/30 rounded-xl px-5 py-4 flex items-center gap-3 animate-fade-in">
+          <span className="text-2xl">🎉</span>
+          <div>
+            <div className="font-semibold text-ds-green">Welcome to {PLAN_DETAILS[upgradeSuccess as keyof typeof PLAN_DETAILS]?.name || upgradeSuccess}!</div>
+            <p className="text-xs text-ds-muted mt-0.5">Your plan has been upgraded. New limits are active immediately.</p>
+          </div>
+          <button onClick={() => setUpgradeSuccess(null)} className="ml-auto text-ds-muted hover:text-ds-text text-lg">×</button>
+        </div>
+      )}
 
       {/* Current Plan */}
       <div className="glass rounded-2xl p-6 mb-8">

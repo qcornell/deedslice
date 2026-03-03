@@ -247,6 +247,11 @@ export default function InvestorViewPage() {
           <p className="text-xs text-ds-muted/60 mt-1">
             Powered by <a href="https://deedslice.com" className="text-ds-accent-text hover:underline">DeedSlice</a> · Infrastructure for tokenized real estate
           </p>
+          <div className="flex items-center justify-center gap-4 mt-3 text-[10px] text-ds-muted/50">
+            <a href="/terms" className="hover:text-ds-muted">Terms of Service</a>
+            <span>·</span>
+            <a href="/privacy" className="hover:text-ds-muted">Privacy Policy</a>
+          </div>
         </div>
       </div>
     </div>

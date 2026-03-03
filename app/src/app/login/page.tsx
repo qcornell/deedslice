@@ -151,9 +151,16 @@ export default function LoginPage() {
           </button>
 
           {mode === "signup" && (
-            <p className="text-center text-xs text-ds-muted">
-              Free Starter plan — 1 testnet property, no credit card required.
-            </p>
+            <>
+              <p className="text-center text-xs text-ds-muted">
+                Free Starter plan — 1 property, no credit card required.
+              </p>
+              <p className="text-center text-[10px] text-ds-muted/60">
+                By creating an account, you agree to our{" "}
+                <a href="/terms" className="text-ds-accent hover:underline">Terms of Service</a>{" "}
+                and <a href="/privacy" className="text-ds-accent hover:underline">Privacy Policy</a>.
+              </p>
+            </>
           )}
         </form>
 

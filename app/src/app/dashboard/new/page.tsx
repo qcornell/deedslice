@@ -343,6 +343,10 @@ export default function NewPropertyPage() {
         <p className="text-center text-[10px] text-ds-muted">
           5 on-chain transactions · ~$0.01 total · results in ~10 seconds
         </p>
+        <p className="text-center text-[9px] text-ds-muted/50 mt-1">
+          By deploying, you agree to our <a href="/terms" target="_blank" className="text-ds-accent-text/60 hover:underline">Terms of Service</a>.
+          Blockchain transactions are permanent and irreversible.
+        </p>
       </form>
     </div>
   );

@@ -6,10 +6,14 @@ import type { Profile } from "@/types/database";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-12-18.acacia" as any });
 
-const PLANS = {
-  pro: { name: "DeedSlice Pro", priceMonthly: 9900, propertiesLimit: 5 },
-  enterprise: { name: "DeedSlice Enterprise", priceMonthly: 49900, propertiesLimit: 999 },
-} as const;
+/**
+ * Use existing Stripe Price IDs (created in Stripe Dashboard).
+ * Pro: $99.99/mo  |  Enterprise: $499.99/mo
+ */
+const PLANS: Record<string, { priceId: string; propertiesLimit: number }> = {
+  pro: { priceId: "price_1T6YXyCmXrnPCTDOn3yBZPOG", propertiesLimit: 5 },
+  enterprise: { priceId: "price_1T6YcBCmXrnPCTDOEAnT0uVU", propertiesLimit: 999 },
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
-    const planInfo = PLANS[plan as keyof typeof PLANS];
+    const planInfo = PLANS[plan];
 
     const { data } = await supabaseAdmin.from("ds_profiles").select("*").eq("id", user.id).single();
     const profile = data as Profile | null;
@@ -40,21 +44,13 @@ export async function POST(req: NextRequest) {
       await supabaseAdmin.from("ds_profiles").update({ stripe_customer_id: customerId } as any).eq("id", user.id);
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
-      line_items: [{
-        price_data: {
-          currency: "usd",
-          product_data: { name: planInfo.name, description: `${planInfo.propertiesLimit} properties, mainnet deployment, full dashboard` },
-          unit_amount: planInfo.priceMonthly,
-          recurring: { interval: "month" },
-        },
-        quantity: 1,
-      }],
+      line_items: [{ price: planInfo.priceId, quantity: 1 }],
       success_url: `${appUrl}/dashboard/settings?upgraded=${plan}`,
       cancel_url: `${appUrl}/dashboard/settings?cancelled=true`,
       metadata: { supabase_user_id: user.id, plan },

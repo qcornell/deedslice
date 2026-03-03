@@ -39,11 +39,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (profile.plan === "starter" && profile.properties_used >= 1) {
-      return NextResponse.json({ error: "Starter plan limited to 1 testnet property. Upgrade to Pro." }, { status: 403 });
-    }
-    if (profile.plan === "pro" && profile.properties_used >= 5) {
-      return NextResponse.json({ error: "Pro plan limited to 5 properties. Upgrade to Enterprise." }, { status: 403 });
+    if (profile.properties_used >= profile.properties_limit) {
+      const upgradeMsg = profile.plan === "starter"
+        ? "Starter plan limited to 1 property. Upgrade to Pro for up to 5."
+        : profile.plan === "pro"
+        ? "Pro plan limited to 5 properties. Upgrade to Enterprise for unlimited."
+        : "You've reached your property limit. Contact support.";
+      return NextResponse.json({ error: upgradeMsg }, { status: 403 });
     }
 
     const body = await req.json();
