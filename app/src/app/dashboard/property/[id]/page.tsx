@@ -23,6 +23,16 @@ export default function PropertyDetailPage() {
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Edit mode state
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editValuation, setEditValuation] = useState("");
+  const [editType, setEditType] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+
   useEffect(() => {
     if (!session || !id) return;
     fetch(`/api/properties/${id}`, { headers: getAuthHeaders(session) })
@@ -59,6 +69,58 @@ export default function PropertyDetailPage() {
   // Ownership pie colors
   const pieColors = ["#6c5ce7", "#e17055", "#00b894", "#fdcb6e", "#74b9ff", "#a29bfe", "#ff7675", "#55efc4"];
 
+  function startEditing() {
+    setEditName(property!.name);
+    setEditAddress(property!.address || "");
+    setEditDescription(property!.description || "");
+    setEditValuation(String(property!.valuation_usd));
+    setEditType(property!.property_type);
+    setEditing(true);
+    setSaveMsg("");
+  }
+
+  async function handleSave() {
+    if (!session || !property) return;
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      const res = await fetch(`/api/properties/${id}/update`, {
+        method: "PATCH",
+        headers: getAuthHeaders(session),
+        body: JSON.stringify({
+          name: editName,
+          address: editAddress,
+          description: editDescription,
+          valuation_usd: Number(editValuation),
+          property_type: editType,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      // Update local state
+      setProperty((p) => p ? {
+        ...p,
+        name: editName,
+        address: editAddress || null,
+        description: editDescription || null,
+        valuation_usd: Number(editValuation),
+        property_type: editType as any,
+      } : p);
+      setEditing(false);
+      setSaveMsg(data.changes || "Saved");
+
+      // Refresh audit entries
+      const refreshRes = await fetch(`/api/properties/${id}`, { headers: getAuthHeaders(session) });
+      const refreshData = await refreshRes.json();
+      setAuditEntries(refreshData.auditEntries || []);
+    } catch (err: any) {
+      setSaveMsg(`Error: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="animate-fade-in">
       {/* Back link */}
@@ -83,33 +145,93 @@ export default function PropertyDetailPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold heading-tight">{property.name}</h1>
-          {property.address && <p className="text-ds-muted text-sm mt-0.5">{property.address}</p>}
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${
-              property.status === "live"
-                ? "bg-ds-green/15 text-ds-green border-ds-green/30"
-                : "bg-ds-muted/15 text-ds-muted border-ds-muted/30"
-            }`}>
-              {property.status === "live" && <span className="w-1.5 h-1.5 rounded-full bg-ds-green pulse-green" />}
-              {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
-            </span>
-            <span className="text-xs text-ds-muted">
-              {property.network === "mainnet" ? "Mainnet" : "Testnet"}
-            </span>
-            <span className="text-xs text-ds-muted capitalize">
-              · {property.property_type}
-            </span>
+      {/* Header — view or edit mode */}
+      {editing ? (
+        <div className="glass rounded-2xl p-6 mb-8 space-y-4 animate-fade-in">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-semibold">Edit Property</h2>
+            <button onClick={() => setEditing(false)} className="text-ds-muted hover:text-ds-text text-sm">Cancel</button>
+          </div>
+          <div>
+            <label className="block text-xs text-ds-muted mb-1 uppercase tracking-wider">Name</label>
+            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
+              className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition" />
+          </div>
+          <div>
+            <label className="block text-xs text-ds-muted mb-1 uppercase tracking-wider">Address</label>
+            <input type="text" value={editAddress} onChange={(e) => setEditAddress(e.target.value)}
+              className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-ds-muted mb-1 uppercase tracking-wider">Property Type</label>
+              <select value={editType} onChange={(e) => setEditType(e.target.value)}
+                className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition">
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+                <option value="land">Land</option>
+                <option value="industrial">Industrial</option>
+                <option value="mixed">Mixed Use</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-ds-muted mb-1 uppercase tracking-wider">Valuation (USD)</label>
+              <input type="number" value={editValuation} onChange={(e) => setEditValuation(e.target.value)}
+                className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-ds-muted mb-1 uppercase tracking-wider">Description</label>
+            <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={2}
+              className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition resize-none" />
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={handleSave} disabled={saving}
+              className="text-white font-semibold px-6 py-2.5 rounded-[10px] text-[13px] transition-all disabled:opacity-50 hover:translate-y-[-1px]"
+              style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}>
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+            <span className="text-xs text-ds-muted">Changes are logged to the HCS audit trail</span>
           </div>
         </div>
-        <div className="sm:text-right">
-          <div className="text-2xl sm:text-3xl font-bold">${property.valuation_usd.toLocaleString()}</div>
-          <div className="text-xs text-ds-muted mt-1">${pricePerSlice}/slice · {property.total_slices.toLocaleString()} slices</div>
+      ) : (
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl sm:text-2xl font-bold heading-tight">{property.name}</h1>
+              <button onClick={startEditing} className="text-ds-muted hover:text-ds-accent-text text-xs border border-ds-border hover:border-ds-accent/30 px-2.5 py-1 rounded-lg transition">
+                ✏️ Edit
+              </button>
+            </div>
+            {property.address && <p className="text-ds-muted text-sm mt-0.5">{property.address}</p>}
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${
+                property.status === "live"
+                  ? "bg-ds-green/15 text-ds-green border-ds-green/30"
+                  : "bg-ds-muted/15 text-ds-muted border-ds-muted/30"
+              }`}>
+                {property.status === "live" && <span className="w-1.5 h-1.5 rounded-full bg-ds-green pulse-green" />}
+                {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
+              </span>
+              <span className="text-xs text-ds-muted">
+                {property.network === "mainnet" ? "Mainnet" : "Testnet"}
+              </span>
+              <span className="text-xs text-ds-muted capitalize">
+                · {property.property_type}
+              </span>
+            </div>
+            {saveMsg && (
+              <p className={`text-xs mt-2 ${saveMsg.startsWith("Error") ? "text-ds-red" : "text-ds-green"}`}>
+                ✓ {saveMsg}
+              </p>
+            )}
+          </div>
+          <div className="sm:text-right">
+            <div className="text-2xl sm:text-3xl font-bold">${property.valuation_usd.toLocaleString()}</div>
+            <div className="text-xs text-ds-muted mt-1">${pricePerSlice}/slice · {property.total_slices.toLocaleString()} slices</div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* On-chain Assets Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
