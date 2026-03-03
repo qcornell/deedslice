@@ -1,8 +1,18 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.EMAIL_FROM || "DeedSlice <noreply@deedslice.com>";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com";
+// Lazy init — avoids build-time crash when env vars aren't set yet
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) {
+    const key = process.env.RESEND_API_KEY;
+    if (!key) throw new Error("RESEND_API_KEY not set");
+    _resend = new Resend(key);
+  }
+  return _resend;
+}
+
+const FROM = () => process.env.EMAIL_FROM || "DeedSlice <noreply@deedslice.com>";
+const APP_URL = () => process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com";
 
 // ─── Shared styles ──────────────────────────────────────────
 const BRAND = "#0D9488";
@@ -72,13 +82,13 @@ export async function sendWelcomeEmail(to: string, name?: string) {
       <li>Shareable investor dashboard</li>
     </ul>
     ${p("Try tokenizing a property in the sandbox — it's free and takes about 10 seconds.")}
-    ${button("Launch Console →", `${APP_URL}/dashboard`)}
+    ${button("Launch Console →", `${APP_URL()}/dashboard`)}
     ${divider()}
     ${muted("Ready for mainnet? Upgrade to <strong>Pro ($99.99/mo)</strong> for up to 5 live properties, document vault, and investor management.")}
   `);
 
-  return resend.emails.send({
-    from: FROM,
+  return getResend().emails.send({
+    from: FROM(),
     to,
     subject: "Welcome to DeedSlice 🏠",
     html,
@@ -113,15 +123,15 @@ export async function sendTokenizationEmail(
     </div>
     ${p("Share your investor dashboard link:")}
     <div style="background:${BG};border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;color:${BRAND};margin-bottom:16px;word-break:break-all;">
-      ${APP_URL}/view/${propertyId}
+      ${APP_URL()}/view/${propertyId}
     </div>
-    ${button("View Property Dashboard →", `${APP_URL}/dashboard/property/${propertyId}`)}
+    ${button("View Property Dashboard →", `${APP_URL()}/dashboard/property/${propertyId}`)}
     ${divider()}
     ${muted("Every transaction is permanently recorded on Hedera Consensus Service. Verify on <a href='${hashscan}' style='color:${BRAND};'>HashScan</a>.")}
   `);
 
-  return resend.emails.send({
-    from: FROM,
+  return getResend().emails.send({
+    from: FROM(),
     to,
     subject: `✅ ${propertyName} — Tokenized on Hedera ${networkLabel}`,
     html,
@@ -147,11 +157,11 @@ export async function sendInvestorAddedEmail(
       </table>
     </div>
     ${p("This change has been logged to the HCS audit trail.")}
-    ${button("View Investors →", `${APP_URL}/dashboard/property/${propertyId}`)}
+    ${button("View Investors →", `${APP_URL()}/dashboard/property/${propertyId}`)}
   `);
 
-  return resend.emails.send({
-    from: FROM,
+  return getResend().emails.send({
+    from: FROM(),
     to,
     subject: `👥 ${investorName} added to ${propertyName}`,
     html,
@@ -167,17 +177,17 @@ export async function sendUpgradeEmail(to: string, plan: string) {
       ? "You now have access to <strong>5 mainnet properties</strong>, document vault with SHA-256 verification, and full investor management."
       : "You now have <strong>unlimited properties</strong>, full REST API, webhooks, white-label dashboard, and priority support."
     )}
-    ${button("Start Tokenizing →", `${APP_URL}/dashboard/new`)}
+    ${button("Start Tokenizing →", `${APP_URL()}/dashboard/new`)}
     ${divider()}
     ${muted("Your subscription is managed through Stripe. Manage billing in Settings.")}
   `);
 
-  return resend.emails.send({
-    from: FROM,
+  return getResend().emails.send({
+    from: FROM(),
     to,
     subject: `🚀 Upgraded to DeedSlice ${planName}`,
     html,
   });
 }
 
-export { resend };
+export { getResend as resend };
