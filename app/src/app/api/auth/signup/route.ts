@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,6 +31,11 @@ export async function POST(req: NextRequest) {
     } as any);
 
     const { data: signIn } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+
+    // Send welcome email (fire and forget)
+    sendWelcomeEmail(email, fullName || undefined).catch((err) =>
+      console.error("Welcome email failed:", err)
+    );
 
     return NextResponse.json({
       ok: true,

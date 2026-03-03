@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { tokenizeProperty } from "@/lib/hedera/engine";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
+import { sendTokenizationEmail } from "@/lib/email";
 import type { Profile, Property } from "@/types/database";
 
 export async function POST(req: NextRequest) {
@@ -133,6 +134,18 @@ export async function POST(req: NextRequest) {
       .from("ds_profiles")
       .update({ properties_used: profile.properties_used + 1 } as any)
       .eq("id", user.id);
+
+    // Send tokenization confirmation email (fire and forget)
+    sendTokenizationEmail(
+      profile.email,
+      name,
+      property.id,
+      deployNetwork,
+      valuationUsd,
+      totalSlices,
+      result.nftTokenId!,
+      result.shareTokenId!,
+    ).catch((err) => console.error("Tokenization email failed:", err));
 
     return NextResponse.json({
       ...result,

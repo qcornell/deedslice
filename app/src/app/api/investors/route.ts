@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
 import { logAuditEntry } from "@/lib/hedera/engine";
+import { sendInvestorAddedEmail } from "@/lib/email";
 import type { Property } from "@/types/database";
 
 /** POST /api/investors — add or update an investor for a property */
@@ -91,6 +92,19 @@ export async function POST(req: NextRequest) {
       action: "INVESTOR_ADDED",
       details: `${name} allocated ${slicesOwned} slices (${percentage}%)`,
     } as any);
+
+    // Notify property owner via email (fire and forget)
+    const ownerEmail = user.email;
+    if (ownerEmail) {
+      sendInvestorAddedEmail(
+        ownerEmail,
+        property.name,
+        propertyId,
+        name,
+        slicesOwned,
+        percentage,
+      ).catch((err) => console.error("Investor email failed:", err));
+    }
 
     return NextResponse.json({ ok: true, investor });
   } catch {

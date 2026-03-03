@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { sendUpgradeEmail } from "@/lib/email";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-12-18.acacia" as any });
@@ -33,6 +34,14 @@ export async function POST(req: NextRequest) {
           properties_limit: PLAN_LIMITS[plan] || 1,
           stripe_subscription_id: subscriptionId,
         } as any).eq("id", userId);
+
+        // Send upgrade email
+        const { data: profile } = await supabaseAdmin.from("ds_profiles").select("email").eq("id", userId).single();
+        if (profile && (profile as any).email) {
+          sendUpgradeEmail((profile as any).email, plan).catch((err) =>
+            console.error("Upgrade email failed:", err)
+          );
+        }
       }
       break;
     }
