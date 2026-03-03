@@ -258,9 +258,9 @@ input, select { font-family: inherit; }
 /* Property image in mockup */
 .mock-property-img {
   position: relative; border-radius: 8px; overflow: hidden; margin-bottom: 12px;
-  height: 160px;
+  aspect-ratio: 16 / 10;
 }
-.mock-property-img img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.mock-property-img img { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
 .mock-property-overlay {
   position: absolute; bottom: 8px; left: 8px;
 }
