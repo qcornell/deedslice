@@ -204,7 +204,7 @@ export default function NewPropertyPage() {
         </div>
 
         {/* Row: Type + Valuation */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs text-ds-muted mb-1.5 uppercase tracking-wider">Property Type</label>
             <select
@@ -467,7 +467,7 @@ function TokenizationSuccess({
 
       <div className={`relative z-10 transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
         <div className="ds-glow">
-          <div className="glass rounded-[24px] p-10 text-center relative z-10 overflow-hidden">
+          <div className="glass rounded-[24px] p-6 sm:p-10 text-center relative z-10 overflow-hidden">
             {/* Shimmer border effect */}
             <div className="absolute inset-0 rounded-[24px] p-[1px] pointer-events-none overflow-hidden">
               <div className="absolute -inset-full animate-spin-slow"
@@ -490,14 +490,14 @@ function TokenizationSuccess({
               </div>
             </div>
 
-            <h1 className="text-3xl font-extrabold heading-tight mb-2 bg-gradient-to-r from-ds-accent via-emerald-400 to-indigo-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl font-extrabold heading-tight mb-2 bg-gradient-to-r from-ds-accent via-emerald-400 to-indigo-400 bg-clip-text text-transparent">
               Property Tokenized!
             </h1>
             <p className="text-ds-muted mb-1">{name} is now <span className="text-ds-green font-semibold">live on Hedera {HEDERA_NETWORK === "mainnet" ? "Mainnet" : "Testnet"}</span></p>
 
             {/* Big valuation counter */}
             <div className="my-6 py-5 rounded-2xl" style={{ background: "linear-gradient(135deg, rgba(13,148,136,0.06) 0%, rgba(99,102,241,0.04) 100%)" }}>
-              <div className="text-5xl font-extrabold tracking-tight" style={{ fontVariantNumeric: "tabular-nums" }}>
+              <div className="text-3xl sm:text-5xl font-extrabold tracking-tight" style={{ fontVariantNumeric: "tabular-nums" }}>
                 ${countedVal.toLocaleString()}
               </div>
               <div className="text-sm text-ds-muted mt-1">
@@ -543,7 +543,7 @@ function TokenizationSuccess({
               🔗 Share your investor dashboard: <span className="font-mono text-ds-accent-text">console.deedslice.com/view/{propertyId}</span>
             </p>
 
-            <div className="flex gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 onClick={() => router.push(`/dashboard/property/${propertyId}`)}
                 className="text-white font-semibold px-8 py-3.5 rounded-[12px] transition-all text-[14px] hover:translate-y-[-2px] hover:shadow-lg"

@@ -97,11 +97,10 @@ export default function InvestorViewPage() {
         )}
 
         {/* Property Header */}
-        <div className="glass rounded-2xl p-8 mb-6">
-          <div className="flex items-start justify-between flex-wrap gap-4">
+        <div className="glass rounded-2xl p-5 sm:p-8 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
-              {!property.image_url && <h1 className="text-3xl font-bold">{property.name}</h1>}
-              {property.image_url && <h1 className="text-3xl font-bold">{property.name}</h1>}
+              <h1 className="text-2xl sm:text-3xl font-bold">{property.name}</h1>
               {property.address && <p className="text-ds-muted mt-1">{property.address}</p>}
               <div className="flex items-center gap-3 mt-3">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-ds-green/15 text-ds-green border-ds-green/30">
@@ -115,8 +114,8 @@ export default function InvestorViewPage() {
                 )}
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold">${property.valuation_usd.toLocaleString()}</div>
+            <div className="sm:text-right">
+              <div className="text-3xl sm:text-4xl font-bold">${property.valuation_usd.toLocaleString()}</div>
               <div className="text-sm text-ds-muted mt-1">
                 {property.total_slices.toLocaleString()} slices · ${pricePerSlice}/slice
               </div>
@@ -159,7 +158,7 @@ export default function InvestorViewPage() {
         </div>
 
         {/* CTA for investors */}
-        <div className="glass rounded-2xl p-8 mb-6 text-center glow-border">
+        <div className="glass rounded-2xl p-5 sm:p-8 mb-6 text-center glow-border">
           <h2 className="text-xl font-bold mb-2">Interested in Investing?</h2>
           <p className="text-ds-muted text-sm mb-5">
             Own a piece of <strong>{property.name}</strong> — verified on Hedera blockchain, backed by a real deed.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Sidebar from "@/components/Sidebar";
@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -28,10 +29,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen ds-dotgrid">
-      <Sidebar />
-      <div className="ml-64 relative z-10">
-        <Header />
-        <main className="p-8">{children}</main>
+      <Sidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="lg:ml-64 relative z-10">
+        <Header onMenuToggle={() => setSidebarOpen((o) => !o)} />
+        <main className="p-4 md:p-8">{children}</main>
       </div>
     </div>
   );

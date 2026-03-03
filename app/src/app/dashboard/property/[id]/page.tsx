@@ -84,11 +84,11 @@ export default function PropertyDetailPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold heading-tight">{property.name}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold heading-tight">{property.name}</h1>
           {property.address && <p className="text-ds-muted text-sm mt-0.5">{property.address}</p>}
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
             <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${
               property.status === "live"
                 ? "bg-ds-green/15 text-ds-green border-ds-green/30"
@@ -105,14 +105,14 @@ export default function PropertyDetailPage() {
             </span>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-3xl font-bold">${property.valuation_usd.toLocaleString()}</div>
+        <div className="sm:text-right">
+          <div className="text-2xl sm:text-3xl font-bold">${property.valuation_usd.toLocaleString()}</div>
           <div className="text-xs text-ds-muted mt-1">${pricePerSlice}/slice · {property.total_slices.toLocaleString()} slices</div>
         </div>
       </div>
 
       {/* On-chain Assets Grid */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {/* NFT Deed */}
         <div className="glass rounded-xl p-5">
           <div className="flex items-center gap-2 text-sm text-ds-muted mb-3">
@@ -308,16 +308,16 @@ export default function PropertyDetailPage() {
             <p className="text-xs text-ds-muted">Share a read-only view with your investors</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex-1 bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm font-mono text-ds-muted">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="flex-1 bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-xs sm:text-sm font-mono text-ds-muted truncate">
             console.deedslice.com/view/{id}
           </div>
           <button
             onClick={() => navigator.clipboard.writeText(`https://console.deedslice.com/view/${id}`)}
-            className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px]"
+            className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px] shrink-0"
             style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
           >
-            Copy
+            Copy Link
           </button>
         </div>
       </div>

@@ -102,8 +102,8 @@ export default function InvestorsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Investor List */}
-          <div>
+          {/* Left: Investor List — full width on mobile, shows first */}
+          <div className="order-2 lg:order-1">
             {/* Property selector */}
             <div className="mb-4">
               <select
@@ -168,8 +168,8 @@ export default function InvestorsPage() {
             </div>
           </div>
 
-          {/* Right: Add Investor Form */}
-          <div className="glass rounded-2xl p-6">
+          {/* Right: Add Investor Form — shows first on mobile */}
+          <div className="glass rounded-2xl p-6 order-1 lg:order-2">
             <h2 className="font-semibold mb-4">Add Investor</h2>
             <form onSubmit={handleAddInvestor} className="space-y-4">
               <div>

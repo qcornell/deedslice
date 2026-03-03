@@ -35,14 +35,14 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold heading-tight">Properties</h1>
           <p className="text-sm mt-1" style={{ color: "var(--ds-muted)" }}>Manage your tokenized real estate assets</p>
         </div>
         <Link
           href="/dashboard/new"
-          className="text-white font-semibold px-5 py-2.5 rounded-[10px] text-[13px] transition-all hover:translate-y-[-1px]"
+          className="text-white font-semibold px-5 py-2.5 rounded-[10px] text-[13px] transition-all hover:translate-y-[-1px] text-center shrink-0"
           style={{
             background: "#0D9488",
             boxShadow: "0 2px 8px rgba(13,148,136,0.25), 0 1px 2px rgba(13,148,136,0.15)",
@@ -85,7 +85,7 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {properties.map((p, i) => (
             <Link
               key={p.id}

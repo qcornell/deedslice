@@ -62,7 +62,7 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 space-y-5 border border-ds-border shadow-lg" style={{
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 sm:p-8 space-y-5 border border-ds-border shadow-lg" style={{
           boxShadow: "0 12px 36px rgba(15,23,42,0.08), 0 4px 12px rgba(15,23,42,0.04)",
         }}>
           {/* Tabs */}
