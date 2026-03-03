@@ -26,10 +26,17 @@ import {
   Hbar,
 } from "@hashgraph/sdk";
 
+import {
+  HEDERA_NETWORK,
+  formatTxUrlSafe,
+  getTokenUrl,
+  getTopicUrl,
+} from "./config";
+
 // ── Config ──────────────────────────────────────────────────
 const OPERATOR_ID = process.env.HEDERA_OPERATOR_ID!;
 const OPERATOR_KEY = process.env.HEDERA_OPERATOR_KEY!;
-const NETWORK = (process.env.HEDERA_NETWORK || "testnet") as "mainnet" | "testnet";
+const NETWORK = HEDERA_NETWORK;
 
 function getClient(): Client {
   const client = NETWORK === "mainnet" ? Client.forMainnet() : Client.forTestnet();
@@ -41,23 +48,9 @@ function getClient(): Client {
   return client;
 }
 
+/** @deprecated Use formatTxUrlSafe from config.ts instead */
 function getExplorerUrl(txId: string): string {
-  const formatted = txId.replace(/@/g, "-").replace(/\./g, "-");
-  return NETWORK === "mainnet"
-    ? `https://hashscan.io/mainnet/transaction/${formatted}`
-    : `https://hashscan.io/testnet/transaction/${formatted}`;
-}
-
-function getTokenUrl(tokenId: string): string {
-  return NETWORK === "mainnet"
-    ? `https://hashscan.io/mainnet/token/${tokenId}`
-    : `https://hashscan.io/testnet/token/${tokenId}`;
-}
-
-function getTopicUrl(topicId: string): string {
-  return NETWORK === "mainnet"
-    ? `https://hashscan.io/mainnet/topic/${topicId}`
-    : `https://hashscan.io/testnet/topic/${topicId}`;
+  return formatTxUrlSafe(txId);
 }
 
 // ── Types ───────────────────────────────────────────────────
@@ -277,4 +270,4 @@ export async function logAuditEntry(topicId: string, action: string, details: Re
   }
 }
 
-export { getExplorerUrl, getTokenUrl, getTopicUrl, NETWORK };
+export { getExplorerUrl, getTokenUrl, getTopicUrl, NETWORK, formatTxUrlSafe };

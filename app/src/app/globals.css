@@ -144,3 +144,10 @@ input:focus, select:focus, textarea:focus {
 /* ============= TYPOGRAPHY UTILITIES ============= */
 .heading-tight { letter-spacing: -0.025em; }
 .title-tight { letter-spacing: -0.01em; }
+
+/* ============= CELEBRATION ANIMATIONS ============= */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow { animation: spin-slow 4s linear infinite; }

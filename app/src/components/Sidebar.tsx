@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { HEDERA_NETWORK } from "@/lib/hedera/config";
 
 const navItems = [
   { href: "/dashboard", label: "Properties", icon: "🏠" },
@@ -13,6 +14,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const isMainnet = HEDERA_NETWORK === "mainnet";
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-ds-navy flex flex-col z-40" style={{
@@ -50,8 +52,8 @@ export default function Sidebar() {
       {/* Network indicator */}
       <div className="p-4 border-t border-white/[0.06]">
         <div className="flex items-center gap-2 text-[11px] text-white/40">
-          <div className="w-1.5 h-1.5 rounded-full bg-ds-green pulse-green" />
-          <span>Hedera Testnet</span>
+          <div className={`w-1.5 h-1.5 rounded-full ${isMainnet ? "bg-ds-green pulse-green" : "bg-yellow-400"}`} />
+          <span>{isMainnet ? "Hedera Mainnet" : "Hedera Testnet"}</span>
         </div>
         <div className="mt-2 text-[10px] text-white/20">
           Powered by dappily-agent-kit

@@ -4,17 +4,14 @@ import { useEffect, useState } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { HASHSCAN_BASE } from "@/lib/hedera/config";
 import type { Property, Investor, AuditEntry } from "@/types/database";
 
-function getTokenUrl(id: string, network: string) {
-  return network === "mainnet"
-    ? `https://hashscan.io/mainnet/token/${id}`
-    : `https://hashscan.io/testnet/token/${id}`;
+function getTokenUrl(id: string, _network?: string) {
+  return `${HASHSCAN_BASE}/token/${id}`;
 }
-function getTopicUrl(id: string, network: string) {
-  return network === "mainnet"
-    ? `https://hashscan.io/mainnet/topic/${id}`
-    : `https://hashscan.io/testnet/topic/${id}`;
+function getTopicUrl(id: string, _network?: string) {
+  return `${HASHSCAN_BASE}/topic/${id}`;
 }
 
 export default function PropertyDetailPage() {
@@ -295,10 +292,10 @@ export default function PropertyDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           <div className="flex-1 bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm font-mono text-ds-muted">
-            deedslice.com/view/{id}
+            console.deedslice.com/view/{id}
           </div>
           <button
-            onClick={() => navigator.clipboard.writeText(`https://deedslice.com/view/${id}`)}
+            onClick={() => navigator.clipboard.writeText(`https://console.deedslice.com/view/${id}`)}
             className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px]"
             style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
           >

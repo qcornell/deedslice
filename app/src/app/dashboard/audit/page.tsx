@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
+import { HEDERA_NETWORK, HASHSCAN_BASE } from "@/lib/hedera/config";
 import type { Property, AuditEntry } from "@/types/database";
 
 export default function AuditPage() {
@@ -126,7 +127,16 @@ export default function AuditPage() {
                     )}
                     {entry.tx_id && (
                       <a
-                        href={`https://hashscan.io/testnet/transaction/${entry.tx_id.replace(/@/g, "-").replace(/\./g, "-")}`}
+                        href={(() => {
+                          // Format: "0.0.XXXXXX@seconds.nanos" → "0.0.XXXXXX-seconds-nanos"
+                          const parts = entry.tx_id.split("@");
+                          if (parts.length === 2) {
+                            const acct = parts[0]; // keep dots in account ID
+                            const ts = parts[1].replace(".", "-");
+                            return `${HASHSCAN_BASE}/transaction/${acct}-${ts}`;
+                          }
+                          return `${HASHSCAN_BASE}/transaction/${entry.tx_id}`;
+                        })()}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[10px] text-ds-accent-text hover:underline font-mono"

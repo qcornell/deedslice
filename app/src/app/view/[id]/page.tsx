@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { HASHSCAN_BASE, HEDERA_NETWORK } from "@/lib/hedera/config";
 import type { Property, Investor, AuditEntry } from "@/types/database";
 
 /**
@@ -60,7 +61,7 @@ export default function InvestorViewPage() {
   }
 
   const pricePerSlice = Math.round(property.valuation_usd / property.total_slices);
-  const network = property.network;
+  const network = property.network || HEDERA_NETWORK;
 
   return (
     <div className="min-h-screen bg-ds-bg p-4 md:p-8">
@@ -77,7 +78,7 @@ export default function InvestorViewPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-ds-green pulse-green" />
+            <span className={`w-2 h-2 rounded-full ${network === "mainnet" ? "bg-ds-green pulse-green" : "bg-yellow-400"}`} />
             <span className="text-xs text-ds-muted">{network === "mainnet" ? "Hedera Mainnet" : "Hedera Testnet"}</span>
           </div>
         </div>
@@ -112,7 +113,7 @@ export default function InvestorViewPage() {
         {/* On-chain verification */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <a
-            href={`https://hashscan.io/${network}/token/${property.nft_token_id}`}
+            href={`${HASHSCAN_BASE}/token/${property.nft_token_id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="glass rounded-xl p-4 hover:border-ds-accent/30 transition group"
@@ -122,7 +123,7 @@ export default function InvestorViewPage() {
             <div className="text-[10px] text-ds-muted mt-1">Serial #{property.nft_serial} · Verify on HashScan →</div>
           </a>
           <a
-            href={`https://hashscan.io/${network}/token/${property.share_token_id}`}
+            href={`${HASHSCAN_BASE}/token/${property.share_token_id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="glass rounded-xl p-4 hover:border-ds-accent/30 transition group"
@@ -132,7 +133,7 @@ export default function InvestorViewPage() {
             <div className="text-[10px] text-ds-muted mt-1">{property.total_slices.toLocaleString()} total supply · Verify on HashScan →</div>
           </a>
           <a
-            href={`https://hashscan.io/${network}/topic/${property.audit_topic_id}`}
+            href={`${HASHSCAN_BASE}/topic/${property.audit_topic_id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="glass rounded-xl p-4 hover:border-ds-accent/30 transition group"
@@ -141,6 +142,32 @@ export default function InvestorViewPage() {
             <div className="font-mono text-sm text-ds-accent-text group-hover:underline">{property.audit_topic_id}</div>
             <div className="text-[10px] text-ds-muted mt-1">{auditEntries.length} entries · Verify on HashScan →</div>
           </a>
+        </div>
+
+        {/* CTA for investors */}
+        <div className="glass rounded-2xl p-8 mb-6 text-center glow-border">
+          <h2 className="text-xl font-bold mb-2">Interested in Investing?</h2>
+          <p className="text-ds-muted text-sm mb-5">
+            Own a piece of <strong>{property.name}</strong> — verified on Hedera blockchain, backed by a real deed.
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <a
+              href={`mailto:invest@deedslice.com?subject=Interest in ${encodeURIComponent(property.name)}&body=I'm interested in investing in ${encodeURIComponent(property.name)} (${property.total_slices.toLocaleString()} slices at $${pricePerSlice}/slice).`}
+              className="inline-flex text-white font-semibold px-8 py-3 rounded-[10px] text-[14px] transition-all hover:translate-y-[-2px]"
+              style={{
+                background: "linear-gradient(135deg, #0D9488 0%, #0F766E 100%)",
+                boxShadow: "0 4px 14px rgba(13,148,136,0.3), 0 1px 3px rgba(13,148,136,0.2)",
+              }}
+            >
+              Invest in this Property →
+            </a>
+            <a
+              href="https://deedslice.com"
+              className="inline-flex border border-ds-border text-ds-muted font-medium px-6 py-3 rounded-[10px] hover:border-ds-muted transition text-sm"
+            >
+              Learn about DeedSlice
+            </a>
+          </div>
         </div>
 
         {/* Ownership + Audit */}
