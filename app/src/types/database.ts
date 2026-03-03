@@ -144,6 +144,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      ds_documents: {
+        Row: {
+          id: string;
+          property_id: string;
+          uploaded_by: string;
+          label: string;
+          document_type: string;
+          file_name: string;
+          file_size: number;
+          mime_type: string;
+          storage_path: string;
+          sha256_hash: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          property_id: string;
+          uploaded_by: string;
+          label: string;
+          document_type?: string;
+          file_name: string;
+          file_size: number;
+          mime_type: string;
+          storage_path: string;
+          sha256_hash: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          property_id?: string;
+          uploaded_by?: string;
+          label?: string;
+          document_type?: string;
+          file_name?: string;
+          file_size?: number;
+          mime_type?: string;
+          storage_path?: string;
+          sha256_hash?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       ds_audit_entries: {
         Row: {
           id: string;
@@ -195,3 +237,4 @@ export type Profile = Database["public"]["Tables"]["ds_profiles"]["Row"];
 export type Property = Database["public"]["Tables"]["ds_properties"]["Row"];
 export type Investor = Database["public"]["Tables"]["ds_investors"]["Row"];
 export type AuditEntry = Database["public"]["Tables"]["ds_audit_entries"]["Row"];
+export type Document = Database["public"]["Tables"]["ds_documents"]["Row"];

@@ -3,10 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import ImageUpload from "@/components/ImageUpload";
+import DocumentVault from "@/components/DocumentVault";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
-import type { Property, Investor, AuditEntry } from "@/types/database";
+import type { Property, Investor, AuditEntry, Document } from "@/types/database";
 
 function getTokenUrl(id: string, _network?: string) {
   return `${HASHSCAN_BASE}/token/${id}`;
@@ -21,6 +22,7 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<Property | null>(null);
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Edit mode state
@@ -35,6 +37,7 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     if (!session || !id) return;
+    // Load property + investors + audit
     fetch(`/api/properties/${id}`, { headers: getAuthHeaders(session) })
       .then((r) => r.json())
       .then((d) => {
@@ -43,6 +46,11 @@ export default function PropertyDetailPage() {
         setAuditEntries(d.auditEntries || []);
       })
       .finally(() => setLoading(false));
+    // Load documents
+    fetch(`/api/documents?propertyId=${id}`, { headers: getAuthHeaders(session) })
+      .then((r) => r.json())
+      .then((d) => setDocuments(d.documents || []))
+      .catch(() => {});
   }, [session, id]);
 
   if (loading) {
@@ -421,7 +429,23 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
-      {/* Shareable Investor Link (future) */}
+      {/* Document Vault */}
+      <div className="mt-6">
+        <DocumentVault
+          session={session}
+          propertyId={id}
+          documents={documents}
+          onDocumentAdded={(doc) => {
+            setDocuments((prev) => [doc, ...prev]);
+            // Refresh audit entries to show the new DOCUMENT_ADDED entry
+            fetch(`/api/properties/${id}`, { headers: getAuthHeaders(session!) })
+              .then((r) => r.json())
+              .then((d) => setAuditEntries(d.auditEntries || []));
+          }}
+        />
+      </div>
+
+      {/* Shareable Investor Link */}
       <div className="mt-8 glass rounded-2xl p-6 glow-border">
         <div className="flex items-center gap-3 mb-3">
           <span className="text-2xl">🔗</span>
