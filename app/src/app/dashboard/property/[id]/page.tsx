@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
+import ImageUpload from "@/components/ImageUpload";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
@@ -64,6 +65,23 @@ export default function PropertyDetailPage() {
       <Link href="/dashboard" className="text-ds-muted hover:text-ds-text text-sm mb-6 inline-block">
         ← All Properties
       </Link>
+
+      {/* Property Image */}
+      {property.image_url ? (
+        <div className="rounded-2xl overflow-hidden mb-6 h-56 relative group">
+          <img src={property.image_url} alt={property.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        </div>
+      ) : (
+        <div className="mb-6">
+          <ImageUpload
+            session={session}
+            propertyId={id}
+            currentUrl={null}
+            onUploaded={(url) => setProperty((p) => p ? { ...p, image_url: url } : p)}
+          />
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-start justify-between mb-8">

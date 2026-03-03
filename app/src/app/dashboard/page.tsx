@@ -90,9 +90,26 @@ export default function DashboardPage() {
             <Link
               key={p.id}
               href={`/dashboard/property/${p.id}`}
-              className="glass rounded-[16px] p-6 group animate-fade-in"
+              className="glass rounded-[16px] overflow-hidden group animate-fade-in"
               style={{ animationDelay: `${i * 60}ms` }}
             >
+              {/* Property Image */}
+              {p.image_url ? (
+                <div className="w-full h-36 overflow-hidden">
+                  <img
+                    src={p.image_url}
+                    alt={p.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-36 flex items-center justify-center text-4xl"
+                  style={{ background: "linear-gradient(135deg, rgba(13,148,136,0.06) 0%, rgba(99,102,241,0.04) 100%)" }}>
+                  🏠
+                </div>
+              )}
+
+              <div className="p-6">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -138,6 +155,7 @@ export default function DashboardPage() {
                 {p.network === "mainnet" ? "Hedera Mainnet" : "Hedera Testnet"}
                 {p.deployed_at && ` · ${new Date(p.deployed_at).toLocaleDateString()}`}
               </div>
+              </div>{/* end p-6 wrapper */}
             </Link>
           ))}
         </div>

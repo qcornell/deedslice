@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, address, propertyType, valuationUsd, totalSlices, description } = body;
+    const { name, address, propertyType, valuationUsd, totalSlices, description, imageUrl } = body;
 
     if (!name || !valuationUsd || !totalSlices) {
       return NextResponse.json({ error: "Missing required fields: name, valuationUsd, totalSlices" }, { status: 400 });
@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
         valuation_usd: valuationUsd,
         total_slices: totalSlices,
         description: description || null,
+        image_url: imageUrl || null,
         status: "deploying",
         network: process.env.HEDERA_NETWORK === "mainnet" ? "mainnet" : "testnet",
       } as any)

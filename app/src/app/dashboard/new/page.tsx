@@ -5,6 +5,7 @@ import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { HEDERA_NETWORK, HASHSCAN_BASE } from "@/lib/hedera/config";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import ImageUpload from "@/components/ImageUpload";
 
 interface TxStep {
   step: string;
@@ -29,6 +30,7 @@ export default function NewPropertyPage() {
   const [valuationUsd, setValuationUsd] = useState("");
   const [totalSlices, setTotalSlices] = useState("1000");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [fetchingValue, setFetchingValue] = useState(false);
   const [valuationSource, setValuationSource] = useState<string | null>(null);
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails>({});
@@ -63,6 +65,7 @@ export default function NewPropertyPage() {
           valuationUsd: Number(valuationUsd),
           totalSlices: Number(totalSlices),
           description,
+          imageUrl,
         }),
       });
 
@@ -105,6 +108,16 @@ export default function NewPropertyPage() {
       </div>
 
       <form onSubmit={handleDeploy} className="glass rounded-2xl p-8 space-y-6">
+        {/* Property Image */}
+        <div>
+          <label className="block text-xs text-ds-muted mb-1.5 uppercase tracking-wider">Property Photo</label>
+          <ImageUpload
+            session={session}
+            currentUrl={imageUrl}
+            onUploaded={(url) => setImageUrl(url)}
+          />
+        </div>
+
         {/* Property Name */}
         <div>
           <label className="block text-xs text-ds-muted mb-1.5 uppercase tracking-wider">Property Name *</label>

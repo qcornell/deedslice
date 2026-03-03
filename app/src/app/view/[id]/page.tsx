@@ -83,11 +83,25 @@ export default function InvestorViewPage() {
           </div>
         </div>
 
+        {/* Property Image (hero) */}
+        {property.image_url && (
+          <div className="rounded-2xl overflow-hidden mb-6 h-64 relative">
+            <img src={property.image_url} alt={property.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute bottom-4 left-6 text-white">
+              <div className="text-xs uppercase tracking-wider opacity-80">{property.property_type}</div>
+              <h1 className="text-2xl font-bold">{property.name}</h1>
+              {property.address && <p className="text-sm opacity-80 mt-0.5">{property.address}</p>}
+            </div>
+          </div>
+        )}
+
         {/* Property Header */}
         <div className="glass rounded-2xl p-8 mb-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold">{property.name}</h1>
+              {!property.image_url && <h1 className="text-3xl font-bold">{property.name}</h1>}
+              {property.image_url && <h1 className="text-3xl font-bold">{property.name}</h1>}
               {property.address && <p className="text-ds-muted mt-1">{property.address}</p>}
               <div className="flex items-center gap-3 mt-3">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-ds-green/15 text-ds-green border-ds-green/30">
