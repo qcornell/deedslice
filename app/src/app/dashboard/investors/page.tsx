@@ -90,8 +90,8 @@ export default function InvestorsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-2">Investors</h1>
+    <div className="max-w-4xl mx-auto animate-fade-in">
+      <h1 className="text-2xl font-bold heading-tight mb-2">Investors</h1>
       <p className="text-ds-muted text-sm mb-8">Manage ownership distribution for your properties</p>
 
       {properties.length === 0 ? (
@@ -218,7 +218,8 @@ export default function InvestorsPage() {
               <button
                 type="submit"
                 disabled={adding || !name || !slices}
-                className="w-full bg-gradient-to-r from-ds-accent to-ds-orange text-white font-medium py-2.5 rounded-lg hover:opacity-90 transition disabled:opacity-50 text-sm"
+                className="w-full text-white font-semibold py-2.5 rounded-[10px] transition-all disabled:opacity-50 text-[13px] hover:translate-y-[-1px]"
+                style={{ background: "linear-gradient(135deg, #0D9488, #e17055)", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
               >
                 {adding ? "Adding..." : "Add Investor"}
               </button>

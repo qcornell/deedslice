@@ -76,8 +76,8 @@ export default function SettingsPage() {
   const planInfo = PLAN_DETAILS[currentPlan as keyof typeof PLAN_DETAILS];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8">Settings</h1>
+    <div className="max-w-4xl mx-auto animate-fade-in">
+      <h1 className="text-2xl font-bold heading-tight mb-8">Settings</h1>
 
       {/* Current Plan */}
       <div className="glass rounded-2xl p-6 mb-8">
@@ -141,7 +141,8 @@ export default function SettingsPage() {
                 <button
                   onClick={() => handleUpgrade(key as "pro" | "enterprise")}
                   disabled={!!upgrading}
-                  className="w-full bg-gradient-to-r from-ds-accent to-ds-orange text-white font-medium py-2.5 rounded-lg hover:opacity-90 transition text-sm disabled:opacity-50"
+                  className="w-full text-white font-semibold py-2.5 rounded-[10px] transition-all text-[13px] disabled:opacity-50 hover:translate-y-[-1px]"
+                  style={{ background: "linear-gradient(135deg, #0D9488, #e17055)", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
                 >
                   {upgrading === key ? "Redirecting..." : `Upgrade to ${plan.name}`}
                 </button>

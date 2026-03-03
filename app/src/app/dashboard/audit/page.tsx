@@ -55,10 +55,10 @@ export default function AuditPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold">Audit Trail</h1>
+          <h1 className="text-2xl font-bold heading-tight">Audit Trail</h1>
           <p className="text-ds-muted text-sm mt-1">
             Every action is permanently recorded on Hedera Consensus Service
           </p>

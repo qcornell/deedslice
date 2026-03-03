@@ -62,7 +62,7 @@ export default function PropertyDetailPage() {
   const pieColors = ["#6c5ce7", "#e17055", "#00b894", "#fdcb6e", "#74b9ff", "#a29bfe", "#ff7675", "#55efc4"];
 
   return (
-    <div>
+    <div className="animate-fade-in">
       {/* Back link */}
       <Link href="/dashboard" className="text-ds-muted hover:text-ds-text text-sm mb-6 inline-block">
         ← All Properties
@@ -71,7 +71,7 @@ export default function PropertyDetailPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold">{property.name}</h1>
+          <h1 className="text-2xl font-bold heading-tight">{property.name}</h1>
           {property.address && <p className="text-ds-muted text-sm mt-0.5">{property.address}</p>}
           <div className="flex items-center gap-2 mt-2">
             <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${
@@ -299,7 +299,8 @@ export default function PropertyDetailPage() {
           </div>
           <button
             onClick={() => navigator.clipboard.writeText(`https://deedslice.com/view/${id}`)}
-            className="px-4 py-2.5 bg-ds-accent/20 text-ds-accent-text rounded-lg text-sm font-medium hover:bg-ds-accent/30 transition"
+            className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px]"
+            style={{ background: "linear-gradient(135deg, #0D9488, #e17055)", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
           >
             Copy
           </button>

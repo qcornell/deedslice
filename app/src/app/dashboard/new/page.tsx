@@ -75,10 +75,11 @@ export default function NewPropertyPage() {
 
   if (success) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="glass rounded-2xl p-8 text-center">
+      <div className="max-w-2xl mx-auto animate-fade-in">
+        <div className="ds-glow">
+        <div className="glass rounded-[20px] p-8 text-center relative z-10">
           <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-2xl font-bold mb-2">Property Tokenized!</h1>
+          <h1 className="text-2xl font-bold heading-tight mb-2">Property Tokenized!</h1>
           <p className="text-ds-muted mb-6">{name} is now live on Hedera</p>
 
           {/* Transaction log */}
@@ -104,26 +105,28 @@ export default function NewPropertyPage() {
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => router.push(`/dashboard/property/${propertyId}`)}
-              className="bg-gradient-to-r from-ds-accent to-ds-orange text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 transition text-sm"
+              className="text-white font-semibold px-6 py-3 rounded-[10px] transition-all text-[13px] hover:translate-y-[-1px]"
+              style={{ background: "linear-gradient(135deg, #0D9488, #e17055)", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
             >
               View Property Dashboard
             </button>
             <button
               onClick={() => router.push("/dashboard")}
-              className="border border-ds-border text-ds-muted font-medium px-6 py-3 rounded-lg hover:border-ds-muted transition text-sm"
+              className="border border-ds-border text-ds-muted font-medium px-6 py-3 rounded-[10px] hover:border-ds-muted transition text-sm"
             >
               Back to Properties
             </button>
           </div>
+        </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">Tokenize Property</h1>
+        <h1 className="text-2xl font-bold heading-tight">Tokenize Property</h1>
         <p className="text-ds-muted text-sm mt-1">
           Enter property details and deploy to Hedera in one click
         </p>
@@ -264,7 +267,8 @@ export default function NewPropertyPage() {
         <button
           type="submit"
           disabled={deploying || !name || !valuationUsd || !totalSlices}
-          className="w-full bg-gradient-to-r from-ds-accent to-ds-orange text-white font-semibold py-3.5 rounded-lg hover:opacity-90 transition disabled:opacity-50 text-sm"
+          className="w-full text-white font-semibold py-3.5 rounded-[10px] transition-all disabled:opacity-50 text-[13px] hover:translate-y-[-1px]"
+          style={{ background: "linear-gradient(135deg, #0D9488, #e17055)", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
         >
           {deploying ? "Deploying to Hedera..." : "⚡ Deploy to Hedera"}
         </button>

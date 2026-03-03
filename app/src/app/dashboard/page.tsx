@@ -26,7 +26,7 @@ export default function DashboardPage() {
       failed: "bg-ds-red/15 text-ds-red border-ds-red/30",
     };
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${styles[status] || styles.draft}`}>
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${styles[status] || styles.draft}`}>
         {status === "live" && <span className="w-1.5 h-1.5 rounded-full bg-ds-green pulse-green" />}
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
@@ -34,15 +34,19 @@ export default function DashboardPage() {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold">Properties</h1>
-          <p className="text-ds-muted text-sm mt-1">Manage your tokenized real estate assets</p>
+          <h1 className="text-2xl font-bold heading-tight">Properties</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--ds-muted)" }}>Manage your tokenized real estate assets</p>
         </div>
         <Link
           href="/dashboard/new"
-          className="bg-gradient-to-r from-ds-accent to-ds-orange text-white font-medium px-5 py-2.5 rounded-lg hover:opacity-90 transition text-sm"
+          className="text-white font-semibold px-5 py-2.5 rounded-[10px] text-[13px] transition-all hover:translate-y-[-1px]"
+          style={{
+            background: "linear-gradient(135deg, #0D9488, #e17055)",
+            boxShadow: "0 2px 8px rgba(13,148,136,0.25), 0 1px 2px rgba(13,148,136,0.15)",
+          }}
         >
           + Tokenize Property
         </Link>
@@ -53,68 +57,83 @@ export default function DashboardPage() {
           <div className="w-8 h-8 border-2 border-ds-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : properties.length === 0 ? (
-        <div className="glass rounded-2xl p-12 text-center">
-          <div className="text-5xl mb-4">🏠</div>
-          <h2 className="text-xl font-semibold mb-2">No properties yet</h2>
-          <p className="text-ds-muted text-sm mb-6">
-            Tokenize your first property to create an NFT deed, share tokens, and a verifiable audit trail — all on Hedera.
-          </p>
-          <Link
-            href="/dashboard/new"
-            className="inline-flex bg-gradient-to-r from-ds-accent to-ds-orange text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 transition text-sm"
-          >
-            Tokenize Your First Property
-          </Link>
+        <div className="ds-glow">
+          <div className="glass rounded-[20px] p-16 text-center relative z-10">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center text-4xl" style={{
+              background: "linear-gradient(135deg, rgba(13,148,136,0.08), rgba(225,112,85,0.08))",
+              border: "1px solid rgba(13,148,136,0.12)",
+            }}>
+              🏠
+            </div>
+            <h2 className="text-xl font-bold heading-tight mb-3">No properties yet</h2>
+            <p className="text-sm max-w-md mx-auto mb-8" style={{ color: "var(--ds-text-secondary)", lineHeight: "1.7" }}>
+              Tokenize your first property to create an NFT deed, share tokens, and a verifiable audit trail — all on Hedera.
+            </p>
+            <Link
+              href="/dashboard/new"
+              className="inline-flex text-white font-semibold px-8 py-3.5 rounded-[10px] text-[14px] transition-all hover:translate-y-[-2px]"
+              style={{
+                background: "linear-gradient(135deg, #0D9488, #e17055)",
+                boxShadow: "0 4px 14px rgba(13,148,136,0.3), 0 1px 3px rgba(13,148,136,0.2)",
+              }}
+            >
+              Tokenize Your First Property
+            </Link>
+            <p className="text-[11px] mt-4" style={{ color: "var(--ds-muted)" }}>
+              ~$0.01 in Hedera fees · Takes about 10 seconds
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {properties.map((p) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {properties.map((p, i) => (
             <Link
               key={p.id}
               href={`/dashboard/property/${p.id}`}
-              className="glass rounded-2xl p-6 hover:border-ds-accent/30 transition group"
+              className="glass rounded-[16px] p-6 group animate-fade-in"
+              style={{ animationDelay: `${i * 60}ms` }}
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="font-semibold group-hover:text-ds-accent-text transition">{p.name}</h3>
-                  {p.address && <p className="text-xs text-ds-muted mt-0.5">{p.address}</p>}
+                  <h3 className="font-semibold title-tight group-hover:text-ds-accent-text transition">{p.name}</h3>
+                  {p.address && <p className="text-[11px] mt-0.5" style={{ color: "var(--ds-muted)" }}>{p.address}</p>}
                 </div>
                 {statusBadge(p.status)}
               </div>
 
               {/* Valuation */}
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-2xl font-bold">${p.valuation_usd.toLocaleString()}</span>
-                <span className="text-xs text-ds-muted">
+              <div className="flex items-baseline gap-1.5 mb-4">
+                <span className="text-2xl font-bold heading-tight">${p.valuation_usd.toLocaleString()}</span>
+                <span className="text-[11px]" style={{ color: "var(--ds-muted)" }}>
                   ${Math.round(p.valuation_usd / p.total_slices)}/slice
                 </span>
               </div>
 
               {/* On-chain IDs */}
-              <div className="space-y-2 text-xs">
+              <div className="space-y-2 text-[12px]">
                 {p.nft_token_id && (
-                  <div className="flex items-center justify-between text-ds-muted">
+                  <div className="flex items-center justify-between" style={{ color: "var(--ds-muted)" }}>
                     <span>📜 NFT Deed</span>
-                    <span className="font-mono text-ds-text">{p.nft_token_id}</span>
+                    <span className="font-mono" style={{ color: "var(--ds-text)" }}>{p.nft_token_id}</span>
                   </div>
                 )}
                 {p.share_token_id && (
-                  <div className="flex items-center justify-between text-ds-muted">
+                  <div className="flex items-center justify-between" style={{ color: "var(--ds-muted)" }}>
                     <span>🪙 Shares</span>
-                    <span className="font-mono text-ds-text">{p.share_token_symbol} ({p.total_slices.toLocaleString()})</span>
+                    <span className="font-mono" style={{ color: "var(--ds-text)" }}>{p.share_token_symbol} ({p.total_slices.toLocaleString()})</span>
                   </div>
                 )}
                 {p.audit_topic_id && (
-                  <div className="flex items-center justify-between text-ds-muted">
+                  <div className="flex items-center justify-between" style={{ color: "var(--ds-muted)" }}>
                     <span>📋 Audit</span>
-                    <span className="font-mono text-ds-text">{p.audit_topic_id}</span>
+                    <span className="font-mono" style={{ color: "var(--ds-text)" }}>{p.audit_topic_id}</span>
                   </div>
                 )}
               </div>
 
               {/* Network badge */}
-              <div className="mt-4 pt-3 border-t border-ds-border flex items-center gap-2 text-[10px] text-ds-muted">
+              <div className="mt-4 pt-3 border-t flex items-center gap-2 text-[10px]" style={{ borderColor: "var(--ds-border)", color: "var(--ds-muted)" }}>
                 <span className={`w-1.5 h-1.5 rounded-full ${p.network === "mainnet" ? "bg-ds-green" : "bg-yellow-400"}`} />
                 {p.network === "mainnet" ? "Hedera Mainnet" : "Hedera Testnet"}
                 {p.deployed_at && ` · ${new Date(p.deployed_at).toLocaleDateString()}`}
