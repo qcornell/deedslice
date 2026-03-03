@@ -65,15 +65,15 @@ input, select { font-family: inherit; }
 .nav.scrolled { border-bottom-color: var(--border); }
 .nav-inner {
   max-width: 1120px; margin: 0 auto; padding: 0 24px;
-  display: flex; align-items: center; height: 60px; gap: 32px;
+  display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 32px;
 }
 .nav-logo { display: flex; align-items: center; }
 .nav-logo-img { height: 28px; width: auto; }
 .logo-accent { color: var(--teal); }
-.nav-links { display: flex; gap: 28px; margin-left: auto; }
+.nav-links { display: flex; gap: 28px; }
 .nav-links a { font-size: 0.84rem; font-weight: 500; color: var(--text-secondary); transition: color var(--transition); letter-spacing: -0.005em; }
 .nav-links a:hover { color: var(--navy); }
-.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 .nav-toggle { display: none; flex-direction: column; gap: 5px; padding: 4px; }
 .nav-toggle span { width: 20px; height: 2px; background: var(--navy); border-radius: 1px; transition: var(--transition); }
 
@@ -646,6 +646,7 @@ input, select { font-family: inherit; }
 @media (max-width: 768px) {
   .nav-links { display: none; }
   .nav-toggle { display: flex; }
+  .nav-actions { margin-left: auto; }
   .nav-links.open {
     display: flex; flex-direction: column; position: absolute;
     top: 100%; left: 0; right: 0; padding: 16px 24px;
