@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     if (profile.properties_used >= profile.properties_limit) {
       const upgradeMsg = profile.plan === "starter"
-        ? "Starter plan limited to 1 property. Upgrade to Pro for up to 5."
+        ? "Starter plan allows 1 free property (testnet). Upgrade to Pro for mainnet and up to 5 properties."
         : profile.plan === "pro"
         ? "Pro plan limited to 5 properties. Upgrade to Enterprise for unlimited."
         : "You've reached your property limit. Contact support.";
@@ -55,6 +55,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields: name, valuationUsd, totalSlices" }, { status: 400 });
     }
 
+    // Starter plan → testnet sandbox, Pro+ → mainnet
+    const deployNetwork: "mainnet" | "testnet" =
+      profile.plan === "starter" ? "testnet" : "mainnet";
+
     const { data: propertyData, error: insertError } = await supabaseAdmin
       .from("ds_properties")
       .insert({
@@ -67,7 +71,7 @@ export async function POST(req: NextRequest) {
         description: description || null,
         image_url: imageUrl || null,
         status: "deploying",
-        network: process.env.HEDERA_NETWORK === "mainnet" ? "mainnet" : "testnet",
+        network: deployNetwork,
       } as any)
       .select()
       .single();
@@ -85,6 +89,7 @@ export async function POST(req: NextRequest) {
       valuationUsd,
       totalSlices,
       description,
+      network: deployNetwork,
     });
 
     if (!result.ok) {

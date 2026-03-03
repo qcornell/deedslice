@@ -73,7 +73,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       await logAuditEntry(property.audit_topic_id, "PROPERTY_UPDATED", {
         propertyId: params.id,
         changes: changeDescription,
-      });
+      }, (property as any).network as "mainnet" | "testnet");
     }
 
     // Log to DB audit entries

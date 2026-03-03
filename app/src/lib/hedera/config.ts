@@ -10,8 +10,13 @@
 export const HEDERA_NETWORK: "mainnet" | "testnet" =
   (process.env.NEXT_PUBLIC_HEDERA_NETWORK || process.env.HEDERA_NETWORK || "testnet") as "mainnet" | "testnet";
 
-/** HashScan base URL for the current network */
+/** HashScan base URL for the default network */
 export const HASHSCAN_BASE = `https://hashscan.io/${HEDERA_NETWORK}`;
+
+/** HashScan base URL for a specific network */
+export function hashscanBase(network: "mainnet" | "testnet"): string {
+  return `https://hashscan.io/${network}`;
+}
 
 /** Build a HashScan transaction URL from a raw transaction ID string */
 export function getExplorerUrl(txId: string): string {

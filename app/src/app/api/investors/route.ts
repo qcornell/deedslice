@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         investor: name,
         slices: slicesOwned,
         percentage,
-      });
+      }, property.network as "mainnet" | "testnet");
     }
 
     await supabaseAdmin.from("ds_audit_entries").insert({

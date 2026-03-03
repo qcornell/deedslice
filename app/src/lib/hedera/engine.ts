@@ -34,18 +34,47 @@ import {
 } from "./config";
 
 // ── Config ──────────────────────────────────────────────────
-const OPERATOR_ID = process.env.HEDERA_OPERATOR_ID!;
-const OPERATOR_KEY = process.env.HEDERA_OPERATOR_KEY!;
+// Default (global) network from env — used for the sidebar label etc.
 const NETWORK = HEDERA_NETWORK;
 
-function getClient(): Client {
-  const client = NETWORK === "mainnet" ? Client.forMainnet() : Client.forTestnet();
+// Mainnet credentials
+const MAINNET_OPERATOR_ID = process.env.HEDERA_OPERATOR_ID!;
+const MAINNET_OPERATOR_KEY = process.env.HEDERA_OPERATOR_KEY!;
+
+// Testnet credentials (sandbox)
+const TESTNET_OPERATOR_ID = process.env.HEDERA_TESTNET_OPERATOR_ID || process.env.HEDERA_OPERATOR_ID!;
+const TESTNET_OPERATOR_KEY = process.env.HEDERA_TESTNET_OPERATOR_KEY || process.env.HEDERA_OPERATOR_KEY!;
+
+/**
+ * Get a Hedera client for a specific network.
+ * Defaults to the global HEDERA_NETWORK env if no override is provided.
+ */
+function getClient(network?: "mainnet" | "testnet"): Client {
+  const net = network || NETWORK;
+  const operatorId = net === "mainnet" ? MAINNET_OPERATOR_ID : TESTNET_OPERATOR_ID;
+  const operatorKey = net === "mainnet" ? MAINNET_OPERATOR_KEY : TESTNET_OPERATOR_KEY;
+
+  const client = net === "mainnet" ? Client.forMainnet() : Client.forTestnet();
   client.setOperator(
-    AccountId.fromString(OPERATOR_ID),
-    PrivateKey.fromString(OPERATOR_KEY)
+    AccountId.fromString(operatorId),
+    PrivateKey.fromString(operatorKey)
   );
   client.setDefaultMaxTransactionFee(new Hbar(10));
   return client;
+}
+
+/** Get the operator key for a given network */
+function getOperatorKey(network?: "mainnet" | "testnet"): PrivateKey {
+  const net = network || NETWORK;
+  const key = net === "mainnet" ? MAINNET_OPERATOR_KEY : TESTNET_OPERATOR_KEY;
+  return PrivateKey.fromString(key);
+}
+
+/** Get the operator account ID for a given network */
+function getOperatorId(network?: "mainnet" | "testnet"): AccountId {
+  const net = network || NETWORK;
+  const id = net === "mainnet" ? MAINNET_OPERATOR_ID : TESTNET_OPERATOR_ID;
+  return AccountId.fromString(id);
 }
 
 /** @deprecated Use formatTxUrlSafe from config.ts instead */
@@ -61,6 +90,7 @@ export interface PropertyTokenInput {
   valuationUsd: number;
   totalSlices: number;
   description?: string;
+  network?: "mainnet" | "testnet";
 }
 
 export interface TokenizationResult {
@@ -90,9 +120,10 @@ function generateSymbol(name: string): string {
 
 // ── Main Tokenization Pipeline ──────────────────────────────
 export async function tokenizeProperty(input: PropertyTokenInput): Promise<TokenizationResult> {
-  const client = getClient();
-  const operatorKey = PrivateKey.fromString(OPERATOR_KEY);
-  const operatorId = AccountId.fromString(OPERATOR_ID);
+  const net = input.network || NETWORK;
+  const client = getClient(net);
+  const operatorKey = getOperatorKey(net);
+  const operatorId = getOperatorId(net);
   const transactions: TokenizationResult["transactions"] = [];
   const symbol = generateSymbol(input.name);
 
@@ -237,9 +268,8 @@ export async function tokenizeProperty(input: PropertyTokenInput): Promise<Token
 }
 
 // ── Audit Logger ────────────────────────────────────────────
-export async function logAuditEntry(topicId: string, action: string, details: Record<string, any>): Promise<{ ok: boolean; txId?: string; sequence?: string; error?: string }> {
-  const client = getClient();
-  const operatorKey = PrivateKey.fromString(OPERATOR_KEY);
+export async function logAuditEntry(topicId: string, action: string, details: Record<string, any>, network?: "mainnet" | "testnet"): Promise<{ ok: boolean; txId?: string; sequence?: string; error?: string }> {
+  const client = getClient(network);
 
   try {
     const msg = JSON.stringify({

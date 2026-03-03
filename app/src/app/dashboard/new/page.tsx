@@ -270,6 +270,25 @@ export default function NewPropertyPage() {
           />
         </div>
 
+        {/* Network indicator — Starter = testnet sandbox */}
+        <div className={`rounded-xl p-4 border ${
+          HEDERA_NETWORK === "mainnet"
+            ? "bg-ds-green/5 border-ds-green/20"
+            : "bg-yellow-500/5 border-yellow-500/20"
+        }`}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`w-2 h-2 rounded-full ${HEDERA_NETWORK === "mainnet" ? "bg-ds-green" : "bg-yellow-400"}`} />
+            <span className="text-xs font-semibold">
+              Deploying to Hedera {HEDERA_NETWORK === "mainnet" ? "Mainnet" : "Testnet"}
+            </span>
+          </div>
+          <p className="text-[10px] text-ds-muted ml-4">
+            {HEDERA_NETWORK === "mainnet"
+              ? "Live blockchain — tokens are real and permanent."
+              : "Sandbox mode — free to experiment. Upgrade to Pro for mainnet."}
+          </p>
+        </div>
+
         {/* Preview card */}
         <div className="bg-ds-bg rounded-xl p-4 border border-ds-border">
           <div className="text-xs text-ds-muted uppercase tracking-wider mb-3">Deployment Preview</div>

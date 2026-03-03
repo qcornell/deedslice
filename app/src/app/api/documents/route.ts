@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
         fileSize: file.size,
         sha256: sha256,
         note: "File hash recorded on Hedera — verify integrity by comparing SHA-256",
-      });
+      }, property.network as "mainnet" | "testnet");
     }
 
     // Log to DB audit entries

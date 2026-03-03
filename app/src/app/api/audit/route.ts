@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       propertyName: property.name,
       details,
       userId: user.id,
-    });
+    }, property.network as "mainnet" | "testnet");
 
     // Write to DB
     await supabaseAdmin.from("ds_audit_entries").insert({
