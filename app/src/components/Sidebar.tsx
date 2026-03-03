@@ -19,15 +19,9 @@ export default function Sidebar() {
       background: "linear-gradient(180deg, #0F172A 0%, #162032 100%)",
     }}>
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-white/[0.06]">
-        <a href="https://deedslice.com" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{
-            background: "linear-gradient(135deg, #0D9488, #e17055)",
-            boxShadow: "0 2px 8px rgba(13,148,136,0.3)",
-          }}>
-            DS
-          </div>
-          <span className="text-[15px] font-semibold text-white tracking-tight">DeedSlice</span>
+      <div className="h-16 flex items-center px-5 border-b border-white/[0.06]">
+        <a href="https://deedslice.com" className="flex items-center">
+          <img src="/logo2.png" alt="DeedSlice" className="h-7 w-auto" />
         </a>
       </div>
 

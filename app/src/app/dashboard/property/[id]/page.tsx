@@ -300,7 +300,7 @@ export default function PropertyDetailPage() {
           <button
             onClick={() => navigator.clipboard.writeText(`https://deedslice.com/view/${id}`)}
             className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px]"
-            style={{ background: "linear-gradient(135deg, #0D9488, #e17055)", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+            style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
           >
             Copy
           </button>

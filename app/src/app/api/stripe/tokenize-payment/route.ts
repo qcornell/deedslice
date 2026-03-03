@@ -15,9 +15,16 @@ export async function POST(req: NextRequest) {
     if (authError || !user) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
     const { data } = await supabaseAdmin.from("ds_profiles").select("*").eq("id", user.id).single();
-    const profile = data as Profile | null;
+    let profile = data as Profile | null;
 
-    if (!profile) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    if (!profile) {
+      const { data: newProfile } = await supabaseAdmin
+        .from("ds_profiles")
+        .insert({ id: user.id, email: user.email || "", plan: "starter", properties_used: 0, properties_limit: 1 } as any)
+        .select().single();
+      profile = newProfile as Profile | null;
+      if (!profile) return NextResponse.json({ error: "Failed to create profile" }, { status: 500 });
+    }
 
     if (profile.plan === "starter") {
       return NextResponse.json({ free: true, message: "Starter plan — first property is free" });

@@ -142,7 +142,7 @@ export default function SettingsPage() {
                   onClick={() => handleUpgrade(key as "pro" | "enterprise")}
                   disabled={!!upgrading}
                   className="w-full text-white font-semibold py-2.5 rounded-[10px] transition-all text-[13px] disabled:opacity-50 hover:translate-y-[-1px]"
-                  style={{ background: "linear-gradient(135deg, #0D9488, #e17055)", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+                  style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
                 >
                   {upgrading === key ? "Redirecting..." : `Upgrade to ${plan.name}`}
                 </button>

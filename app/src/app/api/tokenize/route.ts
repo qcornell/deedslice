@@ -18,10 +18,25 @@ export async function POST(req: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const profile = profileData as Profile | null;
+    let profile = profileData as Profile | null;
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+      // Auto-create profile for users who signed up via Supabase Auth directly
+      const { data: newProfile } = await supabaseAdmin
+        .from("ds_profiles")
+        .insert({
+          id: user.id,
+          email: user.email || "",
+          plan: "starter",
+          properties_used: 0,
+          properties_limit: 1,
+        } as any)
+        .select()
+        .single();
+      profile = newProfile as Profile | null;
+      if (!profile) {
+        return NextResponse.json({ error: "Failed to create profile" }, { status: 500 });
+      }
     }
 
     if (profile.plan === "starter" && profile.properties_used >= 1) {

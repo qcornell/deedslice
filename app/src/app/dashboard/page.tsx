@@ -44,7 +44,7 @@ export default function DashboardPage() {
           href="/dashboard/new"
           className="text-white font-semibold px-5 py-2.5 rounded-[10px] text-[13px] transition-all hover:translate-y-[-1px]"
           style={{
-            background: "linear-gradient(135deg, #0D9488, #e17055)",
+            background: "#0D9488",
             boxShadow: "0 2px 8px rgba(13,148,136,0.25), 0 1px 2px rgba(13,148,136,0.15)",
           }}
         >
@@ -60,7 +60,7 @@ export default function DashboardPage() {
         <div className="ds-glow">
           <div className="glass rounded-[20px] p-16 text-center relative z-10">
             <div className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center text-4xl" style={{
-              background: "linear-gradient(135deg, rgba(13,148,136,0.08), rgba(225,112,85,0.08))",
+              background: "rgba(13,148,136,0.08)",
               border: "1px solid rgba(13,148,136,0.12)",
             }}>
               🏠
@@ -73,7 +73,7 @@ export default function DashboardPage() {
               href="/dashboard/new"
               className="inline-flex text-white font-semibold px-8 py-3.5 rounded-[10px] text-[14px] transition-all hover:translate-y-[-2px]"
               style={{
-                background: "linear-gradient(135deg, #0D9488, #e17055)",
+                background: "#0D9488",
                 boxShadow: "0 4px 14px rgba(13,148,136,0.3), 0 1px 3px rgba(13,148,136,0.2)",
               }}
             >

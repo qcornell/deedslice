@@ -68,7 +68,7 @@ export default function InvestorViewPage() {
         {/* Header / Branding */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ds-accent to-ds-orange flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 rounded-xl bg-ds-accent flex items-center justify-center text-white font-bold">
               DS
             </div>
             <div>
