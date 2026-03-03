@@ -7,7 +7,7 @@ import type { Profile } from "@/types/database";
 
 const PLAN_DETAILS = {
   starter: { name: "Starter", price: "Free", color: "text-ds-muted", properties: "1 testnet", features: ["1 property (testnet)", "NFT deed + share tokens", "Basic dashboard", "HCS audit log"] },
-  pro: { name: "Pro", price: "$99/mo", color: "text-ds-accent-light", properties: "5 mainnet", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (HCS)", "AI structuring", "Email support", "+$199 per property tokenization"] },
+  pro: { name: "Pro", price: "$99/mo", color: "text-ds-accent-text", properties: "5 mainnet", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (HCS)", "AI structuring", "Email support", "+$199 per property tokenization"] },
   enterprise: { name: "Enterprise", price: "$499/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "Full REST API", "Webhooks", "White-label dashboard", "Priority support", "Custom domain"] },
 };
 
@@ -25,7 +25,19 @@ export default function SettingsPage() {
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
-        setProfile(data as any);
+        if (data) {
+          setProfile(data as any);
+        } else {
+          // No profile row yet — create a default in-memory profile
+          setProfile({
+            id: user.id,
+            email: user.email || "",
+            plan: "starter",
+            properties_used: 0,
+            properties_limit: 1,
+            company_name: null,
+          } as any);
+        }
         setLoading(false);
       });
   }, [user]);
@@ -111,7 +123,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className={`font-semibold ${plan.color}`}>{plan.name}</h3>
                 {isCurrent && (
-                  <span className="text-[10px] bg-ds-accent/20 text-ds-accent-light px-2 py-0.5 rounded-full">CURRENT</span>
+                  <span className="text-[10px] bg-ds-accent/15 text-ds-accent-text px-2 py-0.5 rounded-full font-semibold">CURRENT</span>
                 )}
                 {key === "pro" && !isCurrent && (
                   <span className="text-[10px] bg-ds-orange/20 text-ds-orange px-2 py-0.5 rounded-full">POPULAR</span>

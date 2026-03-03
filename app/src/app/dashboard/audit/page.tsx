@@ -40,7 +40,7 @@ export default function AuditPage() {
 
   const actionColors: Record<string, string> = {
     PROPERTY_TOKENIZED: "text-ds-green",
-    INVESTOR_ADDED: "text-ds-accent-light",
+    INVESTOR_ADDED: "text-ds-accent-text",
     INVESTOR_REMOVED: "text-ds-red",
     VALUATION_UPDATED: "text-yellow-400",
     DOCUMENT_ADDED: "text-ds-orange",
@@ -120,7 +120,7 @@ export default function AuditPage() {
                       {new Date(entry.created_at).toLocaleString()}
                     </div>
                     {entry.hcs_sequence != null && (
-                      <div className="text-[10px] text-ds-accent-light font-mono mt-0.5">
+                      <div className="text-[10px] text-ds-accent-text font-mono mt-0.5">
                         HCS #{entry.hcs_sequence}
                       </div>
                     )}
@@ -129,7 +129,7 @@ export default function AuditPage() {
                         href={`https://hashscan.io/testnet/transaction/${entry.tx_id.replace(/@/g, "-").replace(/\./g, "-")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[10px] text-ds-accent-light hover:underline font-mono"
+                        className="text-[10px] text-ds-accent-text hover:underline font-mono"
                       >
                         View Tx →
                       </a>

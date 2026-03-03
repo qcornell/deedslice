@@ -77,7 +77,7 @@ export default function DashboardPage() {
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="font-semibold group-hover:text-ds-accent-light transition">{p.name}</h3>
+                  <h3 className="font-semibold group-hover:text-ds-accent-text transition">{p.name}</h3>
                   {p.address && <p className="text-xs text-ds-muted mt-0.5">{p.address}</p>}
                 </div>
                 {statusBadge(p.status)}

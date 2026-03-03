@@ -93,7 +93,7 @@ export default function NewPropertyPage() {
                   href={tx.explorerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-ds-accent-light hover:underline text-xs font-mono"
+                  className="text-ds-accent-text hover:underline text-xs font-mono"
                 >
                   View →
                 </a>
@@ -200,7 +200,7 @@ export default function NewPropertyPage() {
           />
           {pricePerSlice > 0 && (
             <p className="text-xs text-ds-muted mt-1.5">
-              → <span className="text-ds-accent-light font-medium">${pricePerSlice.toLocaleString()}</span> per slice
+              → <span className="text-ds-accent-text font-semibold">${pricePerSlice.toLocaleString()}</span> per slice
             </p>
           )}
         </div>
@@ -249,7 +249,7 @@ export default function NewPropertyPage() {
         {/* Deploy progress */}
         {deploying && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-ds-accent-light">
+            <div className="flex items-center gap-2 text-sm text-ds-accent-text">
               <div className="w-4 h-4 border-2 border-ds-accent border-t-transparent rounded-full animate-spin" />
               {currentStep}
             </div>

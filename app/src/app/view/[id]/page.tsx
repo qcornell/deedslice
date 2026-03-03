@@ -118,7 +118,7 @@ export default function InvestorViewPage() {
             className="glass rounded-xl p-4 hover:border-ds-accent/30 transition group"
           >
             <div className="text-xs text-ds-muted mb-2">📜 NFT Master Deed</div>
-            <div className="font-mono text-sm text-ds-accent-light group-hover:underline">{property.nft_token_id}</div>
+            <div className="font-mono text-sm text-ds-accent-text group-hover:underline">{property.nft_token_id}</div>
             <div className="text-[10px] text-ds-muted mt-1">Serial #{property.nft_serial} · Verify on HashScan →</div>
           </a>
           <a
@@ -128,7 +128,7 @@ export default function InvestorViewPage() {
             className="glass rounded-xl p-4 hover:border-ds-accent/30 transition group"
           >
             <div className="text-xs text-ds-muted mb-2">🪙 Share Token</div>
-            <div className="font-mono text-sm text-ds-accent-light group-hover:underline">{property.share_token_symbol}</div>
+            <div className="font-mono text-sm text-ds-accent-text group-hover:underline">{property.share_token_symbol}</div>
             <div className="text-[10px] text-ds-muted mt-1">{property.total_slices.toLocaleString()} total supply · Verify on HashScan →</div>
           </a>
           <a
@@ -138,7 +138,7 @@ export default function InvestorViewPage() {
             className="glass rounded-xl p-4 hover:border-ds-accent/30 transition group"
           >
             <div className="text-xs text-ds-muted mb-2">📋 Audit Trail</div>
-            <div className="font-mono text-sm text-ds-accent-light group-hover:underline">{property.audit_topic_id}</div>
+            <div className="font-mono text-sm text-ds-accent-text group-hover:underline">{property.audit_topic_id}</div>
             <div className="text-[10px] text-ds-muted mt-1">{auditEntries.length} entries · Verify on HashScan →</div>
           </a>
         </div>
@@ -190,7 +190,7 @@ export default function InvestorViewPage() {
                   </div>
                   {entry.details && <p className="text-xs text-ds-muted mt-1">{entry.details}</p>}
                   {entry.hcs_sequence != null && (
-                    <div className="text-[10px] text-ds-accent-light font-mono mt-1">HCS #{entry.hcs_sequence}</div>
+                    <div className="text-[10px] text-ds-accent-text font-mono mt-1">HCS #{entry.hcs_sequence}</div>
                   )}
                 </div>
               ))}
@@ -204,7 +204,7 @@ export default function InvestorViewPage() {
             Ownership verified on Hedera Hashgraph — governed by Google, IBM, Boeing, FedEx & more.
           </p>
           <p className="text-xs text-ds-muted/60 mt-1">
-            Powered by <a href="https://deedslice.com" className="text-ds-accent-light hover:underline">DeedSlice</a> · Infrastructure for tokenized real estate
+            Powered by <a href="https://deedslice.com" className="text-ds-accent-text hover:underline">DeedSlice</a> · Infrastructure for tokenized real estate
           </p>
         </div>
       </div>

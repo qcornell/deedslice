@@ -49,7 +49,7 @@ export default function PropertyDetailPage() {
     return (
       <div className="text-center py-20">
         <h2 className="text-xl font-semibold mb-2">Property not found</h2>
-        <Link href="/dashboard" className="text-ds-accent-light hover:underline text-sm">
+        <Link href="/dashboard" className="text-ds-accent-text hover:underline text-sm">
           ← Back to properties
         </Link>
       </div>
@@ -111,7 +111,7 @@ export default function PropertyDetailPage() {
                   href={getTokenUrl(property.nft_token_id, property.network)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-ds-accent-light hover:underline text-xs"
+                  className="font-mono text-ds-accent-text hover:underline text-xs"
                 >
                   {property.nft_token_id}
                 </a>
@@ -142,7 +142,7 @@ export default function PropertyDetailPage() {
                   href={getTokenUrl(property.share_token_id, property.network)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-ds-accent-light hover:underline text-xs"
+                  className="font-mono text-ds-accent-text hover:underline text-xs"
                 >
                   {property.share_token_id}
                 </a>
@@ -174,7 +174,7 @@ export default function PropertyDetailPage() {
                   href={getTopicUrl(property.audit_topic_id, property.network)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-ds-accent-light hover:underline text-xs"
+                  className="font-mono text-ds-accent-text hover:underline text-xs"
                 >
                   {property.audit_topic_id}
                 </a>
@@ -299,7 +299,7 @@ export default function PropertyDetailPage() {
           </div>
           <button
             onClick={() => navigator.clipboard.writeText(`https://deedslice.com/view/${id}`)}
-            className="px-4 py-2.5 bg-ds-accent/20 text-ds-accent-light rounded-lg text-sm font-medium hover:bg-ds-accent/30 transition"
+            className="px-4 py-2.5 bg-ds-accent/20 text-ds-accent-text rounded-lg text-sm font-medium hover:bg-ds-accent/30 transition"
           >
             Copy
           </button>

@@ -218,7 +218,7 @@ export default function InvestorsPage() {
               <button
                 type="submit"
                 disabled={adding || !name || !slices}
-                className="w-full bg-gradient-to-r from-ds-accent to-ds-accent-light text-white font-medium py-2.5 rounded-lg hover:opacity-90 transition disabled:opacity-50 text-sm"
+                className="w-full bg-gradient-to-r from-ds-accent to-ds-orange text-white font-medium py-2.5 rounded-lg hover:opacity-90 transition disabled:opacity-50 text-sm"
               >
                 {adding ? "Adding..." : "Add Investor"}
               </button>
