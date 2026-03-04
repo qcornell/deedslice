@@ -125,8 +125,7 @@ function PortalLoginInner() {
         {/* Card */}
         <div
           className="rounded-xl border p-6"
-            style={{ background: "var(--lp-card-bg, #FFFFFF)", borderColor: "var(--lp-border, #E2E8F0)" }}
-          style={{ borderColor: "var(--lp-border, #E2E8F0)", boxShadow: "0 1px 3px rgba(15,23,42,0.04)" }}
+          style={{ background: "var(--lp-card-bg, #FFFFFF)", borderColor: "var(--lp-border, #E2E8F0)", boxShadow: "0 1px 3px rgba(15,23,42,0.04)" }}
         >
           {/* Mode toggle */}
           <div className="flex rounded-lg border mb-5" style={{ borderColor: "var(--lp-border, #E2E8F0)" }}>
