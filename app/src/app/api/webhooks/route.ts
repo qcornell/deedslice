@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Generate signing secret
     // NOTE: Secret stored in DB because we need it to HMAC-sign outgoing payloads.
     // This is the same pattern as Stripe (whsec_ stored server-side, shown to user once).
-    const secret = `whsec_${crypto.randomBytes(24).toString("hex")}`;
+    const secretRaw = `whsec_${crypto.randomBytes(24).toString("hex")}`;
 
     // Max 5 webhooks per user
     const { count } = await supabaseAdmin
