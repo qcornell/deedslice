@@ -16,6 +16,7 @@ import { useParams, useRouter } from "next/navigation";
 import StatCard from "@/components/lp/StatCard";
 import StatusBadge from "@/components/lp/StatusBadge";
 import DataTable, { Column } from "@/components/lp/DataTable";
+import KycWidget from "@/components/lp/KycWidget";
 
 // ── Types ─────────────────────────────────────────────────
 
@@ -409,6 +410,17 @@ function PropertyDetail({
       {/* ── Overview Tab ── */}
       {activeTab === "overview" && (
         <div className="space-y-4">
+          {/* KYC Widget — show if not verified */}
+          {p.kycStatus !== "verified" && (
+            <KycWidget
+              slug={slug}
+              kycStatus={p.kycStatus || "unverified"}
+              onComplete={() => {
+                // Refresh will happen via webhook, but update UI optimistically
+              }}
+            />
+          )}
+
           {/* Investment Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <StatCard label="Your Investment" value={`$${p.myValue.toLocaleString()}`} />
