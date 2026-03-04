@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
 import { sendTokenizationEmail } from "@/lib/email";
 import { applyRateLimit } from "@/lib/rate-limit";
+import { fireWebhooks } from "@/lib/webhooks";
 import type { Profile, Property } from "@/types/database";
 
 export async function POST(req: NextRequest) {
@@ -151,6 +152,20 @@ export async function POST(req: NextRequest) {
       result.nftTokenId!,
       result.shareTokenId!,
     ).catch((err) => console.error("Tokenization email failed:", err));
+
+    // Fire webhooks (fire and forget)
+    fireWebhooks(user.id, "property.tokenized", {
+      propertyId: property.id,
+      name,
+      address: address || null,
+      valuationUsd,
+      totalSlices,
+      network: deployNetwork,
+      nftTokenId: result.nftTokenId,
+      shareTokenId: result.shareTokenId,
+      auditTopicId: result.auditTopicId,
+      transactions: result.transactions,
+    }).catch((err) => console.error("Webhook fire failed:", err));
 
     return NextResponse.json({
       ...result,

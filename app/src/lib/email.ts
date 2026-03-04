@@ -175,7 +175,7 @@ export async function sendUpgradeEmail(to: string, plan: string) {
     ${p(`Your DeedSlice account has been upgraded to <strong>${planName}</strong>.`)}
     ${p(plan === "pro"
       ? "You now have access to <strong>5 mainnet properties</strong>, document vault with SHA-256 verification, and full investor management."
-      : "You now have <strong>unlimited properties</strong>, full REST API, webhooks, white-label dashboard, and priority support."
+      : "You now have <strong>unlimited properties</strong>, REST API access, webhooks, priority support, and custom integrations. White-label dashboard is coming Q2."
     )}
     ${button("Start Tokenizing →", `${APP_URL()}/dashboard/new`)}
     ${divider()}

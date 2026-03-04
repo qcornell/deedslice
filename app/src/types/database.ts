@@ -123,6 +123,10 @@ export type Database = {
           transfer_status: "pending" | "transferred" | "failed" | null;
           transfer_tx_id: string | null;
           transferred_at: string | null;
+          kyc_status: "unverified" | "pending" | "verified" | "rejected";
+          kyc_document_path: string | null;
+          kyc_reviewed_at: string | null;
+          kyc_notes: string | null;
           added_at: string;
         };
         Insert: {
@@ -136,6 +140,10 @@ export type Database = {
           transfer_status?: "pending" | "transferred" | "failed" | null;
           transfer_tx_id?: string | null;
           transferred_at?: string | null;
+          kyc_status?: "unverified" | "pending" | "verified" | "rejected";
+          kyc_document_path?: string | null;
+          kyc_reviewed_at?: string | null;
+          kyc_notes?: string | null;
           added_at?: string;
         };
         Update: {
@@ -149,6 +157,10 @@ export type Database = {
           transfer_status?: "pending" | "transferred" | "failed" | null;
           transfer_tx_id?: string | null;
           transferred_at?: string | null;
+          kyc_status?: "unverified" | "pending" | "verified" | "rejected";
+          kyc_document_path?: string | null;
+          kyc_reviewed_at?: string | null;
+          kyc_notes?: string | null;
           added_at?: string;
         };
         Relationships: [];
@@ -191,6 +203,72 @@ export type Database = {
           mime_type?: string;
           storage_path?: string;
           sha256_hash?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      ds_api_keys: {
+        Row: {
+          id: string;
+          user_id: string;
+          key_prefix: string;
+          key_hash: string;
+          name: string;
+          last_used_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          key_prefix: string;
+          key_hash: string;
+          name?: string;
+          last_used_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          key_prefix?: string;
+          key_hash?: string;
+          name?: string;
+          last_used_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      ds_webhooks: {
+        Row: {
+          id: string;
+          user_id: string;
+          url: string;
+          events: string[];
+          secret: string;
+          active: boolean;
+          last_triggered_at: string | null;
+          failure_count: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          url: string;
+          events?: string[];
+          secret?: string;
+          active?: boolean;
+          last_triggered_at?: string | null;
+          failure_count?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          url?: string;
+          events?: string[];
+          secret?: string;
+          active?: boolean;
+          last_triggered_at?: string | null;
+          failure_count?: number;
           created_at?: string;
         };
         Relationships: [];
@@ -247,3 +325,5 @@ export type Property = Database["public"]["Tables"]["ds_properties"]["Row"];
 export type Investor = Database["public"]["Tables"]["ds_investors"]["Row"];
 export type AuditEntry = Database["public"]["Tables"]["ds_audit_entries"]["Row"];
 export type Document = Database["public"]["Tables"]["ds_documents"]["Row"];
+export type ApiKey = Database["public"]["Tables"]["ds_api_keys"]["Row"];
+export type Webhook = Database["public"]["Tables"]["ds_webhooks"]["Row"];

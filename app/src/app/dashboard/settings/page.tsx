@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase/client";
-import type { Profile } from "@/types/database";
+import type { Profile, ApiKey, Webhook } from "@/types/database";
 
 const PLAN_DETAILS = {
   starter: { name: "Starter", price: "Free", color: "text-ds-muted", properties: "1 property", features: ["1 property (testnet sandbox)", "NFT deed + share tokens", "Basic dashboard", "HCS audit log", "Try before you buy"] },
   pro: { name: "Pro", price: "$99.99/mo", color: "text-ds-accent-text", properties: "5 properties", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (SHA-256 → HCS)", "Investor management", "Token transfers to wallets", "Email support", "+$199 per additional tokenization"] },
-  enterprise: { name: "Enterprise", price: "$499.99/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "REST API access", "Priority support", "Custom integrations", "White-label dashboard (Q2)", "Webhooks (Q2)"] },
+  enterprise: { name: "Enterprise", price: "$499.99/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "REST API access", "Priority support", "Custom integrations", "Webhooks", "White-label dashboard (Q2)"] },
 };
 
 export default function SettingsPage() {
@@ -19,6 +19,18 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
   const [upgradeSuccess, setUpgradeSuccess] = useState<string | null>(null);
+
+  // API Keys state
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [newKeyName, setNewKeyName] = useState("");
+  const [creatingKey, setCreatingKey] = useState(false);
+  const [newKeyRaw, setNewKeyRaw] = useState<string | null>(null);
+
+  // Webhooks state
+  const [webhooks, setWebhooks] = useState<Webhook[]>([]);
+  const [newWebhookUrl, setNewWebhookUrl] = useState("");
+  const [creatingWebhook, setCreatingWebhook] = useState(false);
+  const [newWebhookSecret, setNewWebhookSecret] = useState<string | null>(null);
 
   // Check for upgrade success redirect
   useEffect(() => {
@@ -54,6 +66,88 @@ export default function SettingsPage() {
         setLoading(false);
       });
   }, [user]);
+
+  // Load API keys + webhooks for Enterprise users
+  useEffect(() => {
+    if (!session || !profile || profile.plan !== "enterprise") return;
+    fetch("/api/api-keys", { headers: getAuthHeaders(session) })
+      .then(r => r.json())
+      .then(d => setApiKeys(d.keys || []))
+      .catch(() => {});
+    fetch("/api/webhooks", { headers: getAuthHeaders(session) })
+      .then(r => r.json())
+      .then(d => setWebhooks(d.webhooks || []))
+      .catch(() => {});
+  }, [session, profile]);
+
+  async function handleCreateApiKey() {
+    if (!session) return;
+    setCreatingKey(true);
+    setNewKeyRaw(null);
+    try {
+      const res = await fetch("/api/api-keys", {
+        method: "POST",
+        headers: getAuthHeaders(session),
+        body: JSON.stringify({ name: newKeyName || "Default" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setNewKeyRaw(data.key);
+      setNewKeyName("");
+      // Refresh keys list
+      const rr = await fetch("/api/api-keys", { headers: getAuthHeaders(session) });
+      const rd = await rr.json();
+      setApiKeys(rd.keys || []);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setCreatingKey(false);
+    }
+  }
+
+  async function handleDeleteApiKey(id: string) {
+    if (!session || !confirm("Delete this API key? Any integrations using it will stop working.")) return;
+    await fetch("/api/api-keys", {
+      method: "DELETE",
+      headers: getAuthHeaders(session),
+      body: JSON.stringify({ id }),
+    });
+    setApiKeys(prev => prev.filter(k => k.id !== id));
+  }
+
+  async function handleCreateWebhook() {
+    if (!session || !newWebhookUrl) return;
+    setCreatingWebhook(true);
+    setNewWebhookSecret(null);
+    try {
+      const res = await fetch("/api/webhooks", {
+        method: "POST",
+        headers: getAuthHeaders(session),
+        body: JSON.stringify({ url: newWebhookUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setNewWebhookSecret(data.secret);
+      setNewWebhookUrl("");
+      const rr = await fetch("/api/webhooks", { headers: getAuthHeaders(session) });
+      const rd = await rr.json();
+      setWebhooks(rd.webhooks || []);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setCreatingWebhook(false);
+    }
+  }
+
+  async function handleDeleteWebhook(id: string) {
+    if (!session || !confirm("Delete this webhook?")) return;
+    await fetch("/api/webhooks", {
+      method: "DELETE",
+      headers: getAuthHeaders(session),
+      body: JSON.stringify({ id }),
+    });
+    setWebhooks(prev => prev.filter(w => w.id !== id));
+  }
 
   async function handleUpgrade(plan: "pro" | "enterprise") {
     if (!session) return;
@@ -184,6 +278,140 @@ export default function SettingsPage() {
           );
         })}
       </div>
+
+      {/* API Keys — Enterprise only */}
+      {profile?.plan === "enterprise" && (
+        <div className="mt-8 glass rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="font-semibold">REST API Keys</h2>
+              <p className="text-xs text-ds-muted mt-0.5">Authenticate programmatic access to the DeedSlice API</p>
+            </div>
+          </div>
+
+          {/* Show newly created key */}
+          {newKeyRaw && (
+            <div className="bg-ds-green/10 border border-ds-green/30 rounded-xl p-4 mb-4 animate-fade-in">
+              <div className="text-xs text-ds-green font-medium mb-2">🔑 New API Key Created — Copy it now, it won't be shown again</div>
+              <div className="bg-ds-bg rounded-lg px-3 py-2 font-mono text-xs break-all select-all">{newKeyRaw}</div>
+              <button onClick={() => { try { navigator.clipboard.writeText(newKeyRaw); } catch {} }} className="mt-2 text-[10px] text-ds-accent-text hover:underline">Copy to clipboard</button>
+            </div>
+          )}
+
+          {/* Key list */}
+          {apiKeys.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {apiKeys.map(k => (
+                <div key={k.id} className="flex items-center justify-between bg-ds-bg rounded-lg px-4 py-2.5">
+                  <div>
+                    <span className="font-mono text-xs">{k.key_prefix}...</span>
+                    <span className="text-xs text-ds-muted ml-3">{k.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-ds-muted">{k.last_used_at ? `Used ${new Date(k.last_used_at).toLocaleDateString()}` : "Never used"}</span>
+                    <button onClick={() => handleDeleteApiKey(k.id)} className="text-[10px] text-ds-red hover:underline">Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Create new key */}
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={newKeyName}
+              onChange={e => setNewKeyName(e.target.value)}
+              placeholder="Key name (e.g. Production)"
+              className="flex-1 bg-ds-bg border border-ds-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-ds-accent transition"
+            />
+            <button
+              onClick={handleCreateApiKey}
+              disabled={creatingKey}
+              className="text-white font-medium px-4 py-2 rounded-lg text-sm transition-all disabled:opacity-50"
+              style={{ background: "#0D9488" }}
+            >
+              {creatingKey ? "..." : "Create Key"}
+            </button>
+          </div>
+
+          {/* API docs hint */}
+          <div className="mt-4 pt-3 border-t border-ds-border text-xs text-ds-muted">
+            <strong>Base URL:</strong> <code className="font-mono text-ds-text">https://console.deedslice.com/api/v1</code>
+            <div className="mt-1">
+              <strong>Auth:</strong> <code className="font-mono text-ds-text">Authorization: Bearer ds_live_...</code>
+            </div>
+            <div className="mt-1">
+              <strong>Endpoints:</strong> GET /properties · GET /properties/:id · GET /properties/:id/investors · GET /properties/:id/audit
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Webhooks — Enterprise only */}
+      {profile?.plan === "enterprise" && (
+        <div className="mt-6 glass rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="font-semibold">Webhooks</h2>
+              <p className="text-xs text-ds-muted mt-0.5">Receive real-time notifications when events occur</p>
+            </div>
+          </div>
+
+          {/* Show newly created webhook secret */}
+          {newWebhookSecret && (
+            <div className="bg-ds-green/10 border border-ds-green/30 rounded-xl p-4 mb-4 animate-fade-in">
+              <div className="text-xs text-ds-green font-medium mb-2">🔗 Webhook Created — Save the signing secret</div>
+              <div className="bg-ds-bg rounded-lg px-3 py-2 font-mono text-xs break-all select-all">{newWebhookSecret}</div>
+              <p className="text-[10px] text-ds-muted mt-1">Use this secret to verify payloads with HMAC-SHA256 (X-DeedSlice-Signature header)</p>
+            </div>
+          )}
+
+          {/* Webhook list */}
+          {webhooks.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {webhooks.map(w => (
+                <div key={w.id} className="flex items-center justify-between bg-ds-bg rounded-lg px-4 py-2.5">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-xs truncate">{w.url}</div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${w.active ? "bg-ds-green" : "bg-ds-red"}`} />
+                      <span className="text-[10px] text-ds-muted">{w.active ? "Active" : `Disabled (${w.failure_count} failures)`}</span>
+                    </div>
+                  </div>
+                  <button onClick={() => handleDeleteWebhook(w.id)} className="text-[10px] text-ds-red hover:underline ml-3 shrink-0">Delete</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Create new webhook */}
+          <div className="flex items-center gap-2">
+            <input
+              type="url"
+              value={newWebhookUrl}
+              onChange={e => setNewWebhookUrl(e.target.value)}
+              placeholder="https://your-app.com/webhook"
+              className="flex-1 bg-ds-bg border border-ds-border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-ds-accent transition"
+            />
+            <button
+              onClick={handleCreateWebhook}
+              disabled={creatingWebhook || !newWebhookUrl}
+              className="text-white font-medium px-4 py-2 rounded-lg text-sm transition-all disabled:opacity-50"
+              style={{ background: "#0D9488" }}
+            >
+              {creatingWebhook ? "..." : "Add Webhook"}
+            </button>
+          </div>
+
+          <div className="mt-3 text-[10px] text-ds-muted">
+            <strong>Events:</strong> property.tokenized · investor.added · investor.updated · transfer.completed · transfer.failed · document.added · kyc.updated
+          </div>
+          <div className="mt-1 text-[10px] text-ds-muted">
+            Max 5 webhooks. Auto-disabled after 10 consecutive failures.
+          </div>
+        </div>
+      )}
 
       {/* Danger Zone */}
       <div className="mt-12 glass rounded-2xl p-6 border-ds-red/20">

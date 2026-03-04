@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
 import { transferShares, logAuditEntry, formatTxUrlSafe } from "@/lib/hedera/engine";
 import { applyRateLimit } from "@/lib/rate-limit";
+import { fireWebhooks } from "@/lib/webhooks";
 import type { Property, Investor } from "@/types/database";
 
 /**
@@ -157,6 +158,18 @@ export async function POST(req: NextRequest) {
       details: `Transferred ${investor.slices_owned} slices to ${investor.name} (${investor.wallet_address})`,
       tx_id: result.txId,
     } as any);
+
+    // Fire webhooks (fire and forget)
+    fireWebhooks(user.id, "transfer.completed", {
+      propertyId: property.id,
+      investorId: investor.id,
+      investorName: investor.name,
+      wallet: investor.wallet_address,
+      slices: investor.slices_owned,
+      shareTokenId: property.share_token_id,
+      txId: result.txId,
+      network: property.network,
+    }).catch((err) => console.error("Webhook fire failed:", err));
 
     return NextResponse.json({
       ok: true,

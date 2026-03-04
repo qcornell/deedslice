@@ -29,6 +29,9 @@ export default function InvestorsPage() {
   const [editingWallet, setEditingWallet] = useState<string | null>(null);
   const [editWalletValue, setEditWalletValue] = useState("");
 
+  // KYC state
+  const [updatingKyc, setUpdatingKyc] = useState<string | null>(null);
+
   // Load properties
   useEffect(() => {
     if (!session) return;
@@ -143,6 +146,45 @@ export default function InvestorsPage() {
       setInvestors(refreshData.investors || []);
     } catch (err: any) {
       setTransferError(err.message);
+    }
+  }
+
+  function getKycBadge(inv: Investor) {
+    const status = inv.kyc_status || "unverified";
+    const styles: Record<string, { bg: string; text: string; border: string; label: string }> = {
+      unverified: { bg: "bg-ds-muted/15", text: "text-ds-muted", border: "border-ds-muted/30", label: "Unverified" },
+      pending: { bg: "bg-yellow-500/15", text: "text-yellow-500", border: "border-yellow-500/30", label: "KYC Pending" },
+      verified: { bg: "bg-ds-green/15", text: "text-ds-green", border: "border-ds-green/30", label: "✓ KYC Verified" },
+      rejected: { bg: "bg-ds-red/15", text: "text-ds-red", border: "border-ds-red/30", label: "KYC Rejected" },
+    };
+    const s = styles[status] || styles.unverified;
+    return (
+      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium ${s.bg} ${s.text} border ${s.border}`}>
+        {s.label}
+      </span>
+    );
+  }
+
+  async function handleKycUpdate(investorId: string, status: string) {
+    if (!session) return;
+    setUpdatingKyc(investorId);
+    setTransferError("");
+    try {
+      const res = await fetch("/api/investors/kyc", {
+        method: "PATCH",
+        headers: getAuthHeaders(session),
+        body: JSON.stringify({ investorId, status }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      // Refresh investors
+      const rr = await fetch(`/api/properties/${selectedProperty}`, { headers: getAuthHeaders(session) });
+      const rd = await rr.json();
+      setInvestors(rd.investors || []);
+    } catch (err: any) {
+      setTransferError(err.message);
+    } finally {
+      setUpdatingKyc(null);
     }
   }
 
@@ -300,6 +342,46 @@ export default function InvestorsPage() {
                             </button>
                           </div>
                         )}
+                      </div>
+
+                      {/* KYC status row */}
+                      <div className="mt-2 pt-2 border-t border-ds-border">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-ds-muted">🔐 KYC:</span>
+                            {getKycBadge(inv)}
+                          </div>
+                          {updatingKyc === inv.id ? (
+                            <span className="text-[10px] text-ds-muted">Updating...</span>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              {(inv.kyc_status || "unverified") !== "verified" && (
+                                <button
+                                  onClick={() => handleKycUpdate(inv.id, "verified")}
+                                  className="text-[10px] text-ds-green hover:underline"
+                                >
+                                  ✓ Verify
+                                </button>
+                              )}
+                              {(inv.kyc_status || "unverified") !== "pending" && inv.kyc_status !== "verified" && (
+                                <button
+                                  onClick={() => handleKycUpdate(inv.id, "pending")}
+                                  className="text-[10px] text-yellow-500 hover:underline"
+                                >
+                                  Pending
+                                </button>
+                              )}
+                              {inv.kyc_status === "verified" && (
+                                <button
+                                  onClick={() => handleKycUpdate(inv.id, "unverified")}
+                                  className="text-[10px] text-ds-muted hover:underline"
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Transfer button */}
