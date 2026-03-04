@@ -11,6 +11,8 @@
   "dependencies": {
     "@hashgraph/sdk": "^2.80.0",
     "@supabase/supabase-js": "^2.98.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.3",
     "next": "^14.2.35",
     "pdfkit": "^0.17.2",
     "react": "^18.3.1",

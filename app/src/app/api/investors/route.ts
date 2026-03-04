@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
 import { logAuditEntry } from "@/lib/hedera/engine";
 import { sendInvestorAddedEmail } from "@/lib/email";
+import { sanitizeText, sanitizeEmail, sanitizeAccountId, sanitizePositiveInteger } from "@/lib/sanitize";
 import type { Property } from "@/types/database";
 
 /** POST /api/investors — add or update an investor for a property */
@@ -14,10 +15,23 @@ export async function POST(req: NextRequest) {
     const { user, error: authError } = await getUserFromToken(token);
     if (authError || !user) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    const { propertyId, name, email, walletAddress, slicesOwned } = await req.json();
+    const body = await req.json();
+    const propertyId = body.propertyId;
+    const name = body.name ? sanitizeText(body.name, 200) : "";
+    const email = body.email ? sanitizeEmail(body.email) : null;
+    const walletAddress = body.walletAddress ? sanitizeAccountId(body.walletAddress) : null;
+    const slicesOwned = sanitizePositiveInteger(body.slicesOwned);
 
     if (!propertyId || !name || !slicesOwned) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields: propertyId, name, slicesOwned" }, { status: 400 });
+    }
+
+    if (body.walletAddress && !walletAddress) {
+      return NextResponse.json({ error: "Invalid wallet address format. Expected: 0.0.XXXXX" }, { status: 400 });
+    }
+
+    if (body.email && !email) {
+      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
     }
 
     const { data } = await supabaseAdmin

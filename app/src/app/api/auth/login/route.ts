@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { applyRateLimit } from "@/lib/rate-limit";
+import { applyRateLimitAsync } from "@/lib/rate-limit";
 
 // Use anon key for auth operations (signInWithPassword not available on service role)
 const supabaseAuth = createClient(
@@ -11,7 +11,7 @@ const supabaseAuth = createClient(
 
 export async function POST(req: NextRequest) {
   // Rate limit: 10 login attempts per IP per 15 minutes
-  const blocked = applyRateLimit(req.headers, "login", { max: 10, windowSec: 900 });
+  const blocked = await applyRateLimitAsync(req.headers, "login", { max: 10, windowSec: 900 });
   if (blocked) return blocked;
 
   try {

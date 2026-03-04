@@ -68,6 +68,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate signing secret
+    // NOTE: Secret stored in DB because we need it to HMAC-sign outgoing payloads.
+    // This is the same pattern as Stripe (whsec_ stored server-side, shown to user once).
     const secret = `whsec_${crypto.randomBytes(24).toString("hex")}`;
 
     // Max 5 webhooks per user
@@ -92,14 +94,14 @@ export async function POST(req: NextRequest) {
         user_id: user.id,
         url,
         events: filteredEvents.length > 0 ? filteredEvents : validEvents,
-        secret,
+        secret: secretRaw, // Store raw for now — used by delivery system for HMAC signing
       } as any)
       .select("id, url, events, active, created_at")
       .single();
 
     return NextResponse.json({
       webhook,
-      secret,
+      secret: secretRaw,
       message: "Save this signing secret — it won't be shown again. Use it to verify webhook payloads with HMAC-SHA256.",
     });
   } catch {

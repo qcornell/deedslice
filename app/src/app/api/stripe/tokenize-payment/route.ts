@@ -51,6 +51,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ clientSecret: paymentIntent.client_secret, amount: 19900 });
   } catch (err: any) {
     console.error("Payment error:", err);
-    return NextResponse.json({ error: err.message || "Payment error" }, { status: 500 });
+    return NextResponse.json({ error: "Payment processing failed. Please try again." }, { status: 500 });
   }
 }

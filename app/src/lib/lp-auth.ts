@@ -14,7 +14,21 @@ import crypto from "crypto";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import type { LpAccount } from "@/types/database";
 
-const LP_SECRET = process.env.LP_JWT_SECRET || process.env.NEXTAUTH_SECRET || "deedslice-lp-secret-change-me";
+const LP_SECRET = (() => {
+  const secret = process.env.LP_JWT_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL: LP_JWT_SECRET (or NEXTAUTH_SECRET) must be set in production. " +
+        "LP sessions cannot be securely signed without a server secret."
+      );
+    }
+    // Dev/build fallback only — never used in production
+    console.warn("⚠️  LP_JWT_SECRET not set — using insecure dev fallback. Set LP_JWT_SECRET before deploying.");
+    return "deedslice-lp-dev-only-insecure";
+  }
+  return secret;
+})();
 
 // Simple JWT implementation (no dependency needed for HS256)
 function base64url(str: string): string {

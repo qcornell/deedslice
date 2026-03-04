@@ -20,8 +20,8 @@ import type { Property, Investor } from "@/types/database";
  *   - Transfer must not have already been completed
  */
 export async function POST(req: NextRequest) {
-  // Rate limit: 10 transfers per IP per hour
-  const blocked = applyRateLimit(req.headers, "transfer", { max: 10, windowSec: 3600 });
+  // Rate limit: 10 transfers per IP per hour (persistent — cross-instance)
+  const blocked = applyRateLimit(req.headers, "transfer", { max: 10, windowSec: 3600, persistent: true });
   if (blocked) return blocked;
 
   try {
@@ -124,9 +124,16 @@ export async function POST(req: NextRequest) {
         details: `Failed to transfer ${investor.slices_owned} slices to ${investor.name} (${investor.wallet_address}): ${result.error}`,
       } as any);
 
+      // Sanitize error message — don't leak raw Hedera SDK internals
+      const safeError = result.error?.includes("not found on")
+        ? result.error  // account-not-found is safe to show
+        : result.error?.includes("has not associated")
+        ? result.error  // association hint is useful
+        : "Token transfer failed. Check the wallet address and token association.";
+
       return NextResponse.json({
         ok: false,
-        error: result.error,
+        error: safeError,
       }, { status: 400 });
     }
 

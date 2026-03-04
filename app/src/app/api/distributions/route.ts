@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (insertErr || !dist) {
-      return NextResponse.json({ error: insertErr?.message || "Failed to create distribution" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to create distribution" }, { status: 500 });
     }
 
     // Email investor (fire and forget)
@@ -234,7 +234,7 @@ export async function PATCH(req: NextRequest) {
       .single();
 
     if (updateErr) {
-      return NextResponse.json({ error: updateErr.message }, { status: 500 });
+      return NextResponse.json({ error: "Failed to update distribution" }, { status: 500 });
     }
 
     // Audit log for status change

@@ -3,13 +3,14 @@ import { tokenizeProperty } from "@/lib/hedera/engine";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
 import { sendTokenizationEmail } from "@/lib/email";
-import { applyRateLimit } from "@/lib/rate-limit";
+import { applyRateLimitAsync } from "@/lib/rate-limit";
 import { fireWebhooks } from "@/lib/webhooks";
+import { sanitizePropertyName, sanitizeAddress, sanitizeText, sanitizePositiveNumber, sanitizePositiveInteger } from "@/lib/sanitize";
 import type { Profile, Property } from "@/types/database";
 
 export async function POST(req: NextRequest) {
   // Rate limit: 3 tokenizations per IP per hour
-  const blocked = applyRateLimit(req.headers, "tokenize", { max: 3, windowSec: 3600 });
+  const blocked = await applyRateLimitAsync(req.headers, "tokenize", { max: 3, windowSec: 3600 });
   if (blocked) return blocked;
 
   try {
@@ -56,10 +57,22 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, address, propertyType, valuationUsd, totalSlices, description, imageUrl } = body;
+    const { name: rawName, address: rawAddress, propertyType: rawType, valuationUsd: rawVal, totalSlices: rawSlices, description: rawDesc, imageUrl } = body;
+
+    // Sanitize all user inputs
+    const name = rawName ? sanitizePropertyName(rawName) : "";
+    const address = rawAddress ? sanitizeAddress(rawAddress) : "";
+    const propertyType = ["residential", "commercial", "land", "industrial", "mixed"].includes(rawType) ? rawType : "residential";
+    const valuationUsd = sanitizePositiveNumber(rawVal);
+    const totalSlices = sanitizePositiveInteger(rawSlices);
+    const description = rawDesc ? sanitizeText(rawDesc) : "";
 
     if (!name || !valuationUsd || !totalSlices) {
-      return NextResponse.json({ error: "Missing required fields: name, valuationUsd, totalSlices" }, { status: 400 });
+      return NextResponse.json({ error: "Missing or invalid required fields: name, valuationUsd, totalSlices" }, { status: 400 });
+    }
+
+    if (totalSlices > 10_000_000) {
+      return NextResponse.json({ error: "Total slices cannot exceed 10,000,000" }, { status: 400 });
     }
 
     // Starter plan → testnet sandbox, Pro+ → mainnet
@@ -72,7 +85,7 @@ export async function POST(req: NextRequest) {
         owner_id: user.id,
         name,
         address: address || null,
-        property_type: propertyType || "residential",
+        property_type: propertyType,
         valuation_usd: valuationUsd,
         total_slices: totalSlices,
         description: description || null,

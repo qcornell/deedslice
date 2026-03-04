@@ -5,6 +5,7 @@ import { logAuditEntry } from "@/lib/hedera/engine";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { fireWebhooks } from "@/lib/webhooks";
 import { sendDistributionEmail } from "@/lib/email";
+import { safeErrorMessage } from "@/lib/errors";
 import type { Property, Investor } from "@/types/database";
 
 /**
@@ -127,7 +128,8 @@ export async function POST(req: NextRequest) {
       .select();
 
     if (insertErr) {
-      return NextResponse.json({ error: insertErr.message }, { status: 500 });
+      console.error("Distribution batch insert error:", insertErr);
+      return NextResponse.json({ error: "Failed to record distributions. Please try again." }, { status: 500 });
     }
 
     // Audit log

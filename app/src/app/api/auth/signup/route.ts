@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendWelcomeEmail } from "@/lib/email";
-import { applyRateLimit } from "@/lib/rate-limit";
+import { applyRateLimitAsync } from "@/lib/rate-limit";
 
 const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,7 +12,7 @@ const supabaseAuth = createClient(
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 signups per IP per 15 minutes
-  const blocked = applyRateLimit(req.headers, "signup", { max: 5, windowSec: 900 });
+  const blocked = await applyRateLimitAsync(req.headers, "signup", { max: 5, windowSec: 900 });
   if (blocked) return blocked;
 
   try {
@@ -29,7 +29,13 @@ export async function POST(req: NextRequest) {
     });
 
     if (authError || !authData.user) {
-      return NextResponse.json({ error: authError?.message || "Signup failed" }, { status: 400 });
+      // Sanitize Supabase error messages
+      const safeMsg = authError?.message?.includes("already registered")
+        ? "An account with this email already exists."
+        : authError?.message?.includes("password")
+        ? "Password must be at least 6 characters."
+        : "Signup failed. Please try again.";
+      return NextResponse.json({ error: safeMsg }, { status: 400 });
     }
 
     await supabaseAdmin.from("ds_profiles").insert({

@@ -2,17 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { authenticateApiKey } from "@/lib/api-auth";
 import { applyRateLimit } from "@/lib/rate-limit";
+import { handleCorsPreFlight, withCors } from "@/lib/cors";
+
+export async function OPTIONS() {
+  return handleCorsPreFlight();
+}
 
 /**
  * GET /api/v1/properties/:id/audit — List audit entries for a property
  */
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const blocked = applyRateLimit(req.headers, "api-v1-audit", { max: 60, windowSec: 60 });
-  if (blocked) return blocked;
+  if (blocked) return withCors(blocked);
 
   try {
     const auth = await authenticateApiKey(req.headers.get("authorization"));
-    if (!auth) return NextResponse.json({ error: "API key required" }, { status: 401 });
+    if (!auth) return withCors(NextResponse.json({ error: "API key required" }, { status: 401 }));
 
     // Verify ownership
     const { data: prop } = await supabaseAdmin
@@ -22,7 +27,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .eq("owner_id", auth.user_id)
       .single();
 
-    if (!prop) return NextResponse.json({ error: "Property not found" }, { status: 404 });
+    if (!prop) return withCors(NextResponse.json({ error: "Property not found" }, { status: 404 }));
 
     const { data: entries } = await supabaseAdmin
       .from("ds_audit_entries")
@@ -31,11 +36,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .order("created_at", { ascending: false })
       .limit(100);
 
-    return NextResponse.json({ ok: true, auditEntries: entries || [] });
+    return withCors(NextResponse.json({ ok: true, auditEntries: entries || [] }));
   } catch (err: any) {
     if (err.message?.includes("API key") || err.message?.includes("Enterprise")) {
-      return NextResponse.json({ error: err.message }, { status: 403 });
+      return withCors(NextResponse.json({ error: err.message }, { status: 403 }));
     }
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return withCors(NextResponse.json({ error: "Internal server error" }, { status: 500 }));
   }
 }
