@@ -21,6 +21,7 @@ interface OrgData {
 
 interface BrandingData {
   logo_url: string | null;
+  logo_dark_url: string | null;
   favicon_url: string | null;
   primary_color: string;
   secondary_color: string;
@@ -43,6 +44,7 @@ interface SettingsData {
 
 const DEFAULT_BRANDING: BrandingData = {
   logo_url: null,
+  logo_dark_url: null,
   favicon_url: null,
   primary_color: "#0D9488",
   secondary_color: "#0F172A",
@@ -130,6 +132,7 @@ export default function WhiteLabelSettings({ session }: Props) {
         body: JSON.stringify({
           branding: {
             logo_url: branding.logo_url,
+            logo_dark_url: branding.logo_dark_url,
             favicon_url: branding.favicon_url,
             primary_color: branding.primary_color,
             secondary_color: branding.secondary_color,
@@ -349,11 +352,18 @@ export default function WhiteLabelSettings({ session }: Props) {
               hint="Used in magic link emails instead of 'DeedSlice'"
             />
             <Field
-              label="Logo URL"
+              label="Logo URL (Light Mode)"
               value={branding.logo_url || ""}
               onChange={v => setBranding(b => ({ ...b, logo_url: v || null }))}
               placeholder="https://yoursite.com/logo.png"
-              hint="Recommended: 200×40px transparent PNG"
+              hint="Dark logo for light backgrounds. Recommended: 200×40px transparent PNG"
+            />
+            <Field
+              label="Logo URL (Dark Mode)"
+              value={branding.logo_dark_url || ""}
+              onChange={v => setBranding(b => ({ ...b, logo_dark_url: v || null }))}
+              placeholder="https://yoursite.com/logo-white.png"
+              hint="Light/white logo for dark backgrounds. If empty, light-mode logo is used everywhere."
             />
             <Field
               label="Favicon URL"

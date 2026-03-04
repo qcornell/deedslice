@@ -3,6 +3,7 @@
 /**
  * DataTable — Clean financial data table for LP portal
  * Consistent headers, row hover, optional on-chain links.
+ * Supports dark mode via CSS custom properties from portal layout.
  */
 
 import { ReactNode } from "react";
@@ -26,28 +27,32 @@ export default function DataTable<T>({ columns, data, emptyMessage = "No data.",
   if (data.length === 0) {
     return (
       <div
-        className="bg-white rounded-xl border p-8 text-center"
-        style={{ borderColor: "#E2E8F0" }}
+        className="rounded-xl border p-8 text-center"
+        style={{ background: "var(--lp-card-bg, #FFFFFF)", borderColor: "var(--lp-border, #E2E8F0)" }}
       >
-        <p className="text-[13px]" style={{ color: "#94A3B8" }}>{emptyMessage}</p>
+        <p className="text-[13px]" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{emptyMessage}</p>
       </div>
     );
   }
 
   return (
     <div
-      className="bg-white rounded-xl border overflow-hidden"
-      style={{ borderColor: "#E2E8F0", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
+      className="rounded-xl border overflow-hidden"
+      style={{
+        background: "var(--lp-card-bg, #FFFFFF)",
+        borderColor: "var(--lp-border, #E2E8F0)",
+        boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+      }}
     >
       <table className="w-full">
         <thead>
-          <tr style={{ borderBottom: "1px solid #F1F5F9" }}>
+          <tr style={{ borderBottom: "1px solid var(--lp-border-subtle, #F1F5F9)" }}>
             {columns.map(col => (
               <th
                 key={col.key}
                 className="px-4 py-3 text-[10px] font-semibold tracking-wide uppercase"
                 style={{
-                  color: "#94A3B8",
+                  color: "var(--lp-text-muted, #94A3B8)",
                   textAlign: col.align || "left",
                   letterSpacing: "0.06em",
                   width: col.width,
@@ -63,15 +68,15 @@ export default function DataTable<T>({ columns, data, emptyMessage = "No data.",
             <tr
               key={keyExtractor(row)}
               className="transition-colors"
-              style={{ borderBottom: "1px solid #F8FAFC" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#FAFBFC")}
+              style={{ borderBottom: "1px solid var(--lp-border-subtle, #F8FAFC)" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "var(--lp-hover-row, #FAFBFC)")}
               onMouseLeave={e => (e.currentTarget.style.background = "")}
             >
               {columns.map(col => (
                 <td
                   key={col.key}
                   className="px-4 py-3 text-[13px]"
-                  style={{ textAlign: col.align || "left", color: "#0F172A" }}
+                  style={{ textAlign: col.align || "left", color: "var(--lp-text, #0F172A)" }}
                 >
                   {col.render(row)}
                 </td>

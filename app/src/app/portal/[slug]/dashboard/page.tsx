@@ -156,7 +156,7 @@ export default function LpDashboard() {
             Portfolio
           </h1>
           {lpName && (
-            <p className="text-[12px] mt-0.5" style={{ color: "#94A3B8" }}>
+            <p className="text-[12px] mt-0.5" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>
               Welcome back, {lpName}
             </p>
           )}
@@ -164,9 +164,9 @@ export default function LpDashboard() {
         <button
           onClick={handleLogout}
           className="text-[12px] font-medium px-3 py-1.5 rounded-lg border transition-colors"
-          style={{ color: "#94A3B8", borderColor: "#E2E8F0" }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = "#CBD5E1"; e.currentTarget.style.color = "#64748B"; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.color = "#94A3B8"; }}
+          style={{ color: "var(--lp-text-muted, #94A3B8)", borderColor: "var(--lp-border, #E2E8F0)" }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--lp-text-muted, #CBD5E1)"; e.currentTarget.style.color = "var(--lp-text-secondary, #64748B)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--lp-border, #E2E8F0)"; e.currentTarget.style.color = "var(--lp-text-muted, #94A3B8)"; }}
         >
           Sign Out
         </button>
@@ -219,12 +219,12 @@ function PropertyList({
   if (properties.length === 0) {
     return (
       <div
-        className="bg-white rounded-xl border p-12 text-center"
-        style={{ borderColor: "#E2E8F0" }}
+        className="rounded-xl border p-12 text-center"
+        style={{ borderColor: "var(--lp-border, #E2E8F0)" }}
       >
         <div className="text-3xl mb-3 opacity-30">📂</div>
-        <p className="text-[13px] font-medium" style={{ color: "#64748B" }}>No investments yet</p>
-        <p className="text-[12px] mt-1" style={{ color: "#94A3B8" }}>
+        <p className="text-[13px] font-medium" style={{ color: "var(--lp-text-secondary, #64748B)" }}>No investments yet</p>
+        <p className="text-[12px] mt-1" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>
           Your properties will appear here once your operator assigns them.
         </p>
       </div>
@@ -234,36 +234,36 @@ function PropertyList({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[13px] font-semibold" style={{ color: "#64748B" }}>Investments</h2>
-        <span className="text-[11px]" style={{ color: "#94A3B8" }}>{properties.length} {properties.length === 1 ? "property" : "properties"}</span>
+        <h2 className="text-[13px] font-semibold" style={{ color: "var(--lp-text-secondary, #64748B)" }}>Investments</h2>
+        <span className="text-[11px]" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{properties.length} {properties.length === 1 ? "property" : "properties"}</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {properties.map(p => (
           <button
             key={p.propertyId}
             onClick={() => onSelect(p.propertyId)}
-            className="bg-white rounded-xl border text-left p-4 transition-all"
-            style={{ borderColor: "#E2E8F0", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
+            className="rounded-xl border text-left p-4 transition-all"
+            style={{ borderColor: "var(--lp-border, #E2E8F0)", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = "#CBD5E1"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(15,23,42,0.06)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(15,23,42,0.04)"; }}
           >
             <div className="flex gap-3">
               {p.imageUrl ? (
-                <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 border" style={{ borderColor: "#F1F5F9" }}>
+                <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 border" style={{ borderColor: "var(--lp-border-subtle, #F1F5F9)" }}>
                   <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <div className="w-14 h-14 rounded-lg flex items-center justify-center shrink-0 text-lg" style={{ background: "#F8FAFC" }}>
+                <div className="w-14 h-14 rounded-lg flex items-center justify-center shrink-0 text-lg" style={{ background: "var(--lp-bg, #F8FAFC)" }}>
                   🏠
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-[13px] font-semibold truncate" style={{ color: "#0F172A" }}>{p.name}</h3>
+                  <h3 className="text-[13px] font-semibold truncate" style={{ color: "var(--lp-text, #0F172A)" }}>{p.name}</h3>
                   <StatusBadge status={p.status} />
                 </div>
                 {p.address && (
-                  <p className="text-[11px] mt-0.5 truncate" style={{ color: "#94A3B8" }}>{p.address}</p>
+                  <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{p.address}</p>
                 )}
                 <div className="flex items-center gap-4 mt-2.5">
                   <Metric label="Value" value={`$${p.myValue.toLocaleString()}`} />
@@ -282,8 +282,8 @@ function PropertyList({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-[10px]" style={{ color: "#94A3B8" }}>{label}</div>
-      <div className="text-[12px] font-semibold" style={{ color: "#0F172A" }}>{value}</div>
+      <div className="text-[10px]" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{label}</div>
+      <div className="text-[12px] font-semibold" style={{ color: "var(--lp-text, #0F172A)" }}>{value}</div>
     </div>
   );
 }
@@ -326,7 +326,7 @@ function PropertyDetail({
       <button
         onClick={onBack}
         className="inline-flex items-center gap-1.5 text-[12px] font-medium mb-4 transition-colors"
-        style={{ color: "#94A3B8" }}
+        style={{ color: "var(--lp-text-muted, #94A3B8)" }}
         onMouseEnter={e => (e.currentTarget.style.color = "#64748B")}
         onMouseLeave={e => (e.currentTarget.style.color = "#94A3B8")}
       >
@@ -336,13 +336,13 @@ function PropertyDetail({
 
       {/* Property Header Card */}
       <div
-        className="bg-white rounded-xl border p-5 mb-4"
-        style={{ borderColor: "#E2E8F0", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
+        className="rounded-xl border p-5 mb-4"
+        style={{ borderColor: "var(--lp-border, #E2E8F0)", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
       >
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="flex gap-4">
             {p.imageUrl && (
-              <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border hidden md:block" style={{ borderColor: "#F1F5F9" }}>
+              <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border hidden md:block" style={{ borderColor: "var(--lp-border-subtle, #F1F5F9)" }}>
                 <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
               </div>
             )}
@@ -351,13 +351,13 @@ function PropertyDetail({
                 <h2 className="text-lg font-bold" style={{ color: "var(--lp-text)", letterSpacing: "-0.01em" }}>{p.name}</h2>
                 <StatusBadge status={p.status} size="md" />
               </div>
-              {p.address && <p className="text-[12px] mt-0.5" style={{ color: "#94A3B8" }}>{p.address}</p>}
+              {p.address && <p className="text-[12px] mt-0.5" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{p.address}</p>}
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[11px] capitalize" style={{ color: "#94A3B8" }}>{p.propertyType}</span>
+                <span className="text-[11px] capitalize" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{p.propertyType}</span>
                 {p.shareTokenSymbol && (
                   <>
-                    <span className="text-[11px]" style={{ color: "#CBD5E1" }}>·</span>
-                    <span className="text-[11px] font-mono" style={{ color: "#94A3B8" }}>{p.shareTokenSymbol}</span>
+                    <span className="text-[11px]" style={{ color: "var(--lp-text-muted, #CBD5E1)" }}>·</span>
+                    <span className="text-[11px] font-mono" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{p.shareTokenSymbol}</span>
                   </>
                 )}
               </div>
@@ -367,7 +367,7 @@ function PropertyDetail({
             <div className="text-2xl font-bold" style={{ color: "var(--lp-text)", letterSpacing: "-0.02em" }}>
               ${p.myValue.toLocaleString()}
             </div>
-            <div className="text-[12px] mt-0.5" style={{ color: "#94A3B8" }}>
+            <div className="text-[12px] mt-0.5" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>
               {p.myPercentage}% ownership · {p.mySlices.toLocaleString()} slices
             </div>
           </div>
@@ -375,7 +375,7 @@ function PropertyDetail({
       </div>
 
       {/* Tab Bar */}
-      <div className="flex border-b mb-5" style={{ borderColor: "#E2E8F0" }}>
+      <div className="flex border-b mb-5" style={{ borderColor: "var(--lp-border, #E2E8F0)" }}>
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -431,10 +431,10 @@ function PropertyDetail({
 
           {/* On-Chain Details */}
           <div
-            className="bg-white rounded-xl border p-5"
-            style={{ borderColor: "#E2E8F0", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
+            className="rounded-xl border p-5"
+            style={{ borderColor: "var(--lp-border, #E2E8F0)", boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
           >
-            <h3 className="text-[11px] font-semibold tracking-wide uppercase mb-4" style={{ color: "#94A3B8", letterSpacing: "0.06em" }}>
+            <h3 className="text-[11px] font-semibold tracking-wide uppercase mb-4" style={{ color: "var(--lp-text-muted, #94A3B8)", letterSpacing: "0.06em" }}>
               On-Chain Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8">
@@ -495,7 +495,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between py-0.5">
-      <span className="text-[12px]" style={{ color: "#64748B" }}>{label}</span>
+      <span className="text-[12px]" style={{ color: "var(--lp-text-secondary, #64748B)" }}>{label}</span>
       {children || (
         link ? (
           <a
@@ -511,7 +511,7 @@ function DetailRow({
             <span className="ml-1 text-[10px]">↗</span>
           </a>
         ) : (
-          <span className={`text-[12px] ${mono ? "font-mono" : ""}`} style={{ color: "#0F172A" }}>
+          <span className={`text-[12px] ${mono ? "font-mono" : ""}`} style={{ color: "var(--lp-text, #0F172A)" }}>
             {value}
           </span>
         )
@@ -535,8 +535,8 @@ function DocumentsView({ documents, slug }: { documents: DocumentRecord[]; slug:
       header: "Document",
       render: (doc) => (
         <div>
-          <div className="text-[13px] font-medium" style={{ color: "#0F172A" }}>{doc.label}</div>
-          <div className="text-[11px]" style={{ color: "#94A3B8" }}>{doc.file_name}</div>
+          <div className="text-[13px] font-medium" style={{ color: "var(--lp-text, #0F172A)" }}>{doc.label}</div>
+          <div className="text-[11px]" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{doc.file_name}</div>
         </div>
       ),
     },
@@ -544,7 +544,7 @@ function DocumentsView({ documents, slug }: { documents: DocumentRecord[]; slug:
       key: "type",
       header: "Type",
       render: (doc) => (
-        <span className="text-[12px] capitalize" style={{ color: "#64748B" }}>
+        <span className="text-[12px] capitalize" style={{ color: "var(--lp-text-secondary, #64748B)" }}>
           {doc.document_type.replace(/_/g, " ")}
         </span>
       ),
@@ -553,7 +553,7 @@ function DocumentsView({ documents, slug }: { documents: DocumentRecord[]; slug:
       key: "date",
       header: "Uploaded",
       render: (doc) => (
-        <span className="text-[12px]" style={{ color: "#64748B" }}>
+        <span className="text-[12px]" style={{ color: "var(--lp-text-secondary, #64748B)" }}>
           {new Date(doc.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
         </span>
       ),
@@ -579,7 +579,7 @@ function DocumentsView({ documents, slug }: { documents: DocumentRecord[]; slug:
       align: "right",
       width: "80px",
       render: (doc) => (
-        <span className="text-[12px] font-mono" style={{ color: "#94A3B8" }}>
+        <span className="text-[12px] font-mono" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>
           {formatSize(doc.file_size)}
         </span>
       ),
@@ -600,7 +600,7 @@ function DocumentsView({ documents, slug }: { documents: DocumentRecord[]; slug:
           >
             ↓
           </a>
-        ) : <span style={{ color: "#CBD5E1" }}>—</span>
+        ) : <span style={{ color: "var(--lp-text-muted, #CBD5E1)" }}>—</span>
       ),
     },
   ];
@@ -631,7 +631,7 @@ function TransactionsView({ distributions, hashscanBase }: { distributions: Dist
           other: "Other",
         };
         return (
-          <span className="text-[13px] font-medium" style={{ color: "#0F172A" }}>
+          <span className="text-[13px] font-medium" style={{ color: "var(--lp-text, #0F172A)" }}>
             {typeLabels[d.type] || d.type}
           </span>
         );
@@ -641,7 +641,7 @@ function TransactionsView({ distributions, hashscanBase }: { distributions: Dist
       key: "period",
       header: "Period",
       render: (d) => (
-        <span className="text-[12px]" style={{ color: "#64748B" }}>
+        <span className="text-[12px]" style={{ color: "var(--lp-text-secondary, #64748B)" }}>
           {d.period || new Date(d.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
         </span>
       ),
@@ -678,7 +678,7 @@ function TransactionsView({ distributions, hashscanBase }: { distributions: Dist
           View ↗
         </a>
       ) : (
-        <span className="text-[11px]" style={{ color: "#CBD5E1" }}>—</span>
+        <span className="text-[11px]" style={{ color: "var(--lp-text-muted, #CBD5E1)" }}>—</span>
       ),
     },
   ];
@@ -702,9 +702,9 @@ function AuditView({ auditEntries, hashscanBase }: { auditEntries: AuditEntry[];
       header: "Date",
       width: "140px",
       render: (e) => (
-        <span className="text-[12px] font-mono" style={{ color: "#64748B" }}>
+        <span className="text-[12px] font-mono" style={{ color: "var(--lp-text-secondary, #64748B)" }}>
           {new Date(e.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-          <span className="ml-1.5 text-[10px]" style={{ color: "#94A3B8" }}>
+          <span className="ml-1.5 text-[10px]" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>
             {new Date(e.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
           </span>
         </span>
@@ -715,11 +715,11 @@ function AuditView({ auditEntries, hashscanBase }: { auditEntries: AuditEntry[];
       header: "Action",
       render: (e) => (
         <div>
-          <span className="text-[13px] font-medium capitalize" style={{ color: "#0F172A" }}>
+          <span className="text-[13px] font-medium capitalize" style={{ color: "var(--lp-text, #0F172A)" }}>
             {e.action.replace(/_/g, " ")}
           </span>
           {e.details && (
-            <div className="text-[11px] mt-0.5 max-w-md truncate" style={{ color: "#94A3B8" }}>{e.details}</div>
+            <div className="text-[11px] mt-0.5 max-w-md truncate" style={{ color: "var(--lp-text-muted, #94A3B8)" }}>{e.details}</div>
           )}
         </div>
       ),
@@ -751,7 +751,7 @@ function AuditView({ auditEntries, hashscanBase }: { auditEntries: AuditEntry[];
           View ↗
         </a>
       ) : (
-        <span className="text-[11px]" style={{ color: "#CBD5E1" }}>—</span>
+        <span className="text-[11px]" style={{ color: "var(--lp-text-muted, #CBD5E1)" }}>—</span>
       ),
     },
   ];

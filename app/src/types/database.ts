@@ -250,6 +250,7 @@ export type Database = {
           id: string;
           org_id: string;
           logo_url: string | null;
+          logo_dark_url: string | null;
           favicon_url: string | null;
           primary_color: string;
           secondary_color: string;
@@ -266,6 +267,7 @@ export type Database = {
           id?: string;
           org_id: string;
           logo_url?: string | null;
+          logo_dark_url?: string | null;
           favicon_url?: string | null;
           primary_color?: string;
           secondary_color?: string;

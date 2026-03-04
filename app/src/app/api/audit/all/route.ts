@@ -28,13 +28,18 @@ export async function GET(req: NextRequest) {
 
     const propertyIds = properties.map((p: any) => p.id);
 
+    // Pagination
+    const page = Math.max(1, Number(req.nextUrl.searchParams.get("page") || "1"));
+    const limit = Math.min(200, Math.max(1, Number(req.nextUrl.searchParams.get("limit") || "100")));
+    const offset = (page - 1) * limit;
+
     // Single query for ALL audit entries across all properties
-    const { data: entries } = await supabaseAdmin
+    const { data: entries, count } = await supabaseAdmin
       .from("ds_audit_entries")
-      .select("*")
+      .select("*", { count: "exact" })
       .in("property_id", propertyIds)
       .order("created_at", { ascending: false })
-      .limit(200);
+      .range(offset, offset + limit - 1);
 
     // Build a name lookup map
     const nameMap: Record<string, string> = {};
@@ -51,6 +56,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       auditEntries: enriched,
       properties: properties.filter((p: any) => p.status === "live"),
+      pagination: { page, limit, total: count ?? enriched.length, pages: Math.ceil((count ?? enriched.length) / limit) },
     });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

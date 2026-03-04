@@ -35,12 +35,18 @@ export async function GET(req: NextRequest) {
 
     if (!prop) return NextResponse.json({ error: "Property not found" }, { status: 404 });
 
+    // Pagination
+    const page = Math.max(1, Number(req.nextUrl.searchParams.get("page") || "1"));
+    const limit = Math.min(100, Math.max(1, Number(req.nextUrl.searchParams.get("limit") || "50")));
+    const offset = (page - 1) * limit;
+
     // Load distributions with investor names
-    const { data: distributions } = await supabaseAdmin
+    const { data: distributions, count } = await supabaseAdmin
       .from("ds_distributions")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("property_id", propertyId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     // Load investors for name lookup
     const { data: investors } = await supabaseAdmin
@@ -56,7 +62,10 @@ export async function GET(req: NextRequest) {
       investor_email: (investorMap.get(d.investor_id) as any)?.email || null,
     }));
 
-    return NextResponse.json({ distributions: enriched });
+    return NextResponse.json({
+      distributions: enriched,
+      pagination: { page, limit, total: count ?? enriched.length, pages: Math.ceil((count ?? enriched.length) / limit) },
+    });
   } catch (err) {
     console.error("Distributions list error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase/client";
@@ -14,6 +14,14 @@ const PLAN_DETAILS = {
 };
 
 export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-ds-accent border-t-transparent rounded-full animate-spin" /></div>}>
+      <SettingsPageInner />
+    </Suspense>
+  );
+}
+
+function SettingsPageInner() {
   const { session, user } = useAuth();
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
