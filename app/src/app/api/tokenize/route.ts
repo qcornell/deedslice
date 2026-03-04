@@ -3,9 +3,14 @@ import { tokenizeProperty } from "@/lib/hedera/engine";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
 import { sendTokenizationEmail } from "@/lib/email";
+import { applyRateLimit } from "@/lib/rate-limit";
 import type { Profile, Property } from "@/types/database";
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 3 tokenizations per IP per hour
+  const blocked = applyRateLimit(req.headers, "tokenize", { max: 3, windowSec: 3600 });
+  if (blocked) return blocked;
+
   try {
     const token = extractToken(req.headers.get("authorization"));
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

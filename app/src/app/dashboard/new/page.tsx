@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { HEDERA_NETWORK, HASHSCAN_BASE } from "@/lib/hedera/config";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import ImageUpload from "@/components/ImageUpload";
+import { supabase } from "@/lib/supabase/client";
+import type { Profile } from "@/types/database";
 
 interface TxStep {
   step: string;
@@ -21,7 +23,7 @@ interface PropertyDetails {
 }
 
 export default function NewPropertyPage() {
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -42,13 +44,93 @@ export default function NewPropertyPage() {
   const [success, setSuccess] = useState(false);
   const [propertyId, setPropertyId] = useState("");
 
+  // Profile / plan state (for tokenization fee gating)
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [paymentPending, setPaymentPending] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("ds_profiles").select("*").eq("id", user.id).single()
+      .then(({ data }) => { if (data) setProfile(data as any); });
+  }, [user]);
+
   const pricePerSlice = valuationUsd && totalSlices
     ? Math.round(Number(valuationUsd) / Number(totalSlices))
     : 0;
 
+  // Check if user needs to pay the $199 tokenization fee
+  // Starter: first property free (testnet). Pro: first property included, additional $199 each.
+  // Enterprise: all tokenizations included.
+  const needsTokenizationFee = profile
+    ? profile.plan === "pro" && profile.properties_used >= 1
+    : false;
+
+  async function handlePayAndDeploy() {
+    if (!session) return;
+    setPaymentPending(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/stripe/tokenize-checkout", {
+        method: "POST",
+        headers: getAuthHeaders(session),
+        body: JSON.stringify({
+          propertyName: name,
+          returnData: { name, address, propertyType, valuationUsd: Number(valuationUsd), totalSlices: Number(totalSlices), description, imageUrl },
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        // Save form data to sessionStorage so we can resume after Stripe redirect
+        sessionStorage.setItem("ds_pending_tokenize", JSON.stringify({
+          name, address, propertyType, valuationUsd, totalSlices, description, imageUrl,
+        }));
+        window.location.href = data.url;
+      } else {
+        setError(data.error || "Failed to create payment");
+      }
+    } catch (err: any) {
+      setError(err.message || "Network error");
+    } finally {
+      setPaymentPending(false);
+    }
+  }
+
+  // Resume tokenization after successful Stripe payment
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tokenize_paid") === "true" && session) {
+      const saved = sessionStorage.getItem("ds_pending_tokenize");
+      if (saved) {
+        sessionStorage.removeItem("ds_pending_tokenize");
+        const data = JSON.parse(saved);
+        setName(data.name || "");
+        setAddress(data.address || "");
+        setPropertyType(data.propertyType || "residential");
+        setValuationUsd(data.valuationUsd || "");
+        setTotalSlices(data.totalSlices || "1000");
+        setDescription(data.description || "");
+        setImageUrl(data.imageUrl || null);
+        // Auto-trigger deploy after payment
+        window.history.replaceState({}, "", "/dashboard/new");
+        setTimeout(() => {
+          const form = document.getElementById("tokenize-form") as HTMLFormElement;
+          if (form) form.requestSubmit();
+        }, 500);
+      }
+    }
+  }, [session]);
+
   async function handleDeploy(e: React.FormEvent) {
     e.preventDefault();
     if (!session) return;
+
+    // If they need to pay first, redirect to Stripe
+    if (needsTokenizationFee) {
+      handlePayAndDeploy();
+      return;
+    }
+
     setError("");
     setDeploying(true);
     setCurrentStep("Initiating tokenization...");
@@ -107,7 +189,7 @@ export default function NewPropertyPage() {
         </p>
       </div>
 
-      <form onSubmit={handleDeploy} className="glass rounded-2xl p-8 space-y-6">
+      <form id="tokenize-form" onSubmit={handleDeploy} className="glass rounded-2xl p-8 space-y-6">
         {/* Property Image */}
         <div>
           <label className="block text-xs text-ds-muted mb-1.5 uppercase tracking-wider">Property Photo</label>
@@ -306,11 +388,32 @@ export default function NewPropertyPage() {
               <span className="text-ds-text">HCS topic (tamper-proof)</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-ds-muted">💰 Est. Cost</span>
-              <span className="text-ds-green">~$0.01 (Hedera fees)</span>
+              <span className="text-ds-muted">💰 Hedera Fees</span>
+              <span className="text-ds-green">~$0.01</span>
             </div>
+            {needsTokenizationFee && (
+              <div className="flex justify-between pt-2 border-t border-ds-border">
+                <span className="text-ds-muted">💳 Tokenization Fee</span>
+                <span className="text-ds-text font-semibold">$199.99</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Tokenization fee notice for Pro users */}
+        {needsTokenizationFee && (
+          <div className="rounded-xl p-4 border bg-amber-500/5 border-amber-500/20">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-amber-500">💳</span>
+              <span className="text-xs font-semibold text-amber-600">Tokenization Fee — $199.99</span>
+            </div>
+            <p className="text-[10px] text-ds-muted ml-6">
+              Pro plan includes 1 free tokenization. Additional properties are $199.99 each.
+              You'll be redirected to Stripe to complete payment before deployment.
+              {profile?.plan === "pro" && " Upgrade to Enterprise for unlimited tokenizations."}
+            </p>
+          </div>
+        )}
 
         {error && (
           <div className="bg-ds-red/10 border border-ds-red/30 rounded-lg px-4 py-3 text-sm text-ds-red">
@@ -352,15 +455,16 @@ export default function NewPropertyPage() {
 
         <button
           type="submit"
-          disabled={deploying || !name || !valuationUsd || !totalSlices}
+          disabled={deploying || paymentPending || !name || !valuationUsd || !totalSlices}
           className="w-full text-white font-semibold py-3.5 rounded-[10px] transition-all disabled:opacity-50 text-[13px] hover:translate-y-[-1px]"
           style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
         >
-          {deploying ? "Deploying to Hedera..." : "⚡ Deploy to Hedera"}
+          {deploying ? "Deploying to Hedera..." : paymentPending ? "Redirecting to payment..." : needsTokenizationFee ? "💳 Pay $199.99 & Deploy" : "⚡ Deploy to Hedera"}
         </button>
 
         <p className="text-center text-[10px] text-ds-muted">
-          5 on-chain transactions · ~$0.01 total · results in ~10 seconds
+          5 on-chain transactions · ~$0.01 Hedera fees · results in ~10 seconds
+          {needsTokenizationFee && " · +$199.99 tokenization fee"}
         </p>
         <p className="text-center text-[9px] text-ds-muted/50 mt-1">
           By deploying, you agree to our <a href="/terms" target="_blank" className="text-ds-accent-text/60 hover:underline">Terms of Service</a>.

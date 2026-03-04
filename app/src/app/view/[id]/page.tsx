@@ -195,6 +195,11 @@ export default function InvestorViewPage() {
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: pieColors[i % pieColors.length] }} />
                       <span className="font-medium">{inv.name}</span>
+                      {inv.transfer_status === "transferred" && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-ds-green/15 text-ds-green border border-ds-green/30">
+                          ✓ On-chain
+                        </span>
+                      )}
                     </div>
                     <div className="text-right">
                       <span className="font-semibold">{inv.percentage}%</span>
@@ -208,6 +213,18 @@ export default function InvestorViewPage() {
                       style={{ width: `${inv.percentage}%`, backgroundColor: pieColors[i % pieColors.length] }}
                     />
                   </div>
+                  {inv.transfer_status === "transferred" && inv.transfer_tx_id && (
+                    <div className="mt-1 text-[10px]">
+                      <a
+                        href={`${HASHSCAN_BASE}/transaction/${inv.transfer_tx_id.split("@").length === 2 ? inv.transfer_tx_id.split("@")[0] + "-" + inv.transfer_tx_id.split("@")[1].replace(".", "-") : inv.transfer_tx_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-ds-accent-text hover:underline"
+                      >
+                        View transfer on HashScan →
+                      </a>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

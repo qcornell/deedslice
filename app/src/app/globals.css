@@ -145,6 +145,11 @@ input:focus, select:focus, textarea:focus {
 .heading-tight { letter-spacing: -0.025em; }
 .title-tight { letter-spacing: -0.01em; }
 
+/* ============= FONT WEIGHT OVERRIDES ============= */
+/* Muted out — Inter 700/600 looks blotchy on console */
+/* .font-bold { font-weight: 700; } */
+/* .font-semibold { font-weight: 600; } */
+
 /* ============= CELEBRATION ANIMATIONS ============= */
 @keyframes spin-slow {
   from { transform: rotate(0deg); }

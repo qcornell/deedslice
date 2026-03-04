@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 signups per IP per 15 minutes
+  const blocked = applyRateLimit(req.headers, "signup", { max: 5, windowSec: 900 });
+  if (blocked) return blocked;
+
   try {
     const { email, password, fullName, companyName } = await req.json();
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 /**
  * GET /api/property-value?address=2960+Boxelder+Dr,+Bryan,+TX+77807
@@ -7,6 +8,10 @@ import { NextRequest, NextResponse } from "next/server";
  * Free tier: 50 calls/month — plenty for early stage.
  */
 export async function GET(req: NextRequest) {
+  // Rate limit: 10 lookups per IP per hour (RentCast has 50/mo limit)
+  const blocked = applyRateLimit(req.headers, "property-value", { max: 10, windowSec: 3600 });
+  if (blocked) return blocked;
+
   const address = req.nextUrl.searchParams.get("address");
 
   if (!address) {

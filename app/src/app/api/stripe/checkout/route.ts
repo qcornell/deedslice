@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
+import { applyRateLimit } from "@/lib/rate-limit";
 import Stripe from "stripe";
 import type { Profile } from "@/types/database";
 
@@ -16,6 +17,10 @@ const PLANS: Record<string, { priceId: string; propertiesLimit: number }> = {
 };
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 checkout sessions per IP per hour
+  const blocked = applyRateLimit(req.headers, "stripe-checkout", { max: 5, windowSec: 3600 });
+  if (blocked) return blocked;
+
   try {
     const token = extractToken(req.headers.get("authorization"));
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

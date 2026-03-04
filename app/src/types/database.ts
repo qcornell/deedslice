@@ -120,6 +120,9 @@ export type Database = {
           wallet_address: string | null;
           slices_owned: number;
           percentage: number;
+          transfer_status: "pending" | "transferred" | "failed" | null;
+          transfer_tx_id: string | null;
+          transferred_at: string | null;
           added_at: string;
         };
         Insert: {
@@ -130,6 +133,9 @@ export type Database = {
           wallet_address?: string | null;
           slices_owned: number;
           percentage: number;
+          transfer_status?: "pending" | "transferred" | "failed" | null;
+          transfer_tx_id?: string | null;
+          transferred_at?: string | null;
           added_at?: string;
         };
         Update: {
@@ -140,6 +146,9 @@ export type Database = {
           wallet_address?: string | null;
           slices_owned?: number;
           percentage?: number;
+          transfer_status?: "pending" | "transferred" | "failed" | null;
+          transfer_tx_id?: string | null;
+          transferred_at?: string | null;
           added_at?: string;
         };
         Relationships: [];

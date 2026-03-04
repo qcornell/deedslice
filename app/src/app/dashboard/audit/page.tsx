@@ -42,8 +42,12 @@ export default function AuditPage() {
   const actionColors: Record<string, string> = {
     PROPERTY_TOKENIZED: "text-ds-green",
     INVESTOR_ADDED: "text-ds-accent-text",
+    INVESTOR_UPDATED: "text-ds-accent-text",
     INVESTOR_REMOVED: "text-ds-red",
+    TOKENS_TRANSFERRED: "text-ds-green",
+    TRANSFER_FAILED: "text-ds-red",
     VALUATION_UPDATED: "text-yellow-400",
+    PROPERTY_UPDATED: "text-yellow-400",
     DOCUMENT_ADDED: "text-ds-orange",
   };
 

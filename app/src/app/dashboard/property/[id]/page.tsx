@@ -9,6 +9,16 @@ import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
 import type { Property, Investor, AuditEntry, Document } from "@/types/database";
 
+function formatHashScanTx(txId: string, network: string) {
+  const atSplit = txId.split("@");
+  if (atSplit.length === 2) {
+    const accountId = atSplit[0];
+    const timestamp = atSplit[1].replace(".", "-");
+    return `https://hashscan.io/${network}/transaction/${accountId}-${timestamp}`;
+  }
+  return `https://hashscan.io/${network}/transaction/${txId}`;
+}
+
 function getTokenUrl(id: string, _network?: string) {
   return `${HASHSCAN_BASE}/token/${id}`;
 }
@@ -24,6 +34,10 @@ export default function PropertyDetailPage() {
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Transfer state
+  const [transferring, setTransferring] = useState<string | null>(null);
+  const [transferMsg, setTransferMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Edit mode state
   const [editing, setEditing] = useState(false);
@@ -344,8 +358,26 @@ export default function PropertyDetailPage() {
         <div className="glass rounded-2xl p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-semibold">Ownership</h2>
-            <span className="text-xs text-ds-muted">{investors.length} investor{investors.length !== 1 ? "s" : ""}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-ds-muted">{investors.length} investor{investors.length !== 1 ? "s" : ""}</span>
+              {investors.some(i => i.transfer_status === "transferred") && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-ds-green/15 text-ds-green border border-ds-green/30">
+                  {investors.filter(i => i.transfer_status === "transferred").length} on-chain
+                </span>
+              )}
+            </div>
           </div>
+
+          {/* Transfer messages */}
+          {transferMsg && (
+            <div className={`rounded-lg px-4 py-2 text-sm mb-4 ${
+              transferMsg.type === "success"
+                ? "bg-ds-green/10 border border-ds-green/30 text-ds-green"
+                : "bg-ds-red/10 border border-ds-red/30 text-ds-red"
+            }`}>
+              {transferMsg.text}
+            </div>
+          )}
 
           {/* Simple bar chart */}
           <div className="space-y-3 mb-5">
@@ -358,6 +390,16 @@ export default function PropertyDetailPage() {
                       style={{ backgroundColor: pieColors[i % pieColors.length] }}
                     />
                     <span>{inv.name}</span>
+                    {inv.transfer_status === "transferred" && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-ds-green/15 text-ds-green border border-ds-green/30">
+                        ✓ On-chain
+                      </span>
+                    )}
+                    {inv.transfer_status === "failed" && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-ds-red/15 text-ds-red border border-ds-red/30">
+                        ✗ Failed
+                      </span>
+                    )}
                   </div>
                   <span className="text-ds-muted text-xs">
                     {inv.slices_owned.toLocaleString()} slices · {inv.percentage}%
@@ -371,6 +413,55 @@ export default function PropertyDetailPage() {
                       backgroundColor: pieColors[i % pieColors.length],
                     }}
                   />
+                </div>
+                {/* Wallet + transfer action */}
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-[10px] text-ds-muted font-mono">
+                    {inv.wallet_address || "No wallet set"}
+                  </span>
+                  {inv.wallet_address && inv.transfer_status !== "transferred" && property.share_token_id && (
+                    <button
+                      onClick={async () => {
+                        if (!session) return;
+                        setTransferring(inv.id);
+                        setTransferMsg(null);
+                        try {
+                          const res = await fetch("/api/investors/transfer", {
+                            method: "POST",
+                            headers: getAuthHeaders(session),
+                            body: JSON.stringify({ investorId: inv.id }),
+                          });
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.error);
+                          setTransferMsg({ type: "success", text: `Transferred ${inv.slices_owned} slices to ${inv.name}!` });
+                          // Refresh
+                          const rr = await fetch(`/api/properties/${id}`, { headers: getAuthHeaders(session) });
+                          const rd = await rr.json();
+                          setInvestors(rd.investors || []);
+                          setAuditEntries(rd.auditEntries || []);
+                        } catch (err: any) {
+                          setTransferMsg({ type: "error", text: err.message });
+                        } finally {
+                          setTransferring(null);
+                        }
+                      }}
+                      disabled={transferring === inv.id}
+                      className="text-[10px] text-white px-2 py-0.5 rounded font-medium transition-all disabled:opacity-50"
+                      style={{ background: "#6c5ce7" }}
+                    >
+                      {transferring === inv.id ? "Sending..." : "🪙 Transfer"}
+                    </button>
+                  )}
+                  {inv.transfer_status === "transferred" && inv.transfer_tx_id && (
+                    <a
+                      href={formatHashScanTx(inv.transfer_tx_id, property.network)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-ds-accent-text hover:underline"
+                    >
+                      View TX →
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
@@ -389,6 +480,12 @@ export default function PropertyDetailPage() {
             <div className="flex justify-between">
               <span>Total Slices</span>
               <span className="text-ds-text">{property.total_slices.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Transferred On-chain</span>
+              <span className="text-ds-accent-text">
+                {investors.filter(i => i.transfer_status === "transferred").reduce((s, i) => s + i.slices_owned, 0).toLocaleString()} / {property.total_slices.toLocaleString()} slices
+              </span>
             </div>
           </div>
         </div>

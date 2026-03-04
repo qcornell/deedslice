@@ -20,8 +20,11 @@ import {
   TokenType,
   TokenSupplyType,
   TokenMintTransaction,
+  TokenAssociateTransaction,
+  TransferTransaction,
   TopicCreateTransaction,
   TopicMessageSubmitTransaction,
+  AccountBalanceQuery,
   Status,
   Hbar,
 } from "@hashgraph/sdk";
@@ -297,6 +300,134 @@ export async function logAuditEntry(topicId: string, action: string, details: Re
     };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+// ── Token Association Check ─────────────────────────────────
+/**
+ * Check if a Hedera account has a specific token associated.
+ * Uses Mirror Node REST API (no transaction cost).
+ */
+export async function isTokenAssociated(
+  accountId: string,
+  tokenId: string,
+  network?: "mainnet" | "testnet"
+): Promise<boolean> {
+  const net = network || NETWORK;
+  const mirror = net === "mainnet"
+    ? "https://mainnet.mirrornode.hedera.com"
+    : "https://testnet.mirrornode.hedera.com";
+
+  try {
+    const res = await fetch(`${mirror}/api/v1/accounts/${accountId}/tokens?token.id=${tokenId}&limit=1`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    return (data.tokens?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
+}
+
+// ── Token Association (server-side, using admin key) ────────
+export async function associateTokenToAccount(
+  accountId: string,
+  tokenId: string,
+  network?: "mainnet" | "testnet"
+): Promise<{ ok: boolean; txId?: string; error?: string }> {
+  const net = network || NETWORK;
+  const client = getClient(net);
+  const operatorKey = getOperatorKey(net);
+
+  try {
+    // NOTE: This only works if DeedSlice operator has admin key over the token
+    // AND the investor account. For external wallets, the investor must
+    // self-associate. For DeedSlice-managed accounts, this works.
+    const tx = new TokenAssociateTransaction()
+      .setAccountId(AccountId.fromString(accountId))
+      .setTokenIds([tokenId]);
+
+    const frozen = await tx.freezeWith(client as any);
+    const signed = await frozen.sign(operatorKey);
+    const response = await signed.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Association failed: ${receipt.status}` };
+    }
+
+    return { ok: true, txId: response.transactionId.toString() };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+// ── Token Transfer ──────────────────────────────────────────
+export interface TransferSharesInput {
+  shareTokenId: string;
+  recipientAccountId: string;
+  amount: number; // whole slices (no decimals)
+  network?: "mainnet" | "testnet";
+}
+
+export interface TransferSharesResult {
+  ok: boolean;
+  txId?: string;
+  explorerUrl?: string;
+  error?: string;
+  associationTxId?: string;
+}
+
+/**
+ * Transfer fungible share tokens from treasury to an investor wallet.
+ * Auto-checks token association and returns a clear error if the investor
+ * hasn't associated the token (external wallets can't be auto-associated).
+ */
+export async function transferShares(input: TransferSharesInput): Promise<TransferSharesResult> {
+  const net = input.network || NETWORK;
+  const client = getClient(net);
+  const operatorId = getOperatorId(net);
+
+  try {
+    // Validate the recipient account exists on the network
+    const mirror = net === "mainnet"
+      ? "https://mainnet.mirrornode.hedera.com"
+      : "https://testnet.mirrornode.hedera.com";
+
+    const acctCheck = await fetch(`${mirror}/api/v1/accounts/${input.recipientAccountId}`);
+    if (!acctCheck.ok) {
+      return { ok: false, error: `Account ${input.recipientAccountId} not found on ${net}. Make sure the wallet address is a valid Hedera account ID.` };
+    }
+
+    // Check token association
+    const associated = await isTokenAssociated(input.recipientAccountId, input.shareTokenId, net);
+    if (!associated) {
+      return {
+        ok: false,
+        error: `Account ${input.recipientAccountId} has not associated token ${input.shareTokenId}. The investor must associate this token in their wallet (HashPack, Blade, etc.) before receiving slices.`,
+      };
+    }
+
+    // Execute the transfer: treasury → investor
+    const tx = new TransferTransaction()
+      .addTokenTransfer(input.shareTokenId, operatorId, -input.amount)
+      .addTokenTransfer(input.shareTokenId, AccountId.fromString(input.recipientAccountId), input.amount);
+
+    const response = await tx.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Transfer failed: ${receipt.status}` };
+    }
+
+    const txId = response.transactionId.toString();
+    return {
+      ok: true,
+      txId,
+      explorerUrl: formatTxUrlSafe(txId),
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: message };
   }
 }
 
