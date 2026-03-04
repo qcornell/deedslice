@@ -85,7 +85,8 @@ export async function POST(req: NextRequest) {
 
       let isFirstPage = true;
 
-      for (const [investorId, individualAmount] of investorDistributions) {
+      const investorEntries = Array.from(investorDistributions.entries());
+      for (const [investorId, individualAmount] of investorEntries) {
         const investor = investorMap.get(investorId);
         if (!investor) continue;
 
