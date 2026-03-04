@@ -20,6 +20,7 @@ export interface TenantConfig {
 
 const DEFAULT_BRANDING: Omit<OrgBranding, "id" | "org_id" | "updated_at"> = {
   logo_url: null,
+  logo_dark_url: null,
   favicon_url: null,
   primary_color: "#0D9488",
   secondary_color: "#0F172A",
