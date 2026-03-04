@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import ImageUpload from "@/components/ImageUpload";
 import DocumentVault from "@/components/DocumentVault";
+import DistributionManager from "@/components/DistributionManager";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
@@ -520,6 +521,21 @@ export default function PropertyDetailPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Distributions */}
+      <div className="mt-6">
+        <DistributionManager
+          session={session}
+          property={property}
+          investors={investors}
+          onDistributionCreated={() => {
+            // Refresh audit entries
+            fetch(`/api/properties/${id}`, { headers: getAuthHeaders(session!) })
+              .then((r) => r.json())
+              .then((d) => setAuditEntries(d.auditEntries || []));
+          }}
+        />
       </div>
 
       {/* Document Vault */}

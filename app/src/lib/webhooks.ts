@@ -17,7 +17,10 @@ export type WebhookEvent =
   | "transfer.completed"
   | "transfer.failed"
   | "document.added"
-  | "kyc.updated";
+  | "kyc.updated"
+  | "distribution.recorded"
+  | "distribution.paid"
+  | "distribution.batch";
 
 interface WebhookPayload {
   event: WebhookEvent;

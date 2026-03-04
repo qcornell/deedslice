@@ -190,4 +190,39 @@ export async function sendUpgradeEmail(to: string, plan: string) {
   });
 }
 
+/** Distribution notification — sent to investor when a distribution is recorded */
+export async function sendDistributionEmail(
+  to: string,
+  investorName: string,
+  propertyName: string,
+  amount: number,
+  period: string | null,
+  type: string,
+  portalUrl?: string,
+) {
+  const typeLabel = type === "return_of_capital" ? "return of capital" : type === "other" ? "payment" : "distribution";
+  const html = layout(`New ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} 💰`, `
+    ${p(`Hi ${investorName},`)}
+    ${p(`A ${typeLabel} of <strong>$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> has been recorded for your investment in <strong>${propertyName}</strong>${period ? ` for <strong>${period}</strong>` : ""}.`)}
+    <div style="background:${BG};border-radius:12px;padding:20px;margin:16px 0;">
+      <table style="width:100%;font-size:13px;color:${TEXT};" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:4px 0;color:${MUTED};">Property</td><td style="padding:4px 0;text-align:right;font-weight:600;">${propertyName}</td></tr>
+        <tr><td style="padding:4px 0;color:${MUTED};">Amount</td><td style="padding:4px 0;text-align:right;font-weight:600;color:#16A34A;">$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+        <tr><td style="padding:4px 0;color:${MUTED};">Type</td><td style="padding:4px 0;text-align:right;text-transform:capitalize;">${typeLabel}</td></tr>
+        ${period ? `<tr><td style="padding:4px 0;color:${MUTED};">Period</td><td style="padding:4px 0;text-align:right;">${period}</td></tr>` : ""}
+      </table>
+    </div>
+    ${portalUrl ? button("View in Investor Portal →", portalUrl) : ""}
+    ${divider()}
+    ${muted("This record is permanently logged on Hedera Consensus Service. Your investment manager will confirm when funds have been transferred.")}
+  `);
+
+  return getResend().emails.send({
+    from: FROM(),
+    to,
+    subject: `💰 $${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })} — ${propertyName}${period ? ` (${period})` : ""}`,
+    html,
+  });
+}
+
 export { getResend as resend };
