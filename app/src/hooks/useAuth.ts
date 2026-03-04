@@ -1,8 +1,20 @@
 "use client";
 
-import { useState, useEffect, useCallback, createContext, useContext } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
-import type { Session, User } from "@supabase/supabase-js";
+
+interface User {
+  id: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface Session {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+  [key: string]: any;
+}
 
 interface AuthState {
   user: User | null;
@@ -11,6 +23,8 @@ interface AuthState {
   signOut: () => Promise<void>;
 }
 
+const sb = supabase as any;
+
 export function useAuth(): AuthState {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -18,14 +32,14 @@ export function useAuth(): AuthState {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    sb.auth.getSession().then(({ data: { session } }: any) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_event: any, session: any) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -35,7 +49,7 @@ export function useAuth(): AuthState {
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     setUser(null);
     setSession(null);
     window.location.href = "/login";

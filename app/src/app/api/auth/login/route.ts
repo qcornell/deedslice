@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { applyRateLimit } from "@/lib/rate-limit";
+
+// Use anon key for auth operations (signInWithPassword not available on service role)
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  { auth: { persistSession: false } }
+);
 
 export async function POST(req: NextRequest) {
   // Rate limit: 10 login attempts per IP per 15 minutes
@@ -14,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+    const { data, error } = await (supabaseAuth as any).auth.signInWithPassword({ email, password });
 
     if (error || !data.session) {
       return NextResponse.json({ error: error?.message || "Login failed" }, { status: 401 });

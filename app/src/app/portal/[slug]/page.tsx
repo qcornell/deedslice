@@ -74,16 +74,26 @@ export default function PortalLoginPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="max-w-sm text-center">
-          <div className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(34,197,94,0.1)" }}>
+          <div
+            className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(22,163,74,0.06)" }}
+          >
             <span className="text-xl">✉️</span>
           </div>
-          <h2 className="text-lg font-semibold mb-2" style={{ color: "var(--lp-text, #0F172A)" }}>Check your email</h2>
-          <p className="text-sm" style={{ color: "#64748B" }}>
-            We sent a login link to <strong>{email}</strong>. Click the link to access your investor portal.
+          <h2 className="text-lg font-bold mb-2" style={{ color: "var(--lp-text, #0F172A)" }}>Check your email</h2>
+          <p className="text-[13px] leading-relaxed" style={{ color: "#64748B" }}>
+            We sent a login link to <strong style={{ color: "#0F172A" }}>{email}</strong>. Click the link to access your investor portal.
           </p>
-          <p className="text-xs mt-4" style={{ color: "#94A3B8" }}>
+          <p className="text-[11px] mt-4" style={{ color: "#94A3B8" }}>
             Link expires in 15 minutes. Check spam if you don't see it.
           </p>
+          <button
+            onClick={() => setSent(false)}
+            className="mt-5 text-[12px] font-medium transition-colors"
+            style={{ color: "var(--lp-primary, #0D9488)" }}
+          >
+            ← Try a different email
+          </button>
         </div>
       </div>
     );
@@ -92,21 +102,30 @@ export default function PortalLoginPage() {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="w-full max-w-sm">
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-xl font-semibold" style={{ color: "var(--lp-text, #0F172A)" }}>Investor Login</h1>
-          <p className="text-sm mt-1" style={{ color: "#64748B" }}>Access your investment portfolio</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--lp-text, #0F172A)", letterSpacing: "-0.01em" }}>
+            Investor Login
+          </h1>
+          <p className="text-[13px] mt-1" style={{ color: "#94A3B8" }}>
+            Access your investment portfolio
+          </p>
         </div>
 
-        <div className="bg-white rounded-xl border p-6" style={{ borderColor: "#E5E7EB", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+        {/* Card */}
+        <div
+          className="bg-white rounded-xl border p-6"
+          style={{ borderColor: "#E2E8F0", boxShadow: "0 1px 3px rgba(15,23,42,0.04)" }}
+        >
           {/* Mode toggle */}
-          <div className="flex rounded-lg border mb-5" style={{ borderColor: "#E5E7EB" }}>
+          <div className="flex rounded-lg border mb-5" style={{ borderColor: "#E2E8F0" }}>
             <button
               type="button"
               onClick={() => setMode("magic")}
-              className="flex-1 py-2 text-xs font-medium transition rounded-l-lg"
+              className="flex-1 py-2 text-[12px] font-medium transition-all rounded-l-lg"
               style={{
                 background: mode === "magic" ? "var(--lp-primary, #0D9488)" : "transparent",
-                color: mode === "magic" ? "#fff" : "#64748B",
+                color: mode === "magic" ? "#fff" : "#94A3B8",
               }}
             >
               Email Link
@@ -114,10 +133,10 @@ export default function PortalLoginPage() {
             <button
               type="button"
               onClick={() => setMode("password")}
-              className="flex-1 py-2 text-xs font-medium transition rounded-r-lg"
+              className="flex-1 py-2 text-[12px] font-medium transition-all rounded-r-lg"
               style={{
                 background: mode === "password" ? "var(--lp-primary, #0D9488)" : "transparent",
-                color: mode === "password" ? "#fff" : "#64748B",
+                color: mode === "password" ? "#fff" : "#94A3B8",
               }}
             >
               Password
@@ -126,51 +145,68 @@ export default function PortalLoginPage() {
 
           <form onSubmit={mode === "magic" ? handleMagicLink : handlePassword} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "#64748B" }}>Email</label>
+              <label className="block text-[11px] font-semibold mb-1.5 tracking-wide uppercase" style={{ color: "#94A3B8", letterSpacing: "0.04em" }}>
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="investor@example.com"
-                className="w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition"
-                style={{ borderColor: "#E5E7EB", color: "var(--lp-text, #0F172A)" }}
-                onFocus={e => e.target.style.borderColor = "var(--lp-primary, #0D9488)"}
-                onBlur={e => e.target.style.borderColor = "#E5E7EB"}
+                className="w-full border rounded-lg px-3 py-2.5 text-[13px] outline-none transition-all"
+                style={{ borderColor: "#E2E8F0", color: "var(--lp-text, #0F172A)" }}
               />
             </div>
 
             {mode === "password" && (
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: "#64748B" }}>Password</label>
+                <label className="block text-[11px] font-semibold mb-1.5 tracking-wide uppercase" style={{ color: "#94A3B8", letterSpacing: "0.04em" }}>
+                  Password
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full border rounded-lg px-3 py-2.5 text-sm outline-none transition"
-                  style={{ borderColor: "#E5E7EB", color: "var(--lp-text, #0F172A)" }}
-                  onFocus={e => e.target.style.borderColor = "var(--lp-primary, #0D9488)"}
-                  onBlur={e => e.target.style.borderColor = "#E5E7EB"}
+                  className="w-full border rounded-lg px-3 py-2.5 text-[13px] outline-none transition-all"
+                  style={{ borderColor: "#E2E8F0", color: "var(--lp-text, #0F172A)" }}
                 />
               </div>
             )}
 
             {error && (
-              <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+              <div className="text-[12px] rounded-lg px-3 py-2" style={{ background: "#FEF2F2", color: "#DC2626" }}>
+                {error}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg text-sm font-medium text-white transition disabled:opacity-50"
-              style={{ background: "var(--lp-primary, #0D9488)" }}
+              className="w-full py-2.5 rounded-lg text-[13px] font-semibold text-white transition-all disabled:opacity-50"
+              style={{
+                background: "var(--lp-primary, #0D9488)",
+                boxShadow: "0 1px 3px rgba(13,148,136,0.2)",
+              }}
             >
-              {loading ? "..." : mode === "magic" ? "Send Login Link" : "Sign In"}
+              {loading ? (
+                <span className="inline-flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {mode === "magic" ? "Sending..." : "Signing in..."}
+                </span>
+              ) : (
+                mode === "magic" ? "Send Login Link" : "Sign In"
+              )}
             </button>
           </form>
         </div>
+
+        {/* Security note */}
+        <p className="text-center text-[10px] mt-5" style={{ color: "#CBD5E1" }}>
+          Secured connection · Data encrypted in transit
+        </p>
       </div>
     </div>
   );
@@ -207,18 +243,18 @@ function VerifyMagicLink({ slug, token }: { slug: string; token: string }) {
       <div className="text-center">
         {status === "verifying" && (
           <>
-            <div className="w-6 h-6 mx-auto mb-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-            <p className="text-sm" style={{ color: "#64748B" }}>Verifying your login...</p>
+            <div className="w-5 h-5 mx-auto mb-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+            <p className="text-[13px]" style={{ color: "#64748B" }}>Verifying your login...</p>
           </>
         )}
         {status === "error" && (
           <>
             <div className="text-3xl mb-3">⚠️</div>
-            <h2 className="text-lg font-semibold mb-1">Link expired or invalid</h2>
-            <p className="text-sm" style={{ color: "#64748B" }}>Request a new login link.</p>
+            <h2 className="text-lg font-bold mb-1" style={{ color: "#0F172A" }}>Link expired or invalid</h2>
+            <p className="text-[13px] mb-4" style={{ color: "#64748B" }}>Request a new login link.</p>
             <button
               onClick={() => router.push(`/portal/${slug}`)}
-              className="mt-4 text-sm font-medium px-4 py-2 rounded-lg text-white"
+              className="text-[13px] font-semibold px-5 py-2.5 rounded-lg text-white"
               style={{ background: "var(--lp-primary, #0D9488)" }}
             >
               Back to Login

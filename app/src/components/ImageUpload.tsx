@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import type { Session } from "@supabase/supabase-js";
+interface Session { access_token: string; [key: string]: any; }
 
 interface Props {
   session: Session | null;

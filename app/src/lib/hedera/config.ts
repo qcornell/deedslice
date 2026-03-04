@@ -27,13 +27,15 @@ export function getExplorerUrl(txId: string): string {
 }
 
 /** Build a HashScan token URL */
-export function getTokenUrl(tokenId: string): string {
-  return `${HASHSCAN_BASE}/token/${tokenId}`;
+export function getTokenUrl(tokenId: string, network?: "mainnet" | "testnet"): string {
+  const base = network ? hashscanBase(network) : HASHSCAN_BASE;
+  return `${base}/token/${tokenId}`;
 }
 
 /** Build a HashScan topic URL */
-export function getTopicUrl(topicId: string): string {
-  return `${HASHSCAN_BASE}/topic/${topicId}`;
+export function getTopicUrl(topicId: string, network?: "mainnet" | "testnet"): string {
+  const base = network ? hashscanBase(network) : HASHSCAN_BASE;
+  return `${base}/topic/${topicId}`;
 }
 
 /**

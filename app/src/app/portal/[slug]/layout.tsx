@@ -8,6 +8,7 @@
  * so every child component skins itself automatically.
  *
  * No DeedSlice branding visible unless show_powered_by is true.
+ * This is a configurable skin layer — not hardcoded per client.
  */
 
 import { useEffect, useState } from "react";
@@ -59,19 +60,29 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       .finally(() => setLoading(false));
   }, [slug]);
 
-  // Update document title
+  // Update document title & favicon
   useEffect(() => {
     if (branding.portal_title) {
       document.title = branding.portal_title;
     } else if (branding.org_name) {
       document.title = `${branding.org_name} — Investor Portal`;
     }
+    // Dynamic favicon
+    if (branding.favicon_url) {
+      let link = document.querySelector<HTMLLinkElement>("link[rel='icon']");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = branding.favicon_url;
+    }
   }, [branding]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#F8FAFC" }}>
-        <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -80,9 +91,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#F8FAFC" }}>
         <div className="text-center">
-          <div className="text-4xl mb-4">🔒</div>
-          <h1 className="text-lg font-semibold text-gray-900 mb-1">Portal Not Found</h1>
-          <p className="text-sm text-gray-500">This investor portal doesn't exist or is no longer active.</p>
+          <div className="text-3xl mb-4 opacity-40">🔒</div>
+          <h1 className="text-lg font-bold mb-1" style={{ color: "#0F172A" }}>Portal Not Found</h1>
+          <p className="text-[13px]" style={{ color: "#64748B" }}>This investor portal doesn't exist or is no longer active.</p>
         </div>
       </div>
     );
@@ -92,7 +103,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     <div
       className="min-h-screen flex flex-col"
       style={{
-        // Inject branding as CSS custom properties
+        // Inject branding as CSS custom properties — the skin layer
         ["--lp-primary" as any]: branding.primary_color,
         ["--lp-secondary" as any]: branding.secondary_color,
         ["--lp-accent" as any]: branding.accent_color,
@@ -100,29 +111,35 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         ["--lp-bg" as any]: branding.bg_color,
         background: branding.bg_color,
         color: branding.text_color,
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
-      {/* Header */}
+      {/* Header — operator branded */}
       <header
         className="h-14 border-b flex items-center justify-between px-4 md:px-8 shrink-0"
         style={{
-          background: "rgba(255,255,255,0.9)",
+          background: "rgba(255,255,255,0.92)",
           backdropFilter: "blur(12px)",
-          borderColor: "#E5E7EB",
+          WebkitBackdropFilter: "blur(12px)",
+          borderColor: "#E2E8F0",
         }}
       >
         <div className="flex items-center gap-3">
           {branding.logo_url ? (
             <img src={branding.logo_url} alt={branding.org_name} className="h-7 w-auto" />
           ) : (
-            <span className="text-sm font-semibold" style={{ color: branding.primary_color }}>
+            <span
+              className="text-[14px] font-bold"
+              style={{ color: branding.primary_color, letterSpacing: "-0.01em" }}
+            >
               {branding.org_name}
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400">Investor Portal</span>
+          <span className="text-[11px] font-medium tracking-wide" style={{ color: "#94A3B8" }}>
+            Investor Portal
+          </span>
         </div>
       </header>
 
@@ -131,10 +148,10 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
 
-      {/* Footer */}
+      {/* Footer — subtle powered-by only if enabled */}
       {branding.show_powered_by && branding.footer_text && (
-        <footer className="py-4 text-center border-t" style={{ borderColor: "#E5E7EB" }}>
-          <p className="text-[10px] text-gray-400">{branding.footer_text}</p>
+        <footer className="py-4 text-center border-t" style={{ borderColor: "#F1F5F9" }}>
+          <p className="text-[10px]" style={{ color: "#CBD5E1" }}>{branding.footer_text}</p>
         </footer>
       )}
     </div>

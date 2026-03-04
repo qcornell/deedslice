@@ -5,11 +5,12 @@ import { useSearchParams } from "next/navigation";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase/client";
 import type { Profile, ApiKey, Webhook } from "@/types/database";
+import WhiteLabelSettings from "@/components/WhiteLabelSettings";
 
 const PLAN_DETAILS = {
   starter: { name: "Starter", price: "Free", color: "text-ds-muted", properties: "1 property", features: ["1 property (testnet sandbox)", "NFT deed + share tokens", "Basic dashboard", "HCS audit log", "Try before you buy"] },
   pro: { name: "Pro", price: "$99.99/mo", color: "text-ds-accent-text", properties: "5 properties", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (SHA-256 → HCS)", "Investor management", "Token transfers to wallets", "Email support", "+$199 per additional tokenization"] },
-  enterprise: { name: "Enterprise", price: "$499.99/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "REST API access", "Priority support", "Custom integrations", "Webhooks", "White-label dashboard (Q2)"] },
+  enterprise: { name: "Enterprise", price: "$499.99/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "REST API access", "Priority support", "Custom integrations", "Webhooks", "White-label investor portal"] },
 };
 
 export default function SettingsPage() {
@@ -411,6 +412,11 @@ export default function SettingsPage() {
             Max 5 webhooks. Auto-disabled after 10 consecutive failures.
           </div>
         </div>
+      )}
+
+      {/* White-Label Settings — Enterprise only */}
+      {profile?.plan === "enterprise" && session && (
+        <WhiteLabelSettings session={session} />
       )}
 
       {/* Danger Zone */}

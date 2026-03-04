@@ -5,7 +5,7 @@ import { verifyLpToken } from "@/lib/lp-auth";
 /**
  * GET /api/lp/dashboard — LP dashboard data
  *
- * Returns portfolio overview + properties + distributions for the authenticated LP.
+ * Returns portfolio overview + properties + distributions + documents + audit trail.
  * Auth: Bearer <lp-jwt-token>
  */
 export async function GET(req: NextRequest) {
@@ -32,21 +32,26 @@ export async function GET(req: NextRequest) {
       if (investors) {
         // Filter to only properties owned by this org
         const propIds = investors.map((i: any) => i.property_id);
-        const { data: props } = await supabaseAdmin
-          .from("ds_properties")
-          .select("id, org_id")
-          .in("id", propIds);
+        if (propIds.length > 0) {
+          const { data: props } = await supabaseAdmin
+            .from("ds_properties")
+            .select("id, org_id")
+            .in("id", propIds);
 
-        const orgPropIds = new Set((props || []).filter((p: any) => p.org_id === session.org_id).map((p: any) => p.id));
-        investorIds = investors.filter((i: any) => orgPropIds.has(i.property_id)).map((i: any) => i.id);
+          const orgPropIds = new Set((props || []).filter((p: any) => p.org_id === session.org_id).map((p: any) => p.id));
+          investorIds = investors.filter((i: any) => orgPropIds.has(i.property_id)).map((i: any) => i.id);
+        }
       }
     }
 
     if (investorIds.length === 0) {
       return NextResponse.json({
-        portfolio: { totalValue: 0, totalInvested: 0, propertyCount: 0, totalDistributions: 0 },
+        lpName: session.name,
+        portfolio: { totalValue: 0, totalInvested: 0, propertyCount: 0, totalDistributions: 0, ownershipSummary: [] },
         properties: [],
         distributions: [],
+        documents: [],
+        auditEntries: [],
       });
     }
 
@@ -56,33 +61,42 @@ export async function GET(req: NextRequest) {
       .select("*")
       .in("id", investorIds);
 
-    const propertyIds = [...new Set((investorRecords || []).map((i: any) => i.property_id))];
+    const propertyIds = Array.from(new Set((investorRecords || []).map((i: any) => i.property_id)));
 
-    const { data: properties } = await supabaseAdmin
-      .from("ds_properties")
-      .select("*")
-      .in("id", propertyIds);
+    // Parallel queries
+    const [propertiesRes, distributionsRes, auditRes, documentsRes] = await Promise.all([
+      supabaseAdmin
+        .from("ds_properties")
+        .select("*")
+        .in("id", propertyIds),
+      supabaseAdmin
+        .from("ds_distributions")
+        .select("*")
+        .in("investor_id", investorIds)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabaseAdmin
+        .from("ds_audit_entries")
+        .select("*")
+        .in("property_id", propertyIds)
+        .order("created_at", { ascending: false })
+        .limit(30),
+      supabaseAdmin
+        .from("ds_documents")
+        .select("id, property_id, label, document_type, file_name, file_size, sha256_hash, created_at")
+        .in("property_id", propertyIds)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
 
-    // Load distributions
-    const { data: distributions } = await supabaseAdmin
-      .from("ds_distributions")
-      .select("*")
-      .in("investor_id", investorIds)
-      .order("created_at", { ascending: false })
-      .limit(50);
-
-    // Load recent audit entries for these properties
-    const { data: auditEntries } = await supabaseAdmin
-      .from("ds_audit_entries")
-      .select("*")
-      .in("property_id", propertyIds)
-      .order("created_at", { ascending: false })
-      .limit(20);
+    const properties = propertiesRes.data || [];
+    const distributions = distributionsRes.data || [];
+    const auditEntries = auditRes.data || [];
+    const documents = documentsRes.data || [];
 
     // Build portfolio summary
-    const propMap = new Map((properties || []).map((p: any) => [p.id, p]));
+    const propMap = new Map(properties.map((p: any) => [p.id, p]));
     let totalValue = 0;
-    let totalDistributions = 0;
 
     const enrichedProperties = (investorRecords || []).map((inv: any) => {
       const prop = propMap.get(inv.property_id) as any;
@@ -116,11 +130,12 @@ export async function GET(req: NextRequest) {
       };
     }).filter(Boolean);
 
-    totalDistributions = (distributions || [])
+    const totalDistributions = (distributions || [])
       .filter((d: any) => d.status === "paid")
       .reduce((sum: number, d: any) => sum + Number(d.amount_usd), 0);
 
     return NextResponse.json({
+      lpName: session.name,
       portfolio: {
         totalValue: Math.round(totalValue),
         propertyCount: enrichedProperties.length,
@@ -133,6 +148,7 @@ export async function GET(req: NextRequest) {
       },
       properties: enrichedProperties,
       distributions: distributions || [],
+      documents: documents || [],
       auditEntries: auditEntries || [],
     });
   } catch (err) {

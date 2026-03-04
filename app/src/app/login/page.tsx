@@ -21,7 +21,7 @@ export default function LoginPage() {
 
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await (supabase as any).auth.signInWithPassword({ email, password });
         if (error) throw error;
         router.push("/dashboard");
       } else {
@@ -34,7 +34,7 @@ export default function LoginPage() {
         if (!res.ok) throw new Error(data.error);
 
         if (data.session) {
-          await supabase.auth.setSession({
+          await (supabase as any).auth.setSession({
             access_token: data.session.access_token,
             refresh_token: data.session.refresh_token,
           });

@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { sendWelcomeEmail } from "@/lib/email";
 import { applyRateLimit } from "@/lib/rate-limit";
+
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  { auth: { persistSession: false } }
+);
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 signups per IP per 15 minutes
@@ -15,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
 
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await (supabaseAdmin as any).auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -35,7 +42,7 @@ export async function POST(req: NextRequest) {
       properties_limit: 1,
     } as any);
 
-    const { data: signIn } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+    const { data: signIn } = await (supabaseAuth as any).auth.signInWithPassword({ email, password });
 
     // Send welcome email (fire and forget)
     sendWelcomeEmail(email, fullName || undefined).catch((err) =>
@@ -45,7 +52,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       user: { id: authData.user.id, email },
-      session: signIn.session,
+      session: signIn?.session || null,
     });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -30,25 +30,14 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
-        Update: {
-          id?: string;
-          email?: string;
-          full_name?: string | null;
-          company_name?: string | null;
-          plan?: "starter" | "pro" | "enterprise";
-          stripe_customer_id?: string | null;
-          stripe_subscription_id?: string | null;
-          properties_used?: number;
-          properties_limit?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["ds_profiles"]["Row"]>;
         Relationships: [];
       };
       ds_properties: {
         Row: {
           id: string;
           owner_id: string;
+          org_id: string | null;
           name: string;
           address: string | null;
           property_type: "residential" | "commercial" | "land" | "industrial" | "mixed";
@@ -70,6 +59,7 @@ export type Database = {
         Insert: {
           id?: string;
           owner_id: string;
+          org_id?: string | null;
           name: string;
           address?: string | null;
           property_type?: "residential" | "commercial" | "land" | "industrial" | "mixed";
@@ -88,27 +78,7 @@ export type Database = {
           created_at?: string;
           updated_at?: string;
         };
-        Update: {
-          id?: string;
-          owner_id?: string;
-          name?: string;
-          address?: string | null;
-          property_type?: "residential" | "commercial" | "land" | "industrial" | "mixed";
-          valuation_usd?: number;
-          total_slices?: number;
-          description?: string | null;
-          image_url?: string | null;
-          nft_token_id?: string | null;
-          nft_serial?: number | null;
-          share_token_id?: string | null;
-          share_token_symbol?: string | null;
-          audit_topic_id?: string | null;
-          status?: "draft" | "deploying" | "live" | "failed";
-          network?: "testnet" | "mainnet";
-          deployed_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["ds_properties"]["Row"]>;
         Relationships: [];
       };
       ds_investors: {
@@ -146,23 +116,7 @@ export type Database = {
           kyc_notes?: string | null;
           added_at?: string;
         };
-        Update: {
-          id?: string;
-          property_id?: string;
-          name?: string;
-          email?: string | null;
-          wallet_address?: string | null;
-          slices_owned?: number;
-          percentage?: number;
-          transfer_status?: "pending" | "transferred" | "failed" | null;
-          transfer_tx_id?: string | null;
-          transferred_at?: string | null;
-          kyc_status?: "unverified" | "pending" | "verified" | "rejected";
-          kyc_document_path?: string | null;
-          kyc_reviewed_at?: string | null;
-          kyc_notes?: string | null;
-          added_at?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["ds_investors"]["Row"]>;
         Relationships: [];
       };
       ds_documents: {
@@ -192,19 +146,7 @@ export type Database = {
           sha256_hash: string;
           created_at?: string;
         };
-        Update: {
-          id?: string;
-          property_id?: string;
-          uploaded_by?: string;
-          label?: string;
-          document_type?: string;
-          file_name?: string;
-          file_size?: number;
-          mime_type?: string;
-          storage_path?: string;
-          sha256_hash?: string;
-          created_at?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["ds_documents"]["Row"]>;
         Relationships: [];
       };
       ds_api_keys: {
@@ -226,15 +168,7 @@ export type Database = {
           last_used_at?: string | null;
           created_at?: string;
         };
-        Update: {
-          id?: string;
-          user_id?: string;
-          key_prefix?: string;
-          key_hash?: string;
-          name?: string;
-          last_used_at?: string | null;
-          created_at?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["ds_api_keys"]["Row"]>;
         Relationships: [];
       };
       ds_webhooks: {
@@ -260,17 +194,7 @@ export type Database = {
           failure_count?: number;
           created_at?: string;
         };
-        Update: {
-          id?: string;
-          user_id?: string;
-          url?: string;
-          events?: string[];
-          secret?: string;
-          active?: boolean;
-          last_triggered_at?: string | null;
-          failure_count?: number;
-          created_at?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["ds_webhooks"]["Row"]>;
         Relationships: [];
       };
       ds_audit_entries: {
@@ -292,33 +216,9 @@ export type Database = {
           hcs_sequence?: number | null;
           created_at?: string;
         };
-        Update: {
-          id?: string;
-          property_id?: string;
-          action?: string;
-          details?: string | null;
-          tx_id?: string | null;
-          hcs_sequence?: number | null;
-          created_at?: string;
-        };
+        Update: Partial<Database["public"]["Tables"]["ds_audit_entries"]["Row"]>;
         Relationships: [];
       };
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      [_ in never]: never;
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
-};
-
       ds_organizations: {
         Row: {
           id: string;
