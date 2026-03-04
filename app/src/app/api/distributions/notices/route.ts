@@ -206,7 +206,7 @@ export async function POST(req: NextRequest) {
 
     const filename = `distribution_notices_${property.name.replace(/[^a-zA-Z0-9]/g, "_")}_${effectivePeriod.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
 
-    return new Response(pdfBuffer, {
+    return new Response(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
