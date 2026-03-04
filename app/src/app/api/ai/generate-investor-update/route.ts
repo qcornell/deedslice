@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     );
 
     // Unique distribution periods
-    const periods = [...new Set((distributions || []).map((d: any) => d.period).filter(Boolean))];
+    const periods = Array.from(new Set((distributions || []).map((d: any) => d.period).filter(Boolean)));
 
     const distributionSummary = periods.length > 0
       ? periods

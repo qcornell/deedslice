@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get investor details
-    const investorIds = [...new Set(distributions.map((d: any) => d.investor_id))];
+    const investorIds = Array.from(new Set(distributions.map((d: any) => d.investor_id)));
     const { data: investors } = await supabaseAdmin
       .from("ds_investors")
       .select("id, name, email, slices_owned, percentage")
