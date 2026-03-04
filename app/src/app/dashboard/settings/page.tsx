@@ -8,8 +8,8 @@ import type { Profile } from "@/types/database";
 
 const PLAN_DETAILS = {
   starter: { name: "Starter", price: "Free", color: "text-ds-muted", properties: "1 property", features: ["1 property (testnet sandbox)", "NFT deed + share tokens", "Basic dashboard", "HCS audit log", "Try before you buy"] },
-  pro: { name: "Pro", price: "$99.99/mo", color: "text-ds-accent-text", properties: "5 properties", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (SHA-256 → HCS)", "Investor management", "Email support", "+$199 per additional tokenization"] },
-  enterprise: { name: "Enterprise", price: "$499.99/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "Full REST API", "Webhooks", "White-label dashboard", "Priority support", "Custom domain"] },
+  pro: { name: "Pro", price: "$99.99/mo", color: "text-ds-accent-text", properties: "5 properties", features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (SHA-256 → HCS)", "Investor management", "Token transfers to wallets", "Email support", "+$199 per additional tokenization"] },
+  enterprise: { name: "Enterprise", price: "$499.99/mo", color: "text-ds-orange", properties: "Unlimited", features: ["Unlimited properties", "REST API access", "Priority support", "Custom integrations", "White-label dashboard (Q2)", "Webhooks (Q2)"] },
 };
 
 export default function SettingsPage() {
