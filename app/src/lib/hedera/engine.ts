@@ -80,7 +80,7 @@ function getOperatorId(network?: "mainnet" | "testnet"): AccountId {
   return AccountId.fromString(id);
 }
 
-/** @deprecated Use formatTxUrlSafe from config.ts instead */
+/** Build a HashScan transaction URL (delegates to config.ts) */
 function getExplorerUrl(txId: string): string {
   return formatTxUrlSafe(txId);
 }

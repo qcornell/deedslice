@@ -14,25 +14,14 @@ export default function AuditPage() {
 
   useEffect(() => {
     if (!session) return;
-    fetch("/api/properties", { headers: getAuthHeaders(session) })
+    fetch("/api/audit/all", { headers: getAuthHeaders(session) })
       .then((r) => r.json())
-      .then(async (d) => {
-        const props: Property[] = d.properties || [];
-        setProperties(props);
-
-        // Load all audit entries across all properties
-        const allEntries: AuditEntry[] = [];
-        for (const p of props.filter((p) => p.status === "live")) {
-          const res = await fetch(`/api/properties/${p.id}`, { headers: getAuthHeaders(session) });
-          const data = await res.json();
-          if (data.auditEntries) {
-            allEntries.push(...data.auditEntries.map((e: AuditEntry) => ({ ...e, _propertyName: p.name })));
-          }
-        }
-        allEntries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        setAuditEntries(allEntries);
+      .then((d) => {
+        setProperties(d.properties || []);
+        setAuditEntries(d.auditEntries || []);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [session]);
 
   const filtered = selectedProperty === "all"

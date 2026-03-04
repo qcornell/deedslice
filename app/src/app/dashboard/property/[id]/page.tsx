@@ -9,21 +9,17 @@ import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
 import type { Property, Investor, AuditEntry, Document } from "@/types/database";
 
+import { formatTxUrlSafe, getTokenUrl, getTopicUrl } from "@/lib/hedera/config";
+
 function formatHashScanTx(txId: string, network: string) {
+  const base = `https://hashscan.io/${network}`;
   const atSplit = txId.split("@");
   if (atSplit.length === 2) {
     const accountId = atSplit[0];
     const timestamp = atSplit[1].replace(".", "-");
-    return `https://hashscan.io/${network}/transaction/${accountId}-${timestamp}`;
+    return `${base}/transaction/${accountId}-${timestamp}`;
   }
-  return `https://hashscan.io/${network}/transaction/${txId}`;
-}
-
-function getTokenUrl(id: string, _network?: string) {
-  return `${HASHSCAN_BASE}/token/${id}`;
-}
-function getTopicUrl(id: string, _network?: string) {
-  return `${HASHSCAN_BASE}/topic/${id}`;
+  return `${base}/transaction/${txId}`;
 }
 
 export default function PropertyDetailPage() {
@@ -556,7 +552,9 @@ export default function PropertyDetailPage() {
             console.deedslice.com/view/{id}
           </div>
           <button
-            onClick={() => navigator.clipboard.writeText(`https://console.deedslice.com/view/${id}`)}
+            onClick={() => {
+              try { navigator.clipboard.writeText(`https://console.deedslice.com/view/${id}`); } catch {}
+            }}
             className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px] shrink-0"
             style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
           >

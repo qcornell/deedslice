@@ -58,7 +58,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center mb-4">
             <img src="/logo.png" alt="DeedSlice" className="h-10 w-auto" />
           </div>
-          <p className="text-ds-muted text-sm">Tokenize real estate on Hedera</p>
+          <p className="text-ds-muted text-sm">Tokenization infrastructure for real estate syndicators</p>
         </div>
 
         {/* Form */}

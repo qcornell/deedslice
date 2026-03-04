@@ -1,9 +1,14 @@
 /**
- * Simple in-memory rate limiter for API routes.
+ * In-memory rate limiter for API routes.
  *
- * Uses a sliding window approach. Not shared across serverless instances,
- * but good enough for early-stage protection. For production scale,
- * swap to Redis (Upstash) or Vercel KV.
+ * ⚠️  LIMITATION: On Vercel serverless, each cold start gets a fresh Map,
+ * so this only guards against bursts within a single instance lifetime.
+ * It still catches rapid-fire abuse (bots, automated scripts) because
+ * most Vercel instances persist for 5-15 minutes under load.
+ *
+ * For full protection, add Upstash Redis:
+ *   npm i @upstash/ratelimit @upstash/redis
+ * Then swap checkRateLimit to use Upstash's sliding window.
  */
 
 interface RateLimitEntry {
@@ -13,13 +18,18 @@ interface RateLimitEntry {
 
 const store = new Map<string, RateLimitEntry>();
 
-// Cleanup stale entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  store.forEach((entry, key) => {
-    if (entry.resetAt < now) store.delete(key);
-  });
-}, 5 * 60 * 1000);
+// Cleanup stale entries periodically (only runs while instance is warm)
+if (typeof globalThis !== "undefined") {
+  const cleanup = () => {
+    const now = Date.now();
+    store.forEach((entry, key) => {
+      if (entry.resetAt < now) store.delete(key);
+    });
+  };
+  // Use unref() so this doesn't keep the process alive in dev
+  const timer = setInterval(cleanup, 5 * 60 * 1000);
+  if (typeof timer === "object" && "unref" in timer) timer.unref();
+}
 
 export interface RateLimitConfig {
   /** Max requests in the window */

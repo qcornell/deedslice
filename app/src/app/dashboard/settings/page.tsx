@@ -188,10 +188,13 @@ export default function SettingsPage() {
       {/* Danger Zone */}
       <div className="mt-12 glass rounded-2xl p-6 border-ds-red/20">
         <h2 className="font-semibold text-ds-red mb-2">Danger Zone</h2>
-        <p className="text-sm text-ds-muted mb-4">Deleting your account will remove all properties and data. This cannot be undone.</p>
-        <button className="text-sm text-ds-red border border-ds-red/30 px-4 py-2 rounded-lg hover:bg-ds-red/10 transition">
-          Delete Account
-        </button>
+        <p className="text-sm text-ds-muted mb-4">Need to delete your account? Contact us and we'll handle it.</p>
+        <a
+          href="mailto:support@deedslice.com?subject=Account%20Deletion%20Request"
+          className="inline-block text-sm text-ds-red border border-ds-red/30 px-4 py-2 rounded-lg hover:bg-ds-red/10 transition"
+        >
+          Request Account Deletion
+        </a>
       </div>
     </div>
   );
