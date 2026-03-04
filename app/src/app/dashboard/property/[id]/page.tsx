@@ -5,6 +5,7 @@ import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import ImageUpload from "@/components/ImageUpload";
 import DocumentVault from "@/components/DocumentVault";
 import DistributionManager from "@/components/DistributionManager";
+import InvestorUpdate from "@/components/InvestorUpdate";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
@@ -43,6 +44,7 @@ export default function PropertyDetailPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editValuation, setEditValuation] = useState("");
   const [editType, setEditType] = useState("");
+  const [editFilingDueDate, setEditFilingDueDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
 
@@ -94,6 +96,7 @@ export default function PropertyDetailPage() {
     setEditDescription(property!.description || "");
     setEditValuation(String(property!.valuation_usd));
     setEditType(property!.property_type);
+    setEditFilingDueDate(property!.filing_due_date || "");
     setEditing(true);
     setSaveMsg("");
   }
@@ -112,6 +115,7 @@ export default function PropertyDetailPage() {
           description: editDescription,
           valuation_usd: Number(editValuation),
           property_type: editType,
+          filing_due_date: editFilingDueDate || null,
         }),
       });
       const data = await res.json();
@@ -125,6 +129,7 @@ export default function PropertyDetailPage() {
         description: editDescription || null,
         valuation_usd: Number(editValuation),
         property_type: editType as any,
+        filing_due_date: editFilingDueDate || null,
       } : p);
       setEditing(false);
       setSaveMsg(data.changes || "Saved");
@@ -204,6 +209,12 @@ export default function PropertyDetailPage() {
             <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={2}
               className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition resize-none" />
           </div>
+          <div>
+            <label className="block text-xs text-ds-muted mb-1 uppercase tracking-wider">Filing Due Date (optional)</label>
+            <input type="date" value={editFilingDueDate} onChange={(e) => setEditFilingDueDate(e.target.value)}
+              className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition" />
+            <p className="text-[10px] text-ds-muted mt-1">Compliance filing deadline — you&apos;ll see a reminder in Action Items</p>
+          </div>
           <div className="flex items-center gap-3">
             <button onClick={handleSave} disabled={saving}
               className="text-white font-semibold px-6 py-2.5 rounded-[10px] text-[13px] transition-all disabled:opacity-50 hover:translate-y-[-1px]"
@@ -239,6 +250,11 @@ export default function PropertyDetailPage() {
                 · {property.property_type}
               </span>
             </div>
+            {property.filing_due_date && (
+              <p className="text-xs text-ds-muted mt-1.5">
+                📅 Filing due: {new Date(property.filing_due_date).toLocaleDateString()}
+              </p>
+            )}
             {saveMsg && (
               <p className={`text-xs mt-2 ${saveMsg.startsWith("Error") ? "text-ds-red" : "text-ds-green"}`}>
                 ✓ {saveMsg}
@@ -248,6 +264,9 @@ export default function PropertyDetailPage() {
           <div className="sm:text-right">
             <div className="text-2xl sm:text-3xl font-bold">${property.valuation_usd.toLocaleString()}</div>
             <div className="text-xs text-ds-muted mt-1">${pricePerSlice}/slice · {property.total_slices.toLocaleString()} slices</div>
+            <div className="mt-3">
+              <InvestorUpdate session={session} propertyId={id} propertyName={property.name} />
+            </div>
           </div>
         </div>
       )}

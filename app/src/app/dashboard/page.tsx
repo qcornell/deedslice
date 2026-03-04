@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import Link from "next/link";
+import ActionItems from "@/components/ActionItems";
 import type { Property } from "@/types/database";
 
 export default function DashboardPage() {
@@ -51,6 +52,8 @@ export default function DashboardPage() {
           + Tokenize Property
         </Link>
       </div>
+
+      <ActionItems />
 
       {loading ? (
         <div className="flex justify-center py-20">

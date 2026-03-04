@@ -52,6 +52,7 @@ export type Database = {
           audit_topic_id: string | null;
           status: "draft" | "deploying" | "live" | "failed";
           network: "testnet" | "mainnet";
+          filing_due_date: string | null;
           deployed_at: string | null;
           created_at: string;
           updated_at: string;
@@ -74,6 +75,7 @@ export type Database = {
           audit_topic_id?: string | null;
           status?: "draft" | "deploying" | "live" | "failed";
           network?: "testnet" | "mainnet";
+          filing_due_date?: string | null;
           deployed_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -383,3 +385,13 @@ export type OrgBranding = Database["public"]["Tables"]["ds_org_branding"]["Row"]
 export type OrgSettings = Database["public"]["Tables"]["ds_org_settings"]["Row"];
 export type LpAccount = Database["public"]["Tables"]["ds_lp_accounts"]["Row"];
 export type Distribution = Database["public"]["Tables"]["ds_distributions"]["Row"];
+
+export interface AiUsageLog {
+  id: string;
+  user_id: string;
+  feature: string;
+  model: string;
+  prompt_tokens: number;
+  completion_tokens: number;
+  created_at: string;
+}

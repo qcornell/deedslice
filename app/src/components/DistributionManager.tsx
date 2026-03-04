@@ -16,6 +16,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { Property, Investor, Distribution } from "@/types/database";
 import { getAuthHeaders } from "@/hooks/useAuth";
+import AiGeneratedContent from "@/components/AiGeneratedContent";
 
 interface Props {
   session: any;
@@ -75,6 +76,16 @@ export default function DistributionManager({ session, property, investors, onDi
 
   // Exporting
   const [exporting, setExporting] = useState(false);
+
+  // AI Draft Email state
+  const [draftingEmail, setDraftingEmail] = useState(false);
+  const [draftedEmail, setDraftedEmail] = useState<string | null>(null);
+  const [draftEmailPeriod, setDraftEmailPeriod] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState("");
+
+  // Distribution Notices state
+  const [generatingNotices, setGeneratingNotices] = useState(false);
+  const [noticesError, setNoticesError] = useState("");
 
   const suggestedPeriods = useMemo(() => getSuggestedPeriods(), []);
 
@@ -206,6 +217,67 @@ export default function DistributionManager({ session, property, investors, onDi
       setError(err.message);
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function handleDraftEmail(periodForEmail: string) {
+    if (!session) return;
+    setDraftingEmail(true);
+    setDraftError("");
+    setDraftEmailPeriod(periodForEmail);
+
+    try {
+      const res = await fetch("/api/ai/draft-distribution-email", {
+        method: "POST",
+        headers: getAuthHeaders(session),
+        body: JSON.stringify({
+          propertyId: property.id,
+          distributionPeriod: periodForEmail,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate email");
+
+      setDraftedEmail(data.email);
+    } catch (err: any) {
+      setDraftError(err.message || "Could not generate email. Please try again.");
+    } finally {
+      setDraftingEmail(false);
+    }
+  }
+
+  async function handleGenerateNotices(periodForNotices: string) {
+    if (!session) return;
+    setGeneratingNotices(true);
+    setNoticesError("");
+
+    try {
+      const res = await fetch("/api/distributions/notices", {
+        method: "POST",
+        headers: getAuthHeaders(session),
+        body: JSON.stringify({
+          propertyId: property.id,
+          period: periodForNotices,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to generate notices");
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `distribution_notices_${property.name.replace(/[^a-zA-Z0-9]/g, "_")}_${periodForNotices.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setNoticesError(err.message || "Could not generate notices. Please try again.");
+    } finally {
+      setGeneratingNotices(false);
     }
   }
 
@@ -475,28 +547,85 @@ export default function DistributionManager({ session, property, investors, onDi
           <div className="text-[11px] text-ds-muted uppercase tracking-wider font-medium mb-2">By Period</div>
           <div className="space-y-2">
             {periodSummaries.map(ps => (
-              <div key={ps.period} className="bg-ds-bg rounded-lg px-4 py-3 flex items-center justify-between">
-                <div>
-                  <span className="text-sm font-medium">{ps.period}</span>
-                  <span className="text-[10px] text-ds-muted ml-2">{ps.count} payment{ps.count !== 1 ? "s" : ""}</span>
+              <div key={ps.period} className="bg-ds-bg rounded-lg px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-medium">{ps.period}</span>
+                    <span className="text-[10px] text-ds-muted ml-2">{ps.count} payment{ps.count !== 1 ? "s" : ""}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                      ps.status === "paid"
+                        ? "bg-ds-green/15 text-ds-green border-ds-green/30"
+                        : ps.status === "partial"
+                          ? "bg-yellow-500/15 text-yellow-500 border-yellow-500/30"
+                          : "bg-ds-muted/15 text-ds-muted border-ds-muted/30"
+                    }`}>
+                      {ps.status === "paid" ? "✓ Paid" : ps.status === "partial" ? "Partial" : "Pending"}
+                    </span>
+                    <span className="font-semibold text-sm">
+                      ${ps.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
-                    ps.status === "paid"
-                      ? "bg-ds-green/15 text-ds-green border-ds-green/30"
-                      : ps.status === "partial"
-                        ? "bg-yellow-500/15 text-yellow-500 border-yellow-500/30"
-                        : "bg-ds-muted/15 text-ds-muted border-ds-muted/30"
-                  }`}>
-                    {ps.status === "paid" ? "✓ Paid" : ps.status === "partial" ? "Partial" : "Pending"}
-                  </span>
-                  <span className="font-semibold text-sm">
-                    ${ps.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+                {/* Action buttons for this period */}
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-ds-border/50">
+                  <button
+                    onClick={() => handleDraftEmail(ps.period)}
+                    disabled={draftingEmail && draftEmailPeriod === ps.period}
+                    className="text-[10px] text-ds-muted border border-ds-border px-2 py-1 rounded-md hover:border-ds-muted transition disabled:opacity-50"
+                  >
+                    {draftingEmail && draftEmailPeriod === ps.period ? (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="w-2.5 h-2.5 border border-current border-t-transparent rounded-full animate-spin" />
+                        Drafting email...
+                      </span>
+                    ) : (
+                      "Draft Investor Email"
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleGenerateNotices(ps.period)}
+                    disabled={generatingNotices}
+                    className="text-[10px] text-ds-muted border border-ds-border px-2 py-1 rounded-md hover:border-ds-muted transition disabled:opacity-50"
+                  >
+                    {generatingNotices ? (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="w-2.5 h-2.5 border border-current border-t-transparent rounded-full animate-spin" />
+                        Generating...
+                      </span>
+                    ) : (
+                      "Generate Distribution Notices"
+                    )}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Draft email error */}
+          {draftError && (
+            <div className="bg-ds-red/10 border border-ds-red/30 rounded-lg px-4 py-2 text-sm text-ds-red mt-3 animate-fade-in">
+              {draftError}
+            </div>
+          )}
+
+          {/* Notices error */}
+          {noticesError && (
+            <div className="bg-ds-red/10 border border-ds-red/30 rounded-lg px-4 py-2 text-sm text-ds-red mt-3 animate-fade-in">
+              {noticesError}
+            </div>
+          )}
+
+          {/* Drafted email display */}
+          {draftedEmail !== null && (
+            <AiGeneratedContent
+              content={draftedEmail}
+              onChange={setDraftedEmail}
+              onClose={() => setDraftedEmail(null)}
+              title={draftEmailPeriod ? `Draft Email — ${draftEmailPeriod}` : "Draft Email"}
+            />
+          )}
         </div>
       )}
 

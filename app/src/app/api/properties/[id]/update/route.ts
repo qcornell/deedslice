@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const body = await req.json();
 
     // Only allow updating specific fields
-    const allowedFields = ["name", "address", "description", "valuation_usd", "property_type", "image_url"];
+    const allowedFields = ["name", "address", "description", "valuation_usd", "property_type", "image_url", "filing_due_date"];
     const updates: Record<string, any> = {};
     const changes: string[] = [];
 
@@ -46,6 +46,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           changes.push(`Valuation: $${Number(oldVal).toLocaleString()} → $${Number(newVal).toLocaleString()}`);
         } else if (field === "image_url") {
           changes.push("Property image updated");
+        } else if (field === "filing_due_date") {
+          changes.push(`Filing due date: ${oldVal || "(none)"} → ${newVal || "(cleared)"}`);
         } else {
           changes.push(`${field.replace(/_/g, " ")}: ${oldVal || "(empty)"} → ${newVal}`);
         }
