@@ -319,6 +319,157 @@ export type Database = {
   };
 };
 
+      ds_organizations: {
+        Row: {
+          id: string;
+          owner_id: string;
+          name: string;
+          slug: string;
+          custom_domain: string | null;
+          domain_verified: boolean;
+          domain_verification_token: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          name: string;
+          slug: string;
+          custom_domain?: string | null;
+          domain_verified?: boolean;
+          domain_verification_token?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["ds_organizations"]["Row"]>;
+        Relationships: [];
+      };
+      ds_org_branding: {
+        Row: {
+          id: string;
+          org_id: string;
+          logo_url: string | null;
+          favicon_url: string | null;
+          primary_color: string;
+          secondary_color: string;
+          accent_color: string;
+          text_color: string;
+          bg_color: string;
+          email_sender_name: string | null;
+          portal_title: string | null;
+          footer_text: string | null;
+          show_powered_by: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          logo_url?: string | null;
+          favicon_url?: string | null;
+          primary_color?: string;
+          secondary_color?: string;
+          accent_color?: string;
+          text_color?: string;
+          bg_color?: string;
+          email_sender_name?: string | null;
+          portal_title?: string | null;
+          footer_text?: string | null;
+          show_powered_by?: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["ds_org_branding"]["Row"]>;
+        Relationships: [];
+      };
+      ds_org_settings: {
+        Row: {
+          id: string;
+          org_id: string;
+          require_kyc_for_transfer: boolean;
+          allow_investor_self_register: boolean;
+          default_property_visibility: string;
+          timezone: string;
+          currency: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          require_kyc_for_transfer?: boolean;
+          allow_investor_self_register?: boolean;
+          default_property_visibility?: string;
+          timezone?: string;
+          currency?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ds_org_settings"]["Row"]>;
+        Relationships: [];
+      };
+      ds_lp_accounts: {
+        Row: {
+          id: string;
+          org_id: string;
+          investor_id: string | null;
+          email: string;
+          password_hash: string | null;
+          magic_link_token: string | null;
+          magic_link_expires: string | null;
+          name: string | null;
+          last_login_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          org_id: string;
+          investor_id?: string | null;
+          email: string;
+          password_hash?: string | null;
+          name?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["ds_lp_accounts"]["Row"]>;
+        Relationships: [];
+      };
+      ds_distributions: {
+        Row: {
+          id: string;
+          property_id: string;
+          investor_id: string;
+          amount_usd: number;
+          type: string;
+          period: string | null;
+          status: string;
+          tx_id: string | null;
+          notes: string | null;
+          paid_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          property_id: string;
+          investor_id: string;
+          amount_usd: number;
+          type?: string;
+          period?: string | null;
+          status?: string;
+          tx_id?: string | null;
+          notes?: string | null;
+          paid_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["ds_distributions"]["Row"]>;
+        Relationships: [];
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
+};
+
 // Convenience types
 export type Profile = Database["public"]["Tables"]["ds_profiles"]["Row"];
 export type Property = Database["public"]["Tables"]["ds_properties"]["Row"];
@@ -327,3 +478,8 @@ export type AuditEntry = Database["public"]["Tables"]["ds_audit_entries"]["Row"]
 export type Document = Database["public"]["Tables"]["ds_documents"]["Row"];
 export type ApiKey = Database["public"]["Tables"]["ds_api_keys"]["Row"];
 export type Webhook = Database["public"]["Tables"]["ds_webhooks"]["Row"];
+export type Organization = Database["public"]["Tables"]["ds_organizations"]["Row"];
+export type OrgBranding = Database["public"]["Tables"]["ds_org_branding"]["Row"];
+export type OrgSettings = Database["public"]["Tables"]["ds_org_settings"]["Row"];
+export type LpAccount = Database["public"]["Tables"]["ds_lp_accounts"]["Row"];
+export type Distribution = Database["public"]["Tables"]["ds_distributions"]["Row"];
