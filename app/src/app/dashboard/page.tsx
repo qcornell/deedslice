@@ -110,7 +110,7 @@ export default function DashboardPage() {
           <Link
             href="/dashboard/new"
             className="inline-flex items-center gap-2 text-white font-medium px-8 py-3.5 rounded-lg text-[14px] transition-all hover:shadow-md"
-            style={{ background: "#0D9488" }}
+            style={{ background: "#0ab4aa" }}
           >
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             Tokenize Your First Property
@@ -171,7 +171,7 @@ export default function DashboardPage() {
             <Link
               href="/dashboard/new"
               className="inline-flex items-center gap-2 text-white font-medium px-4 py-2 rounded-lg text-[14px] transition-all hover:shadow-md"
-              style={{ background: "#0D9488" }}
+              style={{ background: "#0ab4aa" }}
             >
               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

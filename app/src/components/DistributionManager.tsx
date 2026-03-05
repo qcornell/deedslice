@@ -326,7 +326,7 @@ export default function DistributionManager({ session, property, investors, onDi
           <button
             onClick={() => { setShowForm(!showForm); setShowPreview(false); setError(""); setSuccess(""); }}
             className="text-white font-medium px-5 py-2.5 rounded-lg text-[13px] transition-all hover:shadow-md"
-            style={{ background: "#0D9488" }}
+            style={{ background: "#0ab4aa" }}
           >
             {showForm ? "Cancel" : "+ Record Distribution"}
           </button>
@@ -437,7 +437,7 @@ export default function DistributionManager({ session, property, investors, onDi
               type="checkbox"
               checked={autoMarkPaid}
               onChange={e => setAutoMarkPaid(e.target.checked)}
-              className="w-4 h-4 rounded accent-[#0D9488]"
+              className="w-4 h-4 rounded accent-[#0ab4aa]"
             />
             <label className="text-[12px] text-ds-text">
               Mark as paid immediately
@@ -505,7 +505,7 @@ export default function DistributionManager({ session, property, investors, onDi
                 onClick={handleSubmitBatch}
                 disabled={submitting}
                 className="w-full mt-4 text-white font-semibold py-3 rounded-[10px] text-[13px] transition-all disabled:opacity-50 hover:translate-y-[-1px]"
-                style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+                style={{ background: "#0ab4aa", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
               >
                 {submitting ? (
                   <span className="inline-flex items-center gap-2">

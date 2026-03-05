@@ -558,7 +558,7 @@ export default function InvestorsPage() {
                 type="submit"
                 disabled={adding || !name || !slices}
                 className="w-full text-white font-semibold py-2.5 rounded-[10px] transition-all disabled:opacity-50 text-[13px] hover:translate-y-[-1px]"
-                style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+                style={{ background: "#0ab4aa", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
               >
                 {adding ? "Adding..." : "Add Investor"}
               </button>

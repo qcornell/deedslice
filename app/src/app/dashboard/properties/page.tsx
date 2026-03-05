@@ -130,7 +130,7 @@ export default function PropertiesPage() {
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
             Export
           </button>
-          <Link href="/dashboard/new" className="inline-flex items-center gap-2 text-white px-4 py-2.5 rounded-lg text-[14px] transition-all hover:shadow-md" style={{ background: "#0D9488", fontWeight: 500 }}>
+          <Link href="/dashboard/new" className="inline-flex items-center gap-2 text-white px-4 py-2.5 rounded-lg text-[14px] transition-all hover:shadow-md" style={{ background: "#0ab4aa", fontWeight: 500 }}>
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Tokenize New Property
           </Link>
@@ -258,7 +258,7 @@ export default function PropertiesPage() {
                     <Link
                       href={`/dashboard/property/${p.id}`}
                       className="flex-1 text-center py-2 rounded-lg text-[13px] transition-all hover:shadow-sm"
-                      style={{ background: "#0D9488", color: "white", fontWeight: 500 }}
+                      style={{ background: "#0ab4aa", color: "white", fontWeight: 500 }}
                     >
                       View Details
                     </Link>

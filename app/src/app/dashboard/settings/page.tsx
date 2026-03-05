@@ -222,7 +222,7 @@ function SettingsPageInner() {
                       onClick={() => handleUpgrade(key as "pro" | "enterprise")}
                       disabled={!!upgrading}
                       className="w-full text-white font-medium py-2.5 rounded-lg text-[14px] transition-all disabled:opacity-50 hover:shadow-md"
-                      style={{ background: "#0D9488" }}
+                      style={{ background: "#0ab4aa" }}
                     >
                       {upgrading === key ? "Redirecting..." : `Upgrade to ${plan.name}`}
                     </button>
@@ -273,7 +273,7 @@ function SettingsPageInner() {
                 )}
                 <div className="flex items-center gap-3">
                   <input type="text" value={newKeyName} onChange={e => setNewKeyName(e.target.value)} placeholder="Key name (e.g. Production)" className="flex-1 border rounded-lg px-4 py-2.5 text-[14px] focus:outline-none focus:border-[#0D9488] transition" style={{ background: "white", borderColor: "var(--ds-border)" }} />
-                  <button onClick={handleCreateApiKey} disabled={creatingKey} className="text-white font-medium px-5 py-2.5 rounded-lg text-[14px] transition-all disabled:opacity-50" style={{ background: "#0D9488" }}>{creatingKey ? "..." : "Create Key"}</button>
+                  <button onClick={handleCreateApiKey} disabled={creatingKey} className="text-white font-medium px-5 py-2.5 rounded-lg text-[14px] transition-all disabled:opacity-50" style={{ background: "#0ab4aa" }}>{creatingKey ? "..." : "Create Key"}</button>
                 </div>
                 <div className="mt-5 pt-4 border-t text-[13px]" style={{ borderColor: "var(--ds-border)", color: "var(--ds-muted)" }}>
                   <strong style={{ color: "var(--ds-text-secondary)" }}>Base URL:</strong> <code className="font-mono" style={{ color: "var(--ds-text)" }}>https://console.deedslice.com/api/v1</code><br />
@@ -320,7 +320,7 @@ function SettingsPageInner() {
                 )}
                 <div className="flex items-center gap-3">
                   <input type="url" value={newWebhookUrl} onChange={e => setNewWebhookUrl(e.target.value)} placeholder="https://your-app.com/webhook" className="flex-1 border rounded-lg px-4 py-2.5 text-[14px] font-mono focus:outline-none focus:border-[#0D9488] transition" style={{ background: "white", borderColor: "var(--ds-border)" }} />
-                  <button onClick={handleCreateWebhook} disabled={creatingWebhook || !newWebhookUrl} className="text-white font-medium px-5 py-2.5 rounded-lg text-[14px] transition-all disabled:opacity-50" style={{ background: "#0D9488" }}>{creatingWebhook ? "..." : "Add Webhook"}</button>
+                  <button onClick={handleCreateWebhook} disabled={creatingWebhook || !newWebhookUrl} className="text-white font-medium px-5 py-2.5 rounded-lg text-[14px] transition-all disabled:opacity-50" style={{ background: "#0ab4aa" }}>{creatingWebhook ? "..." : "Add Webhook"}</button>
                 </div>
                 <div className="mt-4 text-[13px]" style={{ color: "var(--ds-muted)" }}>
                   <strong style={{ color: "var(--ds-text-secondary)" }}>Events:</strong> property.tokenized · investor.added/updated · transfer.completed/failed · document.added · kyc.updated · distribution.*<br />

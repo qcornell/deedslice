@@ -218,7 +218,7 @@ export default function PropertyDetailPage() {
           <div className="flex items-center gap-3">
             <button onClick={handleSave} disabled={saving}
               className="text-white font-semibold px-6 py-2.5 rounded-[10px] text-[13px] transition-all disabled:opacity-50 hover:translate-y-[-1px]"
-              style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}>
+              style={{ background: "#0ab4aa", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}>
               {saving ? "Saving..." : "Save Changes"}
             </button>
             <span className="text-xs text-ds-muted">Changes are logged to the HCS audit trail</span>
@@ -591,7 +591,7 @@ export default function PropertyDetailPage() {
               try { navigator.clipboard.writeText(`https://console.deedslice.com/view/${id}`); } catch {}
             }}
             className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px] shrink-0"
-            style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+            style={{ background: "#0ab4aa", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
           >
             Copy Link
           </button>

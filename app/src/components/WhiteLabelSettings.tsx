@@ -248,7 +248,7 @@ export default function WhiteLabelSettings({ session }: Props) {
             type="submit"
             disabled={creating || !newOrgName || !newOrgSlug}
             className="text-white font-semibold px-5 py-2.5 rounded-lg text-[13px] transition-all disabled:opacity-50"
-            style={{ background: "#0D9488", boxShadow: "0 1px 3px rgba(13,148,136,0.2)" }}
+            style={{ background: "#0ab4aa", boxShadow: "0 1px 3px rgba(13,148,136,0.2)" }}
           >
             {creating ? "Creating..." : "Create Organization"}
           </button>
@@ -328,7 +328,7 @@ export default function WhiteLabelSettings({ session }: Props) {
               onClick={handleSaveBranding}
               disabled={saving}
               className="text-white font-semibold px-4 py-2 rounded-lg text-[12px] transition-all disabled:opacity-50"
-              style={{ background: "#0D9488" }}
+              style={{ background: "#0ab4aa" }}
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>
@@ -382,7 +382,7 @@ export default function WhiteLabelSettings({ session }: Props) {
                 type="checkbox"
                 checked={branding.show_powered_by}
                 onChange={e => setBranding(b => ({ ...b, show_powered_by: e.target.checked }))}
-                className="w-4 h-4 rounded accent-[#0D9488]"
+                className="w-4 h-4 rounded accent-[#0ab4aa]"
               />
               <label className="text-[12px] text-ds-text-secondary">Show &quot;Powered by&quot; footer</label>
             </div>
@@ -452,7 +452,7 @@ export default function WhiteLabelSettings({ session }: Props) {
                   type="checkbox"
                   checked={settings.require_kyc_for_transfer}
                   onChange={e => setSettings(s => s ? { ...s, require_kyc_for_transfer: e.target.checked } : s)}
-                  className="w-4 h-4 rounded accent-[#0D9488]"
+                  className="w-4 h-4 rounded accent-[#0ab4aa]"
                 />
                 <label className="text-[12px] text-ds-text-secondary">Require KYC verification before token transfers</label>
               </div>
@@ -461,7 +461,7 @@ export default function WhiteLabelSettings({ session }: Props) {
                   type="checkbox"
                   checked={settings.allow_investor_self_register}
                   onChange={e => setSettings(s => s ? { ...s, allow_investor_self_register: e.target.checked } : s)}
-                  className="w-4 h-4 rounded accent-[#0D9488]"
+                  className="w-4 h-4 rounded accent-[#0ab4aa]"
                 />
                 <label className="text-[12px] text-ds-text-secondary">Allow investors to self-register (vs invite-only)</label>
               </div>
@@ -489,7 +489,7 @@ export default function WhiteLabelSettings({ session }: Props) {
             onClick={handleSetDomain}
             disabled={saving}
             className="text-white font-medium px-4 py-2.5 rounded-lg text-[12px] transition-all disabled:opacity-50"
-            style={{ background: "#0D9488" }}
+            style={{ background: "#0ab4aa" }}
           >
             {saving ? "..." : "Set Domain"}
           </button>

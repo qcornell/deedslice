@@ -119,7 +119,7 @@ export default function AiGeneratedContent({
           onClick={handleCopy}
           className="text-xs font-medium px-3 py-1.5 rounded-lg text-white transition hover:opacity-90"
           style={{
-            background: "#0D9488",
+            background: "#0ab4aa",
           }}
         >
           {copied ? "Copied!" : "Copy to Clipboard"}
