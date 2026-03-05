@@ -75,19 +75,20 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
 
       <aside
         className={`
-          fixed left-0 top-0 h-screen w-64 flex flex-col z-50
+          fixed left-0 top-0 h-screen flex flex-col z-50
           transition-transform duration-300 ease-in-out
           lg:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
         `}
         style={{
+          width: "240px",
           background: "#1a2332",
         }}
       >
         {/* Logo + mobile close */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-white/[0.06]">
+        <div className="h-14 flex items-center justify-between px-5 border-b border-white/[0.06]">
           <a href="https://deedslice.com" className="flex items-center">
-            <img src="/logo2.png" alt="DeedSlice" className="h-7 w-auto" />
+            <img src="/logo2.png" alt="DeedSlice" className="h-6 w-auto" />
           </a>
           <button
             onClick={onClose}
@@ -98,7 +99,7 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 p-3 space-y-1 mt-3">
+        <nav className="flex-1 p-3 space-y-0.5 mt-2">
           {navItems.map((item) => {
             const active =
               pathname === item.href ||
@@ -108,26 +109,27 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
                 key={item.href}
                 href={item.href}
                 onClick={onClose}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-[14px] font-medium
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all text-[15px]
                   ${active
                     ? "bg-[#2d3b4e] text-white"
                     : "text-white/50 hover:text-white/80 hover:bg-white/[0.05]"
                   }`}
+                style={{ fontWeight: active ? 500 : 400 }}
               >
-                <span className="w-5 h-5 flex-shrink-0 opacity-90">{icons[item.iconKey]}</span>
+                <span className="w-5 h-5 flex-shrink-0 opacity-80">{icons[item.iconKey]}</span>
                 <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Network indicator — no more "Powered by" text */}
-        <div className="p-4 border-t border-white/[0.06]">
+        {/* Network indicator */}
+        <div className="p-3 border-t border-white/[0.06]">
           <div
-            className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] text-white/60"
-            style={{ background: "rgba(255,255,255,0.03)" }}
+            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[13px] text-white/50"
+            style={{ background: "rgba(255,255,255,0.03)", fontWeight: 400 }}
           >
-            <div className={`w-2 h-2 rounded-full ${isMainnet ? "bg-ds-green pulse-green" : "bg-yellow-400"}`} />
+            <div className={`w-2 h-2 rounded-full ${isMainnet ? "bg-[#0ACF83]" : "bg-yellow-400"}`} />
             <span>{isMainnet ? "Hedera Mainnet" : "Hedera Testnet"}</span>
           </div>
         </div>
