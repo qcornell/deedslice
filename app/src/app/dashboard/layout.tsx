@@ -28,11 +28,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="min-h-screen ds-dotgrid">
+    <div className="min-h-screen" style={{ background: "var(--ds-bg)" }}>
       <Sidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="lg:ml-64 relative z-10">
+      <div className="lg:ml-64 min-h-screen flex flex-col">
         <Header onMenuToggle={() => setSidebarOpen((o) => !o)} />
-        <main className="p-4 md:p-8">{children}</main>
+        <main className="flex-1 p-5 md:p-8">{children}</main>
       </div>
     </div>
   );

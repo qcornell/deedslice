@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributions - DeedSlice</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Your existing color palette */
+            --sidebar-bg: #1a2332;
+            --sidebar-active: #2d3b4e;
+            --primary: #0ab4aa;
+            --primary-dark: #089991;
+            --text-primary: #1A1F36;
+            --text-secondary: #697386;
+            --text-tertiary: #8792A2;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F6F9FC;
+            --bg-tertiary: #E3E8EF;
+            --border: #E3E8EF;
+            --success: #0ACF83;
+            --warning: #FFA500;
+            --error: #DF1B41;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Keep existing style */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2xl);
+            color: white;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #17a2b8 0%, #0d6efd 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .network-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            background: #FFA500;
+            border-radius: 50%;
+        }
+
+        .powered-by {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 0 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-signout {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .btn-signout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: var(--spacing-xl);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-icon {
+            margin-right: var(--spacing-sm);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Property Selector */
+        .property-selector {
+            background: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .property-select {
+            width: 100%;
+            padding: 8px 36px 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 500;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            gap: var(--spacing-xl);
+        }
+
+        .main-column {
+            flex: 1;
+        }
+
+        .sidebar-column {
+            width: 300px;
+            flex-shrink: 0;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .stat-icon.teal {
+            background: rgba(10, 180, 170, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.green {
+            background: rgba(10, 207, 131, 0.1);
+            color: var(--success);
+        }
+
+        .stat-icon.orange {
+            background: rgba(255, 165, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-icon.blue {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-primary);
+        }
+
+        /* Chart */
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        /* Distribution History */
+        .distribution-entry {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .distribution-header {
+            background: rgba(10, 180, 170, 0.08);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--success);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .distribution-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .distribution-amount {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 var(--spacing-sm);
+        }
+
+        .distribution-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(10, 207, 131, 0.1);
+            color: var(--success);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            padding: var(--spacing-md) var(--spacing-sm);
+        }
+
+        td {
+            padding: var(--spacing-lg) var(--spacing-sm);
+            border-bottom: 1px solid var(--bg-tertiary);
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .investor-cell {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .investor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .investor-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(10, 207, 131, 0.1);
+            color: var(--success);
+        }
+
+        /* Section Header */
+        .section-header {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .action-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--primary);
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            justify-content: center;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .action-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--text-secondary);
+        }
+
+        .action-btn.primary .action-icon {
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .sidebar-column {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: var(--spacing-md);
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .logo span,
+            .nav-item span,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-header {
+                padding: var(--spacing-md);
+            }
+
+            .content-area {
+                padding: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Keep existing style -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <span>DeedSlice</span>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Properties</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Tokenize</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Investors</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Distributions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Audit</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="network-badge">
+                    <span class="network-dot"></span>
+                    <span>Hedera Testnet</span>
+                </div>
+                <div class="powered-by">Powered by dopely agent-kit</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-header">
+                <div>
+                    <h1 class="page-title">Distributions</h1>
+                </div>
+                <div class="user-section">
+                    <span class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="aedfdbcbc0da9f9c98eec9c3cfc7c280cdc1c3">[email&#160;protected]</a></span>
+                    <button class="btn-signout">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div></div>
+                    <button class="btn btn-primary">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Record Distribution
+                    </button>
+                </div>
+
+                <!-- Property Selector -->
+                <div class="property-selector">
+                    <select class="property-select">
+                        <option>Cornell Corner – $300,000 Property</option>
+                        <option>Bryan Duplex – $450,000 Property</option>
+                        <option>Sunset Boulevard – $750,000 Property</option>
+                    </select>
+                </div>
+
+                <!-- Main Layout -->
+                <div class="main-layout">
+                    <!-- Main Column -->
+                    <div class="main-column">
+                        <!-- Stats Grid -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon teal">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="stat-label">Total Distributed</div>
+                                <div class="stat-value">$5,000</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon green">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="stat-label">Paid</div>
+                                <div class="stat-value">$5,000</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon orange">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="stat-label">Pending</div>
+                                <div class="stat-value">$0.00</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon blue">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="stat-label">Next Distribution</div>
+                                <div class="stat-value" style="font-size: 20px;">Apr 2026</div>
+                            </div>
+                        </div>
+
+                        <!-- Distribution Income Chart -->
+                        <div class="card">
+                            <h2 class="card-title">Distribution Income</h2>
+                            <div class="chart-container">
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Distribution History -->
+                        <div class="card">
+                            <h2 class="card-title">Distribution History</h2>
+
+                            <!-- March 2026 -->
+                            <div class="distribution-entry">
+                                <div class="distribution-header">
+                                    <div class="check-icon">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="distribution-title">March 2026</span>
+                                    <span class="distribution-amount">$5,000</span>
+                                    <span>distributed</span>
+                                    <span style="margin-left: 4px;">·</span>
+                                    <span class="distribution-status">Paid</span>
+                                </div>
+
+                                <div class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>INVESTOR</th>
+                                                <th>OWNERSHIP</th>
+                                                <th>STATUS</th>
+                                                <th style="text-align: right;">DATE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="investor-cell">
+                                                        <div class="investor-avatar">JS</div>
+                                                        <div class="investor-name">John Smith</div>
+                                                    </div>
+                                                </td>
+                                                <td>100%</td>
+                                                <td><span class="status-badge">Paid</span></td>
+                                                <td style="text-align: right;">Mar 5, 2026</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- February 2026 -->
+                            <div class="distribution-entry">
+                                <div class="section-header">February 2026 - Total Distribution</div>
+                                <div class="table-container">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="investor-cell">
+                                                        <div class="investor-avatar">JS</div>
+                                                        <div class="investor-name">John Smith</div>
+                                                    </div>
+                                                </td>
+                                                <td>100%</td>
+                                                <td><span class="status-badge">Paid</span></td>
+                                                <td style="text-align: right;">Feb 5, 2026</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- January 2026 -->
+                            <div class="distribution-entry">
+                                <div class="section-header">January 2026 - Total Distribution</div>
+                                <div class="table-container">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="investor-cell">
+                                                        <div class="investor-avatar">JS</div>
+                                                        <div class="investor-name">John Smith</div>
+                                                    </div>
+                                                </td>
+                                                <td>100%</td>
+                                                <td><span class="status-badge">Paid</span></td>
+                                                <td style="text-align: right;">Jan 5, 2026</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Column -->
+                    <div class="sidebar-column">
+                        <div class="action-buttons">
+                            <button class="action-btn primary">
+                                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Record Distribution
+                            </button>
+
+                            <button class="action-btn">
+                                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                Generate Investor Notices
+                            </button>
+
+                            <button class="action-btn">
+                                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Export for Accountant
+                            </button>
+
+                            <button class="action-btn">
+                                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                </svg>
+                                Download CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Distribution Income Chart
+        const ctx = document.getElementById('distributionChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, 'rgba(10, 180, 170, 0.2)');
+        gradient.addColorStop(1, 'rgba(10, 180, 170, 0.01)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                datasets: [{
+                    label: 'Distribution Income',
+                    data: [3000, 3500, 3800, 5000],
+                    borderColor: '#0ab4aa',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#0ab4aa',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#0ab4aa',
+                    pointHoverBorderColor: '#fff',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 2500,
+                        max: 5500,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + (value / 1000) + 'k';
+                            },
+                            color: '#8792A2',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#8792A2',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    </script>
+</body>
+</html>

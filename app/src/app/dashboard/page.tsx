@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import Link from "next/link";
 import ActionItems from "@/components/ActionItems";
@@ -19,16 +19,26 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, [session]);
 
+  const stats = useMemo(() => {
+    const live = properties.filter((p) => p.status === "live");
+    const totalValue = live.reduce((s, p) => s + (p.valuation_usd || 0), 0);
+    return {
+      totalProperties: live.length,
+      totalValue,
+      pending: properties.filter((p) => p.status === "deploying").length,
+    };
+  }, [properties]);
+
   const statusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      live: "bg-ds-green/15 text-ds-green border-ds-green/30",
-      deploying: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
-      draft: "bg-ds-muted/15 text-ds-muted border-ds-muted/30",
-      failed: "bg-ds-red/15 text-ds-red border-ds-red/30",
+      live: "bg-[rgba(10,207,131,0.1)] text-[#0ACF83]",
+      deploying: "bg-[rgba(255,165,0,0.1)] text-[#FFA500]",
+      draft: "bg-[rgba(135,146,162,0.15)] text-[#8792A2]",
+      failed: "bg-[rgba(223,27,65,0.1)] text-[#DF1B41]",
     };
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${styles[status] || styles.draft}`}>
-        {status === "live" && <span className="w-1.5 h-1.5 rounded-full bg-ds-green pulse-green" />}
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-medium ${styles[status] || styles.draft}`}>
+        {status === "live" && <span className="w-1.5 h-1.5 rounded-full bg-[#0ACF83]" />}
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
@@ -36,20 +46,49 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      {/* Stats overview */}
+      {!loading && properties.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {/* Portfolio Value — Featured */}
+          <div
+            className="rounded-xl p-6 text-white"
+            style={{
+              background: "linear-gradient(135deg, #17a2b8 0%, #138496 100%)",
+              boxShadow: "var(--ds-shadow-sm)",
+            }}
+          >
+            <div className="text-[13px] font-medium uppercase tracking-wide opacity-90 mb-2">Portfolio Value</div>
+            <div className="text-[32px] font-bold leading-none">${stats.totalValue.toLocaleString()}</div>
+            <div className="text-[13px] mt-2 opacity-80">{stats.totalProperties} active propert{stats.totalProperties !== 1 ? "ies" : "y"}</div>
+          </div>
+          {/* Properties */}
+          <div className="glass rounded-xl p-6">
+            <div className="text-[13px] font-medium uppercase tracking-wide text-[#697386] mb-2">Properties</div>
+            <div className="text-[32px] font-bold leading-none" style={{ color: "var(--ds-text)" }}>{stats.totalProperties}</div>
+            <div className="text-[13px] mt-2" style={{ color: "var(--ds-muted)" }}>
+              {stats.pending > 0 ? <><span className="text-[#0ACF83] font-medium">↑ {stats.pending}</span> pending</> : "active"}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header row */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold heading-tight">Properties</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--ds-muted)" }}>Manage your tokenized real estate assets</p>
+          <h2 className="text-lg font-semibold" style={{ color: "var(--ds-text)" }}>Properties</h2>
+          <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>Manage your tokenized real estate assets</p>
         </div>
         <Link
           href="/dashboard/new"
-          className="text-white font-semibold px-5 py-2.5 rounded-[10px] text-[13px] transition-all hover:translate-y-[-1px] text-center shrink-0"
+          className="inline-flex items-center gap-2 text-white font-medium px-5 py-2.5 rounded-lg text-[14px] transition-all hover:shadow-md text-center shrink-0"
           style={{
             background: "#0D9488",
-            boxShadow: "0 2px 8px rgba(13,148,136,0.25), 0 1px 2px rgba(13,148,136,0.15)",
           }}
         >
-          + Tokenize Property
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Tokenize Property
         </Link>
       </div>
 
@@ -61,44 +100,41 @@ export default function DashboardPage() {
         </div>
       ) : properties.length === 0 ? (
         <div className="ds-glow">
-          <div className="glass rounded-[20px] p-16 text-center relative z-10">
+          <div className="glass rounded-xl p-16 text-center relative z-10">
             <div className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center text-4xl" style={{
               background: "rgba(13,148,136,0.08)",
               border: "1px solid rgba(13,148,136,0.12)",
             }}>
               🏠
             </div>
-            <h2 className="text-xl font-bold heading-tight mb-3">No properties yet</h2>
-            <p className="text-sm max-w-md mx-auto mb-8" style={{ color: "var(--ds-text-secondary)", lineHeight: "1.7" }}>
+            <h2 className="text-xl font-semibold mb-3" style={{ color: "var(--ds-text)" }}>No properties yet</h2>
+            <p className="text-[14px] max-w-md mx-auto mb-8" style={{ color: "var(--ds-text-secondary)", lineHeight: "1.7" }}>
               Tokenize your first property to create an NFT deed, share tokens, and a verifiable audit trail — all on Hedera.
             </p>
             <Link
               href="/dashboard/new"
-              className="inline-flex text-white font-semibold px-8 py-3.5 rounded-[10px] text-[14px] transition-all hover:translate-y-[-2px]"
-              style={{
-                background: "#0D9488",
-                boxShadow: "0 4px 14px rgba(13,148,136,0.3), 0 1px 3px rgba(13,148,136,0.2)",
-              }}
+              className="inline-flex text-white font-medium px-8 py-3.5 rounded-lg text-[14px] transition-all hover:shadow-md"
+              style={{ background: "#0D9488" }}
             >
               Tokenize Your First Property
             </Link>
-            <p className="text-[11px] mt-4" style={{ color: "var(--ds-muted)" }}>
+            <p className="text-[12px] mt-4" style={{ color: "var(--ds-muted)" }}>
               ~$0.01 in Hedera fees · Takes about 10 seconds
             </p>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {properties.map((p, i) => (
             <Link
               key={p.id}
               href={`/dashboard/property/${p.id}`}
-              className="glass rounded-[16px] overflow-hidden group animate-fade-in"
+              className="glass rounded-xl overflow-hidden group cursor-pointer animate-fade-in"
               style={{ animationDelay: `${i * 60}ms` }}
             >
               {/* Property Image */}
               {p.image_url ? (
-                <div className="w-full h-36 overflow-hidden">
+                <div className="w-full h-[220px] overflow-hidden">
                   <img
                     src={p.image_url}
                     alt={p.name}
@@ -106,7 +142,7 @@ export default function DashboardPage() {
                   />
                 </div>
               ) : (
-                <div className="w-full h-36 flex items-center justify-center text-4xl"
+                <div className="w-full h-[220px] flex items-center justify-center text-5xl"
                   style={{ background: "linear-gradient(135deg, rgba(13,148,136,0.06) 0%, rgba(99,102,241,0.04) 100%)" }}>
                   🏠
                 </div>
@@ -114,51 +150,43 @@ export default function DashboardPage() {
 
               <div className="p-6">
               {/* Header */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold title-tight group-hover:text-ds-accent-text transition">{p.name}</h3>
-                  {p.address && <p className="text-[11px] mt-0.5" style={{ color: "var(--ds-muted)" }}>{p.address}</p>}
+                  <h3 className="text-[16px] font-semibold group-hover:text-[#0D9488] transition" style={{ color: "var(--ds-text)" }}>{p.name}</h3>
+                  {p.address && <p className="text-[14px] mt-0.5" style={{ color: "var(--ds-muted)" }}>{p.address}</p>}
                 </div>
                 {statusBadge(p.status)}
               </div>
 
-              {/* Valuation */}
-              <div className="flex items-baseline gap-1.5 mb-4">
-                <span className="text-2xl font-bold heading-tight">${p.valuation_usd.toLocaleString()}</span>
-                <span className="text-[11px]" style={{ color: "var(--ds-muted)" }}>
-                  ${Math.round(p.valuation_usd / p.total_slices)}/slice
-                </span>
-              </div>
-
-              {/* On-chain IDs */}
-              <div className="space-y-2 text-[12px]">
-                {p.nft_token_id && (
-                  <div className="flex items-center justify-between" style={{ color: "var(--ds-muted)" }}>
-                    <span>📜 NFT Deed</span>
-                    <span className="font-mono" style={{ color: "var(--ds-text)" }}>{p.nft_token_id}</span>
-                  </div>
-                )}
+              {/* Stats grid like upgrade UI */}
+              <div className="grid grid-cols-2 gap-4 pt-4 mt-3 border-t" style={{ borderColor: "var(--ds-border)" }}>
+                <div>
+                  <div className="text-[12px] uppercase tracking-wide" style={{ color: "var(--ds-muted)" }}>Value</div>
+                  <div className="text-[16px] font-semibold mt-0.5" style={{ color: "var(--ds-text)" }}>${p.valuation_usd.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div className="text-[12px] uppercase tracking-wide" style={{ color: "var(--ds-muted)" }}>Slices</div>
+                  <div className="text-[16px] font-semibold mt-0.5" style={{ color: "var(--ds-text)" }}>{p.total_slices.toLocaleString()}</div>
+                </div>
                 {p.share_token_id && (
-                  <div className="flex items-center justify-between" style={{ color: "var(--ds-muted)" }}>
-                    <span>🪙 Shares</span>
-                    <span className="font-mono" style={{ color: "var(--ds-text)" }}>{p.share_token_symbol} ({p.total_slices.toLocaleString()})</span>
+                  <div>
+                    <div className="text-[12px] uppercase tracking-wide" style={{ color: "var(--ds-muted)" }}>Token</div>
+                    <div className="text-[14px] font-mono font-medium mt-0.5" style={{ color: "var(--ds-text)" }}>{p.share_token_symbol}</div>
                   </div>
                 )}
-                {p.audit_topic_id && (
-                  <div className="flex items-center justify-between" style={{ color: "var(--ds-muted)" }}>
-                    <span>📋 Audit</span>
-                    <span className="font-mono" style={{ color: "var(--ds-text)" }}>{p.audit_topic_id}</span>
-                  </div>
-                )}
+                <div>
+                  <div className="text-[12px] uppercase tracking-wide" style={{ color: "var(--ds-muted)" }}>Per Slice</div>
+                  <div className="text-[14px] font-semibold mt-0.5" style={{ color: "var(--ds-text)" }}>${Math.round(p.valuation_usd / p.total_slices).toLocaleString()}</div>
+                </div>
               </div>
 
               {/* Network badge */}
-              <div className="mt-4 pt-3 border-t flex items-center gap-2 text-[10px]" style={{ borderColor: "var(--ds-border)", color: "var(--ds-muted)" }}>
-                <span className={`w-1.5 h-1.5 rounded-full ${p.network === "mainnet" ? "bg-ds-green" : "bg-yellow-400"}`} />
+              <div className="mt-4 pt-3 border-t flex items-center gap-2 text-[11px]" style={{ borderColor: "var(--ds-border)", color: "var(--ds-muted)" }}>
+                <span className={`w-1.5 h-1.5 rounded-full ${p.network === "mainnet" ? "bg-[#0ACF83]" : "bg-yellow-400"}`} />
                 {p.network === "mainnet" ? "Hedera Mainnet" : "Hedera Testnet"}
                 {p.deployed_at && ` · ${new Date(p.deployed_at).toLocaleDateString()}`}
               </div>
-              </div>{/* end p-6 wrapper */}
+              </div>
             </Link>
           ))}
         </div>

@@ -54,14 +54,15 @@ export default function DistributionsPage() {
 
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
-      <h1 className="text-2xl font-bold heading-tight mb-2">Distributions</h1>
-      <p className="text-ds-muted text-sm mb-8">Record and track income distributions to investors</p>
+      <div className="mb-8">
+        <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>Record and track income distributions to investors</p>
+      </div>
 
       {properties.length === 0 ? (
-        <div className="glass rounded-2xl p-12 text-center">
+        <div className="glass rounded-xl p-12 text-center">
           <div className="text-5xl mb-4">💰</div>
-          <h2 className="text-xl font-semibold mb-2">No live properties</h2>
-          <p className="text-ds-muted text-sm">Tokenize a property and add investors first.</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: "var(--ds-text)" }}>No live properties</h2>
+          <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>Tokenize a property and add investors first.</p>
         </div>
       ) : (
         <>

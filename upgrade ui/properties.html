@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties - DeedSlice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Your existing color palette */
+            --sidebar-bg: #1a2332;
+            --sidebar-active: #2d3b4e;
+            --primary: #0ab4aa;
+            --primary-dark: #089991;
+            --text-primary: #1A1F36;
+            --text-secondary: #697386;
+            --text-tertiary: #8792A2;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F6F9FC;
+            --bg-tertiary: #E3E8EF;
+            --border: #E3E8EF;
+            --success: #0ACF83;
+            --warning: #FFA500;
+            --error: #DF1B41;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Keep existing style */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2xl);
+            color: white;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #17a2b8 0%, #0d6efd 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .network-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            background: #FFA500;
+            border-radius: 50%;
+        }
+
+        .powered-by {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 0 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-signout {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .btn-signout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: var(--spacing-xl);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-icon {
+            margin-right: var(--spacing-sm);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .stat-card-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        .stat-card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-card-change {
+            font-size: 13px;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Filters Bar */
+        .filters-bar {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 180, 170, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.4;
+        }
+
+        .filter-select {
+            padding: 10px 36px 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Properties Grid */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        /* Property Card */
+        .property-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .property-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-color: var(--border);
+        }
+
+        .property-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .property-content {
+            padding: var(--spacing-lg);
+        }
+
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .property-address {
+            flex: 1;
+        }
+
+        .property-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .property-location {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .property-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: rgba(10, 207, 131, 0.1);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: rgba(255, 165, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .status-completed {
+            background: rgba(10, 180, 170, 0.1);
+            color: var(--primary);
+        }
+
+        /* Property Stats */
+        .property-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--bg-tertiary);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Property Footer */
+        .property-footer {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--bg-tertiary);
+        }
+
+        .property-action {
+            flex: 1;
+            padding: 8px 16px;
+            text-align: center;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+        }
+
+        .property-action:hover {
+            background: var(--bg-secondary);
+        }
+
+        .property-action.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .property-action.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .properties-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: var(--spacing-md);
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .logo span,
+            .nav-item span,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-md);
+            }
+
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .top-header {
+                padding: var(--spacing-md);
+            }
+
+            .content-area {
+                padding: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Keep existing style -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <span>DeedSlice</span>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Properties</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Tokenize</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Investors</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Distributions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Audit</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="network-badge">
+                    <span class="network-dot"></span>
+                    <span>Hedera Testnet</span>
+                </div>
+                <div class="powered-by">Powered by dopely agent-kit</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-header">
+                <div>
+                    <h1 class="page-title">Properties</h1>
+                </div>
+                <div class="user-section">
+                    <span class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="83f2f6e6edf7b2b1b5c3e4eee2eaefade0ecee">[email&#160;protected]</a></span>
+                    <button class="btn-signout">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <div class="page-subtitle">Manage and monitor your tokenized properties</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary">
+                            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export
+                        </button>
+                        <button class="btn btn-primary">
+                            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Tokenize New Property
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-card-label">Total Properties</div>
+                        <div class="stat-card-value">24</div>
+                        <div class="stat-card-change">↑ 12% from last month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-label">Total Value</div>
+                        <div class="stat-card-value">$12.4M</div>
+                        <div class="stat-card-change">↑ 8.2% from last month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-label">Active Listings</div>
+                        <div class="stat-card-value">18</div>
+                        <div class="stat-card-change">↑ 3 new this week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-label">Avg. Token Price</div>
+                        <div class="stat-card-value">$127</div>
+                        <div class="stat-card-change">↑ 2.1% from last month</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="text" class="search-input" placeholder="Search properties...">
+                    </div>
+                    <select class="filter-select">
+                        <option>All Statuses</option>
+                        <option>Active</option>
+                        <option>Pending</option>
+                        <option>Completed</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Types</option>
+                        <option>Residential</option>
+                        <option>Commercial</option>
+                        <option>Mixed Use</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>Sort by: Newest</option>
+                        <option>Sort by: Value (High)</option>
+                        <option>Sort by: Value (Low)</option>
+                        <option>Sort by: Name</option>
+                    </select>
+                </div>
+
+                <!-- Properties Grid -->
+                <div class="properties-grid">
+                    <!-- Property Card 1 -->
+                    <div class="property-card">
+                        <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&h=600&fit=crop" alt="Property" class="property-image">
+                        <div class="property-content">
+                            <div class="property-header">
+                                <div class="property-address">
+                                    <div class="property-title">Modern Downtown Loft</div>
+                                    <div class="property-location">123 Market St, San Francisco, CA</div>
+                                </div>
+                                <span class="property-status status-active">Active</span>
+                            </div>
+
+                            <div class="property-stats">
+                                <div class="stat">
+                                    <div class="stat-label">Total Supply</div>
+                                    <div class="stat-value">10,000</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Available</div>
+                                    <div class="stat-value">3,420</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Token Price</div>
+                                    <div class="stat-value">$125</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Market Cap</div>
+                                    <div class="stat-value">$1.25M</div>
+                                </div>
+                            </div>
+
+                            <div class="property-footer">
+                                <button class="property-action primary">View Details</button>
+                                <button class="property-action">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Card 2 -->
+                    <div class="property-card">
+                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop" alt="Property" class="property-image">
+                        <div class="property-content">
+                            <div class="property-header">
+                                <div class="property-address">
+                                    <div class="property-title">Luxury Suburban Home</div>
+                                    <div class="property-location">456 Oak Avenue, Palo Alto, CA</div>
+                                </div>
+                                <span class="property-status status-active">Active</span>
+                            </div>
+
+                            <div class="property-stats">
+                                <div class="stat">
+                                    <div class="stat-label">Total Supply</div>
+                                    <div class="stat-value">15,000</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Available</div>
+                                    <div class="stat-value">8,200</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Token Price</div>
+                                    <div class="stat-value">$210</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Market Cap</div>
+                                    <div class="stat-value">$3.15M</div>
+                                </div>
+                            </div>
+
+                            <div class="property-footer">
+                                <button class="property-action primary">View Details</button>
+                                <button class="property-action">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Card 3 -->
+                    <div class="property-card">
+                        <img src="https://images.unsplash.com/photo-1460317442991-0ec209397118?w=800&h=600&fit=crop" alt="Property" class="property-image">
+                        <div class="property-content">
+                            <div class="property-header">
+                                <div class="property-address">
+                                    <div class="property-title">Commercial Office Space</div>
+                                    <div class="property-location">789 Business Blvd, San Jose, CA</div>
+                                </div>
+                                <span class="property-status status-pending">Pending</span>
+                            </div>
+
+                            <div class="property-stats">
+                                <div class="stat">
+                                    <div class="stat-label">Total Supply</div>
+                                    <div class="stat-value">25,000</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Available</div>
+                                    <div class="stat-value">25,000</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Token Price</div>
+                                    <div class="stat-value">$180</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Market Cap</div>
+                                    <div class="stat-value">$4.5M</div>
+                                </div>
+                            </div>
+
+                            <div class="property-footer">
+                                <button class="property-action primary">View Details</button>
+                                <button class="property-action">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Card 4 -->
+                    <div class="property-card">
+                        <img src="https://images.unsplash.com/photo-1567496898669-ee935f5f647a?w=800&h=600&fit=crop" alt="Property" class="property-image">
+                        <div class="property-content">
+                            <div class="property-header">
+                                <div class="property-address">
+                                    <div class="property-title">Beachfront Condo</div>
+                                    <div class="property-location">321 Ocean Drive, Santa Cruz, CA</div>
+                                </div>
+                                <span class="property-status status-active">Active</span>
+                            </div>
+
+                            <div class="property-stats">
+                                <div class="stat">
+                                    <div class="stat-label">Total Supply</div>
+                                    <div class="stat-value">8,000</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Available</div>
+                                    <div class="stat-value">1,450</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Token Price</div>
+                                    <div class="stat-value">$95</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Market Cap</div>
+                                    <div class="stat-value">$760K</div>
+                                </div>
+                            </div>
+
+                            <div class="property-footer">
+                                <button class="property-action primary">View Details</button>
+                                <button class="property-action">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Card 5 -->
+                    <div class="property-card">
+                        <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop" alt="Property" class="property-image">
+                        <div class="property-content">
+                            <div class="property-header">
+                                <div class="property-address">
+                                    <div class="property-title">Historic Victorian</div>
+                                    <div class="property-location">654 Heritage Lane, Berkeley, CA</div>
+                                </div>
+                                <span class="property-status status-completed">Completed</span>
+                            </div>
+
+                            <div class="property-stats">
+                                <div class="stat">
+                                    <div class="stat-label">Total Supply</div>
+                                    <div class="stat-value">12,000</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Available</div>
+                                    <div class="stat-value">0</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Token Price</div>
+                                    <div class="stat-value">$155</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Market Cap</div>
+                                    <div class="stat-value">$1.86M</div>
+                                </div>
+                            </div>
+
+                            <div class="property-footer">
+                                <button class="property-action primary">View Details</button>
+                                <button class="property-action">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Property Card 6 -->
+                    <div class="property-card">
+                        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop" alt="Property" class="property-image">
+                        <div class="property-content">
+                            <div class="property-header">
+                                <div class="property-address">
+                                    <div class="property-title">Mountain View Estate</div>
+                                    <div class="property-location">987 Summit Ridge, Los Gatos, CA</div>
+                                </div>
+                                <span class="property-status status-active">Active</span>
+                            </div>
+
+                            <div class="property-stats">
+                                <div class="stat">
+                                    <div class="stat-label">Total Supply</div>
+                                    <div class="stat-value">20,000</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Available</div>
+                                    <div class="stat-value">12,800</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Token Price</div>
+                                    <div class="stat-value">$275</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">Market Cap</div>
+                                    <div class="stat-value">$5.5M</div>
+                                </div>
+                            </div>
+
+                            <div class="property-footer">
+                                <button class="property-action primary">View Details</button>
+                                <button class="property-action">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Add interactivity
+        document.querySelectorAll('.property-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    console.log('Navigate to property details');
+                }
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.property-card').forEach(card => {
+                const title = card.querySelector('.property-title').textContent.toLowerCase();
+                const location = card.querySelector('.property-location').textContent.toLowerCase();
+                if (title.includes(searchTerm) || location.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', function() {
+                console.log('Filter changed:', this.value);
+                // Add your filtering logic here
+            });
+        });
+    </script>
+</body>
+</html>

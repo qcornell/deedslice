@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investors - DeedSlice</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Your existing color palette */
+            --sidebar-bg: #1a2332;
+            --sidebar-active: #2d3b4e;
+            --primary: #0ab4aa;
+            --primary-dark: #089991;
+            --text-primary: #1A1F36;
+            --text-secondary: #697386;
+            --text-tertiary: #8792A2;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F6F9FC;
+            --bg-tertiary: #E3E8EF;
+            --border: #E3E8EF;
+            --success: #0ACF83;
+            --warning: #FFA500;
+            --error: #DF1B41;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Keep existing style */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2xl);
+            color: white;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #17a2b8 0%, #0d6efd 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .network-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            background: #FFA500;
+            border-radius: 50%;
+        }
+
+        .powered-by {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 0 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-signout {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .btn-signout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: var(--spacing-xl);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Property Selector */
+        .property-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .property-select {
+            flex: 1;
+            padding: 8px 36px 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 500;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-icon {
+            margin-right: var(--spacing-sm);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            gap: var(--spacing-xl);
+        }
+
+        .main-column {
+            flex: 1;
+        }
+
+        .sidebar-column {
+            width: 360px;
+            flex-shrink: 0;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-primary);
+        }
+
+        /* Portfolio Overview */
+        .portfolio-overview {
+            display: flex;
+            gap: var(--spacing-xl);
+            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            flex-shrink: 0;
+        }
+
+        .chart-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .chart-percentage {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .overview-details {
+            flex: 1;
+        }
+
+        .owner-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
+        }
+
+        .owner-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: rgba(10, 207, 131, 0.1);
+            color: var(--success);
+        }
+
+        .ownership-percentage {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            border-bottom: 2px solid var(--bg-tertiary);
+        }
+
+        th {
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            padding: var(--spacing-md) var(--spacing-sm);
+        }
+
+        td {
+            padding: var(--spacing-lg) var(--spacing-sm);
+            border-bottom: 1px solid var(--bg-tertiary);
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .investor-cell {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .investor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .investor-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .investor-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .investor-email {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .slices-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slices-count {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .slices-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .wallet-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wallet-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .wallet-status.verified {
+            color: var(--success);
+        }
+
+        .wallet-status.pending {
+            color: var(--warning);
+        }
+
+        .wallet-address {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .amount {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            padding-top: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+            border-top: 2px solid var(--bg-tertiary);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 180, 170, 0.1);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: var(--spacing-xs);
+            line-height: 1.4;
+        }
+
+        .form-note {
+            background: rgba(10, 180, 170, 0.05);
+            border: 1px solid rgba(10, 180, 170, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .sidebar-column {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: var(--spacing-md);
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .logo span,
+            .nav-item span,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .top-header {
+                padding: var(--spacing-md);
+            }
+
+            .content-area {
+                padding: var(--spacing-md);
+            }
+
+            .portfolio-overview {
+                flex-direction: column;
+            }
+
+            .table-container {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Keep existing style -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <span>DeedSlice</span>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Properties</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Tokenize</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Investors</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Distributions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Audit</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="network-badge">
+                    <span class="network-dot"></span>
+                    <span>Hedera Testnet</span>
+                </div>
+                <div class="powered-by">Powered by dopely agent-kit</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-header">
+                <div>
+                    <h1 class="page-title">Investors</h1>
+                </div>
+                <div class="user-section">
+                    <span class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d4a5a1b1baa0e5e6e294b3b9b5bdb8fab7bbb9">[email&#160;protected]</a></span>
+                    <button class="btn-signout">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <div class="page-subtitle">Manage ownership distribution for your properties</div>
+                    </div>
+                </div>
+
+                <!-- Property Selector -->
+                <div class="property-selector">
+                    <select class="property-select">
+                        <option>Cornell Corner - 100 slices | $300,000</option>
+                        <option>Bryan Duplex - 150 slices | $450,000</option>
+                        <option>Sunset Boulevard - 200 slices | $750,000</option>
+                    </select>
+                    <button class="btn btn-secondary">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        View Property
+                    </button>
+                    <button class="btn btn-secondary">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Main Layout -->
+                <div class="main-layout">
+                    <!-- Main Column -->
+                    <div class="main-column">
+                        <!-- Portfolio Overview Card -->
+                        <div class="card">
+                            <h2 class="card-title">Portfolio Overview</h2>
+                            <div class="portfolio-overview">
+                                <div class="chart-container">
+                                    <canvas id="ownershipChart"></canvas>
+                                    <div class="chart-center">
+                                        <div class="chart-percentage">100%</div>
+                                        <div class="chart-label">100 %</div>
+                                    </div>
+                                </div>
+                                <div class="overview-details">
+                                    <div class="owner-name">John Smith</div>
+                                    <div class="owner-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="90e1e5f5fee4a1a2a6d0f7fdf1f9fcbef3fffd">[email&#160;protected]</a></div>
+                                    <span class="status-badge success">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Fully Tokenized
+                                    </span>
+                                </div>
+                                <div class="ownership-percentage">100%</div>
+                            </div>
+                        </div>
+
+                        <!-- Current Ownership Card -->
+                        <div class="card">
+                            <h2 class="card-title">Current Ownership</h2>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>INVESTOR</th>
+                                            <th>SLICES</th>
+                                            <th>WALLET</th>
+                                            <th style="text-align: right;">INVESTED</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="investor-cell">
+                                                    <div class="investor-avatar">JS</div>
+                                                    <div class="investor-info">
+                                                        <div class="investor-name">John Smith</div>
+                                                        <div class="investor-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="403135252e3471727600272d21292c6e232f2d">[email&#160;protected]</a></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="slices-info">
+                                                    <div class="slices-count">50 (50%)</div>
+                                                    <div class="slices-label">Slices</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="wallet-info">
+                                                    <div class="wallet-status verified">
+                                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        Verified
+                                                    </div>
+                                                    <div class="wallet-address">...2078</div>
+                                                </div>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <div class="amount">$150,000</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="investor-cell">
+                                                    <div class="investor-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">ML</div>
+                                                    <div class="investor-info">
+                                                        <div class="investor-name">Maria Lopez</div>
+                                                        <div class="investor-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9ef3ffecf7ffdefbe6fff3eef2fbb0fdf1f3">[email&#160;protected]</a></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="slices-info">
+                                                    <div class="slices-count">30 (30%)</div>
+                                                    <div class="slices-label">Slices</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="wallet-info">
+                                                    <div class="wallet-status pending">
+                                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        Pending
+                                                    </div>
+                                                    <div class="wallet-address">Not set</div>
+                                                </div>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <div class="amount">$90,000</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="investor-cell">
+                                                    <div class="investor-avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">RC</div>
+                                                    <div class="investor-info">
+                                                        <div class="investor-name">Robert Chen</div>
+                                                        <div class="investor-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="42302d2027303602273a232f322e276c212d2f">[email&#160;protected]</a></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="slices-info">
+                                                    <div class="slices-count">20 (20%)</div>
+                                                    <div class="slices-label">Slices</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="wallet-info">
+                                                    <div class="wallet-status verified">
+                                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        Verified
+                                                    </div>
+                                                    <div class="wallet-address">...8712</div>
+                                                </div>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <div class="amount">$60,000</div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="table-footer">
+                                    <div>Total: $300,000</div>
+                                    <div>$300,000</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Column -->
+                    <div class="sidebar-column">
+                        <div class="card">
+                            <h2 class="card-title">Add Investor</h2>
+                            <form>
+                                <div class="form-group">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-input" placeholder="Name">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-input" placeholder="investor@example.com">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Hedera Wallet Address</label>
+                                    <input type="text" class="form-input" placeholder="0.0.8...cxxx">
+                                    <div class="form-help">
+                                        Required for on-chain token transfers. Investor must associate the share token in their wallet first.
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Slices</label>
+                                    <input type="number" class="form-input" placeholder="10" min="1">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                                    Add Investor
+                                </button>
+
+                                <div class="form-note">
+                                    Adding an investor logs to the HCS audit trail (tamper-proof).
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Donut Chart
+        const ctx = document.getElementById('ownershipChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['John Smith', 'Maria Lopez', 'Robert Chen'],
+                datasets: [{
+                    data: [50, 30, 20],
+                    backgroundColor: [
+                        '#0ab4aa',
+                        '#89d4ce',
+                        '#c7e9e6'
+                    ],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

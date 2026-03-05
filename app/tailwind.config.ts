@@ -10,23 +10,23 @@ const config: Config = {
     extend: {
       colors: {
         ds: {
-          bg: "#f8fafc",
+          bg: "#F6F9FC",
           card: "#ffffff",
-          border: "#d8dce3",
-          "border-light": "#e8ebf0",
+          border: "#E3E8EF",
+          "border-light": "#EEF1F6",
           accent: "#0D9488",
           "accent-hover": "#0F766E",
-          "accent-light": "#F0FDFA",       // bg tint only — never use as text!
-          "accent-text": "#0D9488",         // readable teal for text on light bg
+          "accent-light": "#F0FDFA",
+          "accent-text": "#0D9488",
           "accent-dim": "rgba(13,148,136,0.06)",
-          navy: "#0F172A",
-          "navy-light": "#1E293B",
+          navy: "#1a2332",
+          "navy-light": "#2d3b4e",
           orange: "#e17055",
-          green: "#22C55E",
-          red: "#EF4444",
-          muted: "#94A3B8",
-          text: "#0F172A",
-          "text-secondary": "#475569",
+          green: "#0ACF83",
+          red: "#DF1B41",
+          muted: "#8792A2",
+          text: "#1A1F36",
+          "text-secondary": "#697386",
         },
       },
       fontFamily: {

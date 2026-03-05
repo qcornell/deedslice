@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trail - DeedSlice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Your existing color palette */
+            --sidebar-bg: #1a2332;
+            --sidebar-active: #2d3b4e;
+            --primary: #0ab4aa;
+            --primary-dark: #089991;
+            --text-primary: #1A1F36;
+            --text-secondary: #697386;
+            --text-tertiary: #8792A2;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F6F9FC;
+            --bg-tertiary: #E3E8EF;
+            --border: #E3E8EF;
+            --success: #0ACF83;
+            --warning: #FFA500;
+            --error: #DF1B41;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Keep existing style */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2xl);
+            color: white;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #17a2b8 0%, #0d6efd 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .network-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            background: #FFA500;
+            border-radius: 50%;
+        }
+
+        .powered-by {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 0 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-signout {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .btn-signout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: var(--spacing-xl);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-icon {
+            margin-right: var(--spacing-sm);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Filters Bar */
+        .filters-bar {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            background: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 180, 170, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.4;
+        }
+
+        .filter-select {
+            padding: 10px 36px 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Audit Trail Card */
+        .audit-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            padding: var(--spacing-xl);
+        }
+
+        .audit-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .audit-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .audit-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(10, 180, 170, 0.1);
+            color: var(--primary);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--bg-tertiary);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: -33px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--border);
+        }
+
+        .timeline-icon.teal {
+            background: var(--primary);
+            color: white;
+        }
+
+        .timeline-icon.green {
+            background: var(--success);
+            color: white;
+        }
+
+        .timeline-icon.blue {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .timeline-icon.orange {
+            background: var(--warning);
+            color: white;
+        }
+
+        .timeline-content {
+            background: var(--bg-secondary);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .timeline-timestamp {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .timeline-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .timeline-meta {
+            display: flex;
+            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
+        }
+
+        .meta-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .meta-value.mono {
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .timeline-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            background: white;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-sm);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto var(--spacing-lg);
+            opacity: 0.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: var(--spacing-md);
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .logo span,
+            .nav-item span,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .top-header {
+                padding: var(--spacing-md);
+            }
+
+            .content-area {
+                padding: var(--spacing-md);
+            }
+
+            .timeline {
+                padding-left: 32px;
+            }
+
+            .timeline-icon {
+                left: -27px;
+                width: 24px;
+                height: 24px;
+            }
+
+            .timeline-meta {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Keep existing style -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <span>DeedSlice</span>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Properties</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Tokenize</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Investors</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Distributions</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Audit</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="network-badge">
+                    <span class="network-dot"></span>
+                    <span>Hedera Testnet</span>
+                </div>
+                <div class="powered-by">Powered by dopely agent-kit</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-header">
+                <div>
+                    <h1 class="page-title">Audit Trail</h1>
+                </div>
+                <div class="user-section">
+                    <span class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="deafabbbb0aaefece89eb9b3bfb7b2f0bdb1b3">[email&#160;protected]</a></span>
+                    <button class="btn-signout">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <div class="page-subtitle">Immutable blockchain record of all property transactions</div>
+                    </div>
+                    <button class="btn btn-secondary">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Export Audit Log
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="text" class="search-input" placeholder="Search audit trail...">
+                    </div>
+                    <select class="filter-select">
+                        <option>All Properties</option>
+                        <option>Cornell Corner</option>
+                        <option>Bryan Duplex</option>
+                        <option>Sunset Boulevard</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Events</option>
+                        <option>Property Created</option>
+                        <option>Token Minted</option>
+                        <option>Investor Added</option>
+                        <option>Distribution Recorded</option>
+                        <option>Transfer</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>Last 30 Days</option>
+                        <option>Last 7 Days</option>
+                        <option>Last 90 Days</option>
+                        <option>All Time</option>
+                    </select>
+                </div>
+
+                <!-- Audit Trail Card -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <h2 class="audit-card-title">Transaction History</h2>
+                        <div class="audit-badge">Hedera Consensus Service</div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline">
+                        <!-- Event 1: Distribution Recorded -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon teal">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">Distribution Recorded</div>
+                                    <div class="timeline-timestamp">2 hours ago</div>
+                                </div>
+                                <div class="timeline-description">
+                                    Monthly rent distribution of $3,200 recorded for Cornell Corner
+                                </div>
+                                <div class="timeline-meta">
+                                    <div class="meta-item">
+                                        <div class="meta-label">Property</div>
+                                        <div class="meta-value">Cornell Corner</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Amount</div>
+                                        <div class="meta-value">$3,200</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">HCS Topic ID</div>
+                                        <div class="meta-value mono">0.0.123456</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Tx Hash</div>
+                                        <div class="meta-value mono">0x7a3f...d9e2</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-tag">
+                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                    Confirmed on Hedera
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event 2: Investor Added -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon blue">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">Investor Added</div>
+                                    <div class="timeline-timestamp">1 day ago</div>
+                                </div>
+                                <div class="timeline-description">
+                                    New investor John Smith added with 20 slices (20% ownership)
+                                </div>
+                                <div class="timeline-meta">
+                                    <div class="meta-item">
+                                        <div class="meta-label">Property</div>
+                                        <div class="meta-value">Cornell Corner</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Investor</div>
+                                        <div class="meta-value">John Smith</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Slices</div>
+                                        <div class="meta-value">20 (20%)</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Wallet</div>
+                                        <div class="meta-value mono">0.0.2078</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-tag">
+                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                    Confirmed on Hedera
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event 3: Token Transfer -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon green">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">Token Transfer</div>
+                                    <div class="timeline-timestamp">3 days ago</div>
+                                </div>
+                                <div class="timeline-description">
+                                    10 tokens transferred from Owner to Maria Lopez
+                                </div>
+                                <div class="timeline-meta">
+                                    <div class="meta-item">
+                                        <div class="meta-label">Property</div>
+                                        <div class="meta-value">Bryan Duplex</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">From</div>
+                                        <div class="meta-value mono">0.0.1234</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">To</div>
+                                        <div class="meta-value mono">0.0.5678</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Amount</div>
+                                        <div class="meta-value">10 tokens</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-tag">
+                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                    Confirmed on Hedera
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event 4: Token Minted -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon orange">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">Tokens Minted</div>
+                                    <div class="timeline-timestamp">1 week ago</div>
+                                </div>
+                                <div class="timeline-description">
+                                    100 tokens minted for Cornell Corner property
+                                </div>
+                                <div class="timeline-meta">
+                                    <div class="meta-item">
+                                        <div class="meta-label">Property</div>
+                                        <div class="meta-value">Cornell Corner</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Token Symbol</div>
+                                        <div class="meta-value">CRN</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Total Supply</div>
+                                        <div class="meta-value">100</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Token ID</div>
+                                        <div class="meta-value mono">0.0.9876</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-tag">
+                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                    Confirmed on Hedera
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event 5: Property Created -->
+                        <div class="timeline-item">
+                            <div class="timeline-icon teal">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">Property Created</div>
+                                    <div class="timeline-timestamp">1 week ago</div>
+                                </div>
+                                <div class="timeline-description">
+                                    Cornell Corner property created and registered on blockchain
+                                </div>
+                                <div class="timeline-meta">
+                                    <div class="meta-item">
+                                        <div class="meta-label">Property</div>
+                                        <div class="meta-value">Cornell Corner</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Value</div>
+                                        <div class="meta-value">$300,000</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Location</div>
+                                        <div class="meta-value">San Francisco, CA</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Created By</div>
+                                        <div class="meta-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="16676373786227242056717b777f7a3875797b">[email&#160;protected]</a></div>
+                                    </div>
+                                </div>
+                                <div class="timeline-tag">
+                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                    Confirmed on Hedera
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                const title = item.querySelector('.timeline-title').textContent.toLowerCase();
+                const description = item.querySelector('.timeline-description').textContent.toLowerCase();
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', function() {
+                console.log('Filter changed:', this.value);
+                // Add your filtering logic here
+            });
+        });
+    </script>
+</body>
+</html>

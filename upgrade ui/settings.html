@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - DeedSlice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sidebar-bg: #1a2332;
+            --sidebar-active: #2d3b4e;
+            --primary: #0ab4aa;
+            --primary-dark: #089991;
+            --text-primary: #1A1F36;
+            --text-secondary: #697386;
+            --text-tertiary: #8792A2;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F6F9FC;
+            --bg-tertiary: #E3E8EF;
+            --border: #E3E8EF;
+            --success: #0ACF83;
+            --warning: #FFA500;
+            --error: #DF1B41;
+
+            --shadow-sm: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2xl);
+            color: white;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #17a2b8 0%, #0d6efd 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .network-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            background: #FFA500;
+            border-radius: 50%;
+        }
+
+        .powered-by {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 0 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-signout {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .btn-signout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 73px;
+            z-index: 99;
+        }
+
+        .tabs {
+            display: flex;
+            gap: var(--spacing-md);
+            padding: 0 var(--spacing-xl);
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: var(--spacing-md) 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: var(--spacing-xl);
+            max-width: 1400px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Settings Card */
+        .settings-card {
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .card-header {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Form Elements */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 180, 170, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .form-help {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            outline: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c71739;
+        }
+
+        .btn-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Input Group */
+        .input-group {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Info Text */
+        .info-text {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+        }
+
+        .info-text strong {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(10, 180, 170, 0.05);
+            border: 1px solid rgba(10, 180, 170, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .info-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: rgba(255, 165, 0, 0.05);
+            border: 1px solid rgba(255, 165, 0, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .warning-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--warning);
+            flex-shrink: 0;
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-group:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-info {
+            flex: 1;
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .toggle-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-tertiary);
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Current Plan */
+        .current-plan {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .plan-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-xl);
+            flex: 1;
+        }
+
+        .plan-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plan-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .plan-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .plan-badge {
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(223, 27, 65, 0.1);
+            color: var(--error);
+        }
+
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .pricing-card {
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .pricing-card.current {
+            border-color: var(--primary);
+            border-width: 2px;
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-popular {
+            background: rgba(255, 165, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-current {
+            background: rgba(10, 180, 170, 0.1);
+            color: var(--primary);
+        }
+
+        .pricing-tier {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 500;
+        }
+
+        .pricing-tier.pro {
+            color: var(--primary);
+        }
+
+        .pricing-tier.enterprise {
+            color: var(--error);
+        }
+
+        .pricing-price {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: start;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .pricing-note {
+            text-align: center;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        /* Slug Input */
+        .slug-input-group {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: all 0.2s;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .slug-input-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 180, 170, 0.1);
+        }
+
+        .slug-prefix {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .slug-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+        }
+
+        .slug-input:focus {
+            outline: none;
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            background: rgba(223, 27, 65, 0.02);
+            border: 1px solid rgba(223, 27, 65, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+        }
+
+        .danger-zone-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--error);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .danger-zone-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .plan-details {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: var(--spacing-md);
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .logo span,
+            .nav-item span,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .top-header {
+                padding: var(--spacing-md);
+            }
+
+            .content-area {
+                padding: var(--spacing-md);
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .current-plan {
+                flex-direction: column;
+                gap: var(--spacing-lg);
+            }
+
+            .tabs {
+                padding: 0 var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <span>DeedSlice</span>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Properties</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Tokenize</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Investors</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Distributions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Audit</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="network-badge">
+                    <span class="network-dot"></span>
+                    <span>Hedera Testnet</span>
+                </div>
+                <div class="powered-by">Powered by dopely agent-kit</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-header">
+                <div class="header-left">
+                    <div class="header-label">CONSOLE</div>
+                    <h1 class="page-title">Settings</h1>
+                </div>
+                <div class="user-section">
+                    <span class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e49591818a90d5d6d2a48389858d88ca878b89">[email&#160;protected]</a></span>
+                    <button class="btn-signout">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('billing')">Billing & Plans</div>
+                    <div class="tab" onclick="showTab('api')">API & Integrations</div>
+                    <div class="tab" onclick="showTab('profile')">Profile</div>
+                    <div class="tab" onclick="showTab('security')">Security</div>
+                    <div class="tab" onclick="showTab('notifications')">Notifications</div>
+                    <div class="tab" onclick="showTab('blockchain')">Blockchain</div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Billing & Plans Tab -->
+                <div id="billing-tab" class="tab-content active">
+                    <!-- Current Plan Card -->
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Current Plan</h2>
+                        </div>
+                        <div class="current-plan">
+                            <div class="plan-details">
+                                <div class="plan-item">
+                                    <div class="plan-label">Price</div>
+                                    <div class="plan-value">$499.99/mo</div>
+                                </div>
+                                <div class="plan-item">
+                                    <div class="plan-label">Properties</div>
+                                    <div class="plan-value">1 / 1</div>
+                                </div>
+                                <div class="plan-item">
+                                    <div class="plan-label">Email</div>
+                                    <div class="plan-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d0a1a5b5bea4e1e2e690b7bdb1b9bcfeb3bfbd">[email&#160;protected]</a></div>
+                                </div>
+                                <div class="plan-item">
+                                    <div class="plan-label">Company</div>
+                                    <div class="plan-value">—</div>
+                                </div>
+                            </div>
+                            <div class="plan-badge">Enterprise</div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Grid -->
+                    <div class="pricing-grid">
+                        <!-- Starter Plan -->
+                        <div class="pricing-card">
+                            <div class="pricing-tier">Starter</div>
+                            <div class="pricing-price">Free</div>
+                            <ul class="pricing-features">
+                                <li>1 property (testnet sandbox)</li>
+                                <li>NFT deed + share tokens</li>
+                                <li>Basic dashboard</li>
+                                <li>HCS audit log</li>
+                                <li>Try before you buy</li>
+                            </ul>
+                        </div>
+
+                        <!-- Pro Plan -->
+                        <div class="pricing-card">
+                            <div class="pricing-badge badge-popular">Popular</div>
+                            <div class="pricing-tier pro">Pro</div>
+                            <div class="pricing-price">$99.99/mo</div>
+                            <ul class="pricing-features">
+                                <li>5 properties (mainnet)</li>
+                                <li>Full investor dashboard</li>
+                                <li>Document vault (SHA-256 → HCS)</li>
+                                <li>Investor management</li>
+                                <li>Token transfers to wallets</li>
+                                <li>Email support</li>
+                                <li>+$199 per additional tokenization</li>
+                            </ul>
+                        </div>
+
+                        <!-- Enterprise Plan -->
+                        <div class="pricing-card current">
+                            <div class="pricing-badge badge-current">Current</div>
+                            <div class="pricing-tier enterprise">Enterprise</div>
+                            <div class="pricing-price">$499.99/mo</div>
+                            <ul class="pricing-features">
+                                <li>Unlimited properties</li>
+                                <li>REST API access</li>
+                                <li>Priority support</li>
+                                <li>Custom integrations</li>
+                                <li>Webhooks</li>
+                                <li>White-label investor portal</li>
+                            </ul>
+                            <div class="pricing-note">Your current plan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API & Integrations Tab -->
+                <div id="api-tab" class="tab-content">
+                    <!-- REST API Keys Card -->
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">REST API Keys</h2>
+                            <p class="card-subtitle">Authenticate programmatic access to the DeedSlice API</p>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-input" placeholder="Key name (e.g. Production)">
+                            <button class="btn btn-primary">Create Key</button>
+                        </div>
+                        <div class="info-text">
+                            <strong>Base URL:</strong> https://console.deedslice.com/api/v1<br>
+                            <strong>Auth:</strong> Authorization: Bearer ds_live_...<br>
+                            <strong>Endpoints:</strong> GET /properties · GET /properties/:id · GET /properties/:id/investors · GET /properties/:id/audit
+                        </div>
+                    </div>
+
+                    <!-- Webhooks Card -->
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Webhooks</h2>
+                            <p class="card-subtitle">Receive real-time notifications when events occur</p>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-input" placeholder="https://your-app.com/webhook">
+                            <button class="btn btn-primary">Add Webhook</button>
+                        </div>
+                        <div class="info-text">
+                            <strong>Events:</strong> property.tokenized · investor.added · investor.updated · transfer.completed · transfer.failed · document.added · kyc.updated<br><br>
+                            Max 5 webhooks. Auto-disabled after 10 consecutive failures.
+                        </div>
+                    </div>
+
+                    <!-- White-Label Portal Card -->
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">White-Label Portal</h2>
+                            <p class="card-subtitle">Set up your branded investor portal. Your investors will never see "DeedSlice".</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Organization Name</label>
+                            <input type="text" class="form-input" placeholder="e.g. Smith Capital Partners">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Portal Slug</label>
+                            <div class="slug-input-group">
+                                <div class="slug-prefix">console.deedslice.com/portal/</div>
+                                <input type="text" class="slug-input" placeholder="smith-capital">
+                            </div>
+                            <div class="form-help">Lowercase letters, numbers, and hyphens only. 3-50 characters.</div>
+                        </div>
+                        <button class="btn btn-primary">Create Organization</button>
+                    </div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="profile-tab" class="tab-content">
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Profile Information</h2>
+                            <p class="card-subtitle">Update your account profile information</p>
+                        </div>
+
+                        <form>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-input" value="John" placeholder="First name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-input" value="Smith" placeholder="Last name">
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-input" value="quent126@gmail.com" placeholder="Email">
+                                    <span class="form-help">Your email address for account notifications</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Company Name</label>
+                                    <input type="text" class="form-input" placeholder="Company name (optional)">
+                                </div>
+                            </div>
+
+                            <div class="btn-actions">
+                                <button type="button" class="btn btn-secondary">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div id="security-tab" class="tab-content">
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Change Password</h2>
+                            <p class="card-subtitle">Update your password to keep your account secure</p>
+                        </div>
+
+                        <form>
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-input" placeholder="Enter current password">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-input" placeholder="Enter new password">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-input" placeholder="Confirm new password">
+                                </div>
+                            </div>
+
+                            <div class="btn-actions">
+                                <button type="button" class="btn btn-secondary">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Two-Factor Authentication</h2>
+                            <p class="card-subtitle">Add an extra layer of security to your account</p>
+                        </div>
+
+                        <div class="info-box">
+                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="info-text">
+                                Two-factor authentication is currently disabled. Enable it to protect your account with an additional security step.
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary">Enable 2FA</button>
+                    </div>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div id="notifications-tab" class="tab-content">
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Email Notifications</h2>
+                            <p class="card-subtitle">Manage your email notification preferences</p>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Distribution Alerts</div>
+                                <div class="toggle-description">Get notified when distributions are recorded</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Investor Updates</div>
+                                <div class="toggle-description">Receive updates when investors are added or removed</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Property Alerts</div>
+                                <div class="toggle-description">Get notified about property tokenization status</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Marketing Emails</div>
+                                <div class="toggle-description">Receive news and updates from DeedSlice</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="btn-actions">
+                            <button type="button" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blockchain Tab -->
+                <div id="blockchain-tab" class="tab-content">
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Hedera Network Settings</h2>
+                            <p class="card-subtitle">Configure your blockchain network preferences</p>
+                        </div>
+
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Network Environment</label>
+                                <select class="form-select">
+                                    <option selected>Testnet</option>
+                                    <option>Mainnet</option>
+                                </select>
+                                <span class="form-help">Currently connected to Hedera Testnet</span>
+                            </div>
+                        </div>
+
+                        <div class="warning-box">
+                            <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div class="info-text">
+                                Switching to Mainnet will use real HBAR tokens for transactions. Make sure you understand the implications before switching.
+                            </div>
+                        </div>
+
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">HCS Topic ID</label>
+                                <input type="text" class="form-input" value="0.0.123456" readonly>
+                                <span class="form-help">Your Hedera Consensus Service topic for audit trail</span>
+                            </div>
+                        </div>
+
+                        <div class="btn-actions">
+                            <button type="button" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Danger Zone</h2>
+                            <p class="card-subtitle">Irreversible and destructive actions</p>
+                        </div>
+
+                        <div class="danger-zone">
+                            <div class="danger-zone-title">Delete Account</div>
+                            <div class="danger-zone-description">
+                                Once you delete your account, there is no going back. All your properties, investors, and distribution data will be permanently deleted.
+                            </div>
+                            <button class="btn btn-danger">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Form submission handlers
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Settings saved successfully!');
+            });
+        });
+    </script>
+</body>
+</html>

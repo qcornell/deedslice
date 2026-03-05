@@ -52,13 +52,12 @@ export default function AuditPage() {
     <div className="max-w-4xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold heading-tight">Audit Trail</h1>
-          <p className="text-ds-muted text-sm mt-1">
+          <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>
             Every action is permanently recorded on Hedera Consensus Service
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-ds-muted">
-          <span className="w-2 h-2 rounded-full bg-ds-green pulse-green" />
+        <div className="flex items-center gap-2 text-[13px]" style={{ color: "var(--ds-muted)" }}>
+          <span className="w-2 h-2 rounded-full bg-[#0ACF83]" />
           Tamper-proof
         </div>
       </div>
@@ -80,10 +79,10 @@ export default function AuditPage() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="glass rounded-2xl p-12 text-center">
+        <div className="glass rounded-xl p-12 text-center">
           <div className="text-5xl mb-4">📋</div>
-          <h2 className="text-xl font-semibold mb-2">No audit entries</h2>
-          <p className="text-ds-muted text-sm">Tokenize a property to start building your audit trail.</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: "var(--ds-text)" }}>No audit entries</h2>
+          <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>Tokenize a property to start building your audit trail.</p>
         </div>
       ) : (
         <div className="space-y-3">

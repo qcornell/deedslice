@@ -183,13 +183,12 @@ export default function NewPropertyPage() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold heading-tight">Tokenize Property</h1>
-        <p className="text-ds-muted text-sm mt-1">
+        <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>
           Enter property details and deploy to Hedera in one click
         </p>
       </div>
 
-      <form id="tokenize-form" onSubmit={handleDeploy} className="glass rounded-2xl p-8 space-y-6">
+      <form id="tokenize-form" onSubmit={handleDeploy} className="glass rounded-xl p-8 space-y-6">
         {/* Property Image */}
         <div>
           <label className="block text-xs text-ds-muted mb-1.5 uppercase tracking-wider">Property Photo</label>

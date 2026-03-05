@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokenize Property - DeedSlice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Your existing color palette */
+            --sidebar-bg: #1a2332;
+            --sidebar-active: #2d3b4e;
+            --primary: #0ab4aa;
+            --primary-dark: #089991;
+            --text-primary: #1A1F36;
+            --text-secondary: #697386;
+            --text-tertiary: #8792A2;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F6F9FC;
+            --bg-tertiary: #E3E8EF;
+            --border: #E3E8EF;
+            --success: #0ACF83;
+            --warning: #FFA500;
+            --error: #DF1B41;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Keep existing style */
+        .sidebar {
+            width: 240px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2xl);
+            color: white;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #17a2b8 0%, #0d6efd 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .network-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            background: #FFA500;
+            border-radius: 50%;
+        }
+
+        .powered-by {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 0 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-email {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-signout {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .btn-signout:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: var(--spacing-xl);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: var(--spacing-2xl);
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--bg-tertiary);
+            z-index: 0;
+        }
+
+        .step.active:not(:last-child)::after,
+        .step.completed:not(:last-child)::after {
+            background: var(--primary);
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: var(--spacing-sm);
+            z-index: 1;
+            position: relative;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .form-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-primary);
+        }
+
+        .form-section-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        /* Form Elements */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--error);
+            margin-left: 4px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 180, 170, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .form-help {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(10, 180, 170, 0.02);
+        }
+
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto var(--spacing-md);
+            color: var(--text-tertiary);
+        }
+
+        .file-upload-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .file-upload-hint {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(10, 180, 170, 0.05);
+            border: 1px solid rgba(10, 180, 170, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .info-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-icon {
+            margin-right: var(--spacing-sm);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Step Content */
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        /* Summary Section */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .summary-item {
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .summary-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+                padding: var(--spacing-md);
+            }
+
+            .main-content {
+                margin-left: 60px;
+            }
+
+            .logo span,
+            .nav-item span,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-header {
+                padding: var(--spacing-md);
+            }
+
+            .content-area {
+                padding: var(--spacing-md);
+            }
+
+            .progress-steps {
+                padding: var(--spacing-md);
+            }
+
+            .step-label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar - Keep existing style -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <span>DeedSlice</span>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Properties</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Tokenize</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Investors</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Distributions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Audit</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="network-badge">
+                    <span class="network-dot"></span>
+                    <span>Hedera Testnet</span>
+                </div>
+                <div class="powered-by">Powered by dopely agent-kit</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <div class="top-header">
+                <div>
+                    <h1 class="page-title">Tokenize Property</h1>
+                </div>
+                <div class="user-section">
+                    <span class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="56272333382267646016313b373f3a7835393b">[email&#160;protected]</a></span>
+                    <button class="btn-signout">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Progress Steps -->
+                <div class="progress-steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Property Details</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Token Details</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Review & Submit</div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Property Details -->
+                <div class="step-content active" id="step1">
+                    <div class="form-card">
+                        <h2 class="form-section-title">Property Information</h2>
+                        <p class="form-section-description">Provide details about the property you want to tokenize</p>
+
+                        <div class="info-box">
+                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="info-text">
+                                Make sure you have all legal documentation and ownership rights before tokenizing a property.
+                            </div>
+                        </div>
+
+                        <form>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Property Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Sunset Boulevard Apartment" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Property Type</label>
+                                    <select class="form-select" required>
+                                        <option value="">Select type</option>
+                                        <option value="residential">Residential</option>
+                                        <option value="commercial">Commercial</option>
+                                        <option value="mixed">Mixed Use</option>
+                                        <option value="land">Land</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label required">Street Address</label>
+                                    <input type="text" class="form-input" placeholder="123 Main Street" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label required">City</label>
+                                    <input type="text" class="form-input" placeholder="San Francisco" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">State</label>
+                                    <input type="text" class="form-input" placeholder="CA" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label required">ZIP Code</label>
+                                    <input type="text" class="form-input" placeholder="94102" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Property Value (USD)</label>
+                                    <input type="number" class="form-input" placeholder="500000" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Property Description</label>
+                                    <textarea class="form-textarea" placeholder="Describe the property, its features, and location benefits..."></textarea>
+                                    <span class="form-help">Optional: Provide additional details about the property</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Property Images</label>
+                                    <label class="file-upload" for="property-images">
+                                        <svg class="file-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <div class="file-upload-text">Click to upload or drag and drop</div>
+                                        <div class="file-upload-hint">PNG, JPG, or WebP (max. 10MB each)</div>
+                                        <input type="file" id="property-images" multiple accept="image/*">
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+                            <button class="btn btn-primary" onclick="nextStep(2)">
+                                Continue
+                                <svg class="btn-icon" style="margin-left: 8px; margin-right: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Token Details -->
+                <div class="step-content" id="step2">
+                    <div class="form-card">
+                        <h2 class="form-section-title">Tokenization Settings</h2>
+                        <p class="form-section-description">Configure how your property will be tokenized on the blockchain</p>
+
+                        <div class="info-box">
+                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="info-text">
+                                Token settings cannot be changed after creation. Please review carefully before submitting.
+                            </div>
+                        </div>
+
+                        <form>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Token Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Sunset Boulevard Token" required>
+                                    <span class="form-help">The full name of your token</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Token Symbol</label>
+                                    <input type="text" class="form-input" placeholder="e.g., SBT" maxlength="6" required>
+                                    <span class="form-help">3-6 characters, uppercase recommended</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Total Token Supply</label>
+                                    <input type="number" class="form-input" placeholder="10000" required>
+                                    <span class="form-help">Total number of tokens to create</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Initial Token Price (USD)</label>
+                                    <input type="number" step="0.01" class="form-input" placeholder="50.00" required>
+                                    <span class="form-help">Price per token at launch</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Minimum Investment</label>
+                                    <input type="number" class="form-input" placeholder="100" value="100">
+                                    <span class="form-help">Minimum number of tokens per purchase</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Maximum Investment</label>
+                                    <input type="number" class="form-input" placeholder="1000">
+                                    <span class="form-help">Optional: Maximum tokens per investor</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Expected Annual Return (%)</label>
+                                    <input type="number" step="0.1" class="form-input" placeholder="8.5">
+                                    <span class="form-help">Projected annual return for investors</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Distribution Frequency</label>
+                                    <select class="form-select">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="semi-annual">Semi-Annual</option>
+                                        <option value="annual">Annual</option>
+                                    </select>
+                                    <span class="form-help">How often will returns be distributed to token holders</span>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="nextStep(1)">
+                                <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Back
+                            </button>
+                            <button class="btn btn-primary" onclick="nextStep(3)">
+                                Continue
+                                <svg class="btn-icon" style="margin-left: 8px; margin-right: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Review & Submit -->
+                <div class="step-content" id="step3">
+                    <div class="form-card">
+                        <h2 class="form-section-title">Review & Submit</h2>
+                        <p class="form-section-description">Review all details before submitting your tokenization request</p>
+
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">Property Details</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-label">Property Name</div>
+                                <div class="summary-value">Sunset Boulevard Apartment</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Property Type</div>
+                                <div class="summary-value">Residential</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Location</div>
+                                <div class="summary-value">123 Main St, San Francisco, CA 94102</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Property Value</div>
+                                <div class="summary-value">$500,000</div>
+                            </div>
+                        </div>
+
+                        <h3 style="font-size: 16px; font-weight: 600; margin: 32px 0 16px; color: var(--text-primary);">Token Details</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-label">Token Name</div>
+                                <div class="summary-value">Sunset Boulevard Token</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Token Symbol</div>
+                                <div class="summary-value">SBT</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Total Supply</div>
+                                <div class="summary-value">10,000</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Initial Price</div>
+                                <div class="summary-value">$50.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Expected Annual Return</div>
+                                <div class="summary-value">8.5%</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Distribution Frequency</div>
+                                <div class="summary-value">Monthly</div>
+                            </div>
+                        </div>
+
+                        <div class="info-box" style="margin-top: 32px;">
+                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="info-text">
+                                By submitting this form, you confirm that you have the legal rights to tokenize this property and all information provided is accurate.
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="nextStep(2)">
+                                <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Back
+                            </button>
+                            <button class="btn btn-primary" onclick="submitForm()">
+                                <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Submit for Tokenization
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function nextStep(stepNumber) {
+            // Hide all step contents
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show target step content
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+
+            // Update progress steps
+            document.querySelectorAll('.step').forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('active', 'completed');
+
+                if (stepNum < stepNumber) {
+                    step.classList.add('completed');
+                } else if (stepNum === stepNumber) {
+                    step.classList.add('active');
+                }
+            });
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function submitForm() {
+            alert('Property tokenization request submitted successfully! You will be redirected to the dashboard.');
+            console.log('Form submitted - integration point for backend');
+            // Add your form submission logic here
+        }
+
+        // File upload preview
+        document.getElementById('property-images').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const fileUpload = e.target.closest('.file-upload');
+                const text = fileUpload.querySelector('.file-upload-text');
+                text.textContent = `${files.length} file(s) selected`;
+            }
+        });
+    </script>
+</body>
+</html>

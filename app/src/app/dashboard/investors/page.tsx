@@ -228,9 +228,10 @@ export default function InvestorsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in">
-      <h1 className="text-2xl font-bold heading-tight mb-2">Investors</h1>
-      <p className="text-ds-muted text-sm mb-8">Manage ownership distribution for your properties</p>
+    <div className="max-w-5xl mx-auto animate-fade-in">
+      <div className="mb-8">
+        <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>Manage ownership distribution for your properties</p>
+      </div>
 
       {properties.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center">
