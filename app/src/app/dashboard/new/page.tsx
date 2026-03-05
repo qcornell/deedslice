@@ -152,6 +152,7 @@ export default function NewPropertyPage() {
             <AddressAutocomplete
               value={address}
               onChange={setAddress}
+              className={inputCls + " !bg-white !border-[#E3E8EF]"}
               onAddressSelect={async (retrieved) => {
                 setAddress(retrieved.fullAddress);
                 if (!name && retrieved.streetAddress) setName(retrieved.streetAddress);
@@ -168,8 +169,6 @@ export default function NewPropertyPage() {
                 } catch {} finally { setFetchingValue(false); }
               }}
               placeholder="Start typing an address..."
-              className={inputCls}
-              style={inputStyle}
             />
             {fetchingValue && (
               <div className="flex items-center gap-2 mt-2 text-[13px]" style={{ color: "#0ab4aa" }}>
