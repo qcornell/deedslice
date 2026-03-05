@@ -9,6 +9,7 @@ interface Props {
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
+  "/dashboard/properties": "Properties",
   "/dashboard/new": "Tokenize Property",
   "/dashboard/investors": "Investors",
   "/dashboard/distributions": "Distributions",

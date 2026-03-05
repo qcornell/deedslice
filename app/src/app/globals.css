@@ -101,16 +101,15 @@ input:focus, select:focus, textarea:focus {
 .heading-tight { letter-spacing: -0.025em; }
 .title-tight { letter-spacing: -0.01em; }
 
-/* ============= FONT WEIGHT OVERRIDES ============= */
-/* Inter 700/600 looks puffy on console — step each down one notch */
-.font-bold, h1, h2, h3 { font-weight: 600 !important; }
-.font-semibold { font-weight: 500 !important; }
-.font-extrabold { font-weight: 700 !important; }
-
-/* Buttons keep 600 (they're short labels, not body text) */
-button .font-semibold, a .font-semibold,
-button[class*="font-semibold"], a[class*="font-semibold"] {
-  font-weight: 600 !important;
+/* ============= FONT WEIGHT — DESKTOP LIGHTENING ============= */
+/* Inter renders heavier than system fonts at same weight.
+   On desktop (>768px) step everything down so text looks clean, not blobby.
+   Mobile keeps standard weights since smaller text needs the extra ink. */
+@media (min-width: 769px) {
+  .font-extrabold { font-weight: 600 !important; }
+  .font-bold, h1, h2, h3 { font-weight: 500 !important; }
+  .font-semibold { font-weight: 500 !important; }
+  .font-medium { font-weight: 400 !important; }
 }
 
 /* ============= CELEBRATION ANIMATIONS ============= */

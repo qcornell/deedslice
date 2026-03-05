@@ -46,6 +46,7 @@ const icons: Record<string, React.ReactNode> = {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", iconKey: "dashboard" },
+  { href: "/dashboard/properties", label: "Properties", iconKey: "properties" },
   { href: "/dashboard/new", label: "Tokenize", iconKey: "tokenize" },
   { href: "/dashboard/investors", label: "Investors", iconKey: "investors" },
   { href: "/dashboard/distributions", label: "Distributions", iconKey: "distributions" },
