@@ -85,14 +85,8 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
       >
         {/* Logo + mobile close */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-white/[0.06]">
-          <a href="https://deedslice.com" className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 rounded-md flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #17a2b8 0%, #0d6efd 100%)" }}
-            >
-              <img src="/logo2.png" alt="DS" className="h-5 w-5 object-contain" />
-            </div>
-            <span className="text-white text-lg font-bold tracking-tight">DeedSlice</span>
+          <a href="https://deedslice.com" className="flex items-center">
+            <img src="/logo2.png" alt="DeedSlice" className="h-7 w-auto" />
           </a>
           <button
             onClick={onClose}

@@ -352,10 +352,10 @@ export default function NewPropertyPage() {
         </div>
 
         {/* Network indicator — Starter = testnet sandbox */}
-        <div className={`rounded-xl p-4 border ${
+        <div className={`rounded-lg p-4 border ${
           HEDERA_NETWORK === "mainnet"
-            ? "bg-ds-green/5 border-ds-green/20"
-            : "bg-yellow-500/5 border-yellow-500/20"
+            ? "bg-[rgba(10,207,131,0.05)] border-[rgba(10,207,131,0.2)]"
+            : "bg-[rgba(255,165,0,0.05)] border-[rgba(255,165,0,0.2)]"
         }`}>
           <div className="flex items-center gap-2 mb-1">
             <span className={`w-2 h-2 rounded-full ${HEDERA_NETWORK === "mainnet" ? "bg-ds-green" : "bg-yellow-400"}`} />
@@ -371,7 +371,7 @@ export default function NewPropertyPage() {
         </div>
 
         {/* Preview card */}
-        <div className="bg-ds-bg rounded-xl p-4 border border-ds-border">
+        <div className="rounded-lg p-5 border" style={{ background: "var(--ds-bg)", borderColor: "var(--ds-border)" }}>
           <div className="text-xs text-ds-muted uppercase tracking-wider mb-3">Deployment Preview</div>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
@@ -455,8 +455,8 @@ export default function NewPropertyPage() {
         <button
           type="submit"
           disabled={deploying || paymentPending || !name || !valuationUsd || !totalSlices}
-          className="w-full text-white font-semibold py-3.5 rounded-[10px] transition-all disabled:opacity-50 text-[13px] hover:translate-y-[-1px]"
-          style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+          className="w-full text-white font-medium py-3.5 rounded-lg transition-all disabled:opacity-50 text-[14px] hover:shadow-md"
+          style={{ background: "#0D9488" }}
         >
           {deploying ? "Deploying to Hedera..." : paymentPending ? "Redirecting to payment..." : needsTokenizationFee ? "💳 Pay $199.99 & Deploy" : "⚡ Deploy to Hedera"}
         </button>

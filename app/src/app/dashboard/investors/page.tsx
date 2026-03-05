@@ -234,33 +234,35 @@ export default function InvestorsPage() {
       </div>
 
       {properties.length === 0 ? (
-        <div className="glass rounded-2xl p-12 text-center">
+        <div className="glass rounded-xl p-12 text-center">
           <div className="text-5xl mb-4">👥</div>
-          <h2 className="text-xl font-semibold mb-2">No live properties</h2>
-          <p className="text-ds-muted text-sm">Tokenize a property first to add investors.</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: "var(--ds-text)" }}>No live properties</h2>
+          <p className="text-[14px]" style={{ color: "var(--ds-muted)" }}>Tokenize a property first to add investors.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Investor List — full width on mobile, shows first */}
-          <div className="order-2 lg:order-1">
-            {/* Property selector */}
-            <div className="mb-4">
-              <select
-                value={selectedProperty}
-                onChange={(e) => setSelectedProperty(e.target.value)}
-                className="w-full bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition"
-              >
-                {properties.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.total_slices.toLocaleString()} slices)
-                  </option>
-                ))}
-              </select>
-            </div>
+        <>
+          {/* Property selector bar */}
+          <div className="glass rounded-xl p-4 flex items-center gap-4 mb-6">
+            <select
+              value={selectedProperty}
+              onChange={(e) => setSelectedProperty(e.target.value)}
+              className="flex-1 bg-white border border-[#E3E8EF] rounded-lg px-4 py-2.5 text-[15px] font-medium focus:outline-none focus:border-[#0D9488] transition appearance-none"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", paddingRight: "40px" }}
+            >
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} – {p.total_slices.toLocaleString()} slices | ${p.valuation_usd.toLocaleString()}
+                </option>
+              ))}
+            </select>
+          </div>
 
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left: Investor Table */}
+          <div className="flex-1 order-2 lg:order-1">
             {/* Current investors */}
-            <div className="glass rounded-2xl p-6">
-              <h2 className="font-semibold mb-4">Current Ownership</h2>
+            <div className="glass rounded-xl p-6">
+              <h2 className="text-[18px] font-semibold mb-5" style={{ color: "var(--ds-text)" }}>Current Ownership</h2>
               {/* Transfer status messages */}
               {transferError && (
                 <div className="bg-ds-red/10 border border-ds-red/30 rounded-lg px-4 py-2 text-sm text-ds-red mb-3">
@@ -492,8 +494,9 @@ export default function InvestorsPage() {
           </div>
 
           {/* Right: Add Investor Form — shows first on mobile */}
-          <div className="glass rounded-2xl p-6 order-1 lg:order-2">
-            <h2 className="font-semibold mb-4">Add Investor</h2>
+          <div className="w-full lg:w-[360px] flex-shrink-0 order-1 lg:order-2">
+          <div className="glass rounded-xl p-6">
+            <h2 className="text-[18px] font-semibold mb-5" style={{ color: "var(--ds-text)" }}>Add Investor</h2>
             <form onSubmit={handleAddInvestor} className="space-y-4">
               <div>
                 <label className="block text-xs text-ds-muted mb-1.5 uppercase tracking-wider">Name *</label>
@@ -565,7 +568,9 @@ export default function InvestorsPage() {
               </p>
             </form>
           </div>
+          </div>
         </div>
+        </>
       )}
     </div>
   );
