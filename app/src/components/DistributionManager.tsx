@@ -306,26 +306,27 @@ export default function DistributionManager({ session, property, investors, onDi
   const pieColors = ["#6c5ce7", "#e17055", "#00b894", "#fdcb6e", "#74b9ff", "#a29bfe", "#ff7675", "#55efc4"];
 
   return (
-    <div className="glass rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-5">
+    <div className="glass rounded-xl p-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="font-semibold">Distributions</h2>
-          <p className="text-[11px] text-ds-muted mt-0.5">Record rent, income, and returns to investors</p>
+          <h2 className="text-[18px] font-semibold" style={{ color: "var(--ds-text)" }}>Distributions</h2>
+          <p className="text-[13px] mt-0.5" style={{ color: "var(--ds-muted)" }}>Record rent, income, and returns to investors</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {distributions.length > 0 && (
             <button
               onClick={handleExport}
               disabled={exporting}
-              className="text-[11px] text-ds-muted border border-ds-border px-2.5 py-1.5 rounded-lg hover:border-ds-muted transition disabled:opacity-50"
+              className="text-[13px] border rounded-lg px-4 py-2 transition disabled:opacity-50 hover:shadow-sm"
+              style={{ color: "var(--ds-text)", borderColor: "var(--ds-border)", background: "white" }}
             >
               {exporting ? "..." : "📥 Export CSV"}
             </button>
           )}
           <button
             onClick={() => { setShowForm(!showForm); setShowPreview(false); setError(""); setSuccess(""); }}
-            className="text-white font-semibold px-4 py-2 rounded-[10px] text-[12px] transition-all hover:translate-y-[-1px]"
-            style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+            className="text-white font-medium px-5 py-2.5 rounded-lg text-[13px] transition-all hover:shadow-md"
+            style={{ background: "#0D9488" }}
           >
             {showForm ? "Cancel" : "+ Record Distribution"}
           </button>
@@ -525,18 +526,42 @@ export default function DistributionManager({ session, property, investors, onDi
 
       {/* ── Summary Stats ── */}
       {distributions.length > 0 && (
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          <div className="bg-ds-bg rounded-lg px-3 py-2.5 text-center">
-            <div className="text-[10px] text-ds-muted uppercase tracking-wider">Total Distributed</div>
-            <div className="text-lg font-bold mt-0.5">${totalDistributed.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div className="glass rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(13,148,136,0.1)" }}>
+                <svg width="20" height="20" fill="none" stroke="#0D9488" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+            </div>
+            <div className="text-[13px] font-medium" style={{ color: "var(--ds-muted)" }}>Total Distributed</div>
+            <div className="text-[28px] font-bold mt-0.5" style={{ color: "var(--ds-text)" }}>${totalDistributed.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
           </div>
-          <div className="bg-ds-bg rounded-lg px-3 py-2.5 text-center">
-            <div className="text-[10px] text-ds-muted uppercase tracking-wider">Paid</div>
-            <div className="text-lg font-bold text-ds-green mt-0.5">${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div className="glass rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(10,207,131,0.1)" }}>
+                <svg width="20" height="20" fill="none" stroke="#0ACF83" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              </div>
+            </div>
+            <div className="text-[13px] font-medium" style={{ color: "var(--ds-muted)" }}>Paid</div>
+            <div className="text-[28px] font-bold mt-0.5" style={{ color: "var(--ds-text)" }}>${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
           </div>
-          <div className="bg-ds-bg rounded-lg px-3 py-2.5 text-center">
-            <div className="text-[10px] text-ds-muted uppercase tracking-wider">Pending</div>
-            <div className="text-lg font-bold text-yellow-500 mt-0.5">${totalPending.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div className="glass rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,165,0,0.1)" }}>
+                <svg width="20" height="20" fill="none" stroke="#FFA500" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+            </div>
+            <div className="text-[13px] font-medium" style={{ color: "var(--ds-muted)" }}>Pending</div>
+            <div className="text-[28px] font-bold mt-0.5" style={{ color: "var(--ds-text)" }}>${totalPending.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+          </div>
+          <div className="glass rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(59,130,246,0.1)" }}>
+                <svg width="20" height="20" fill="none" stroke="#3B82F6" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              </div>
+            </div>
+            <div className="text-[13px] font-medium" style={{ color: "var(--ds-muted)" }}>Distributions</div>
+            <div className="text-[28px] font-bold mt-0.5" style={{ color: "var(--ds-text)" }}>{periodSummaries.length}</div>
           </div>
         </div>
       )}
