@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import Link from "next/link";
+import DistributionChart from "@/components/DistributionChart";
 import type { Property, Investor, AuditEntry } from "@/types/database";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -159,6 +160,12 @@ export default function DashboardPage() {
           <div className="text-[32px] font-bold leading-none" style={{ color: "#1A1F36" }}>—</div>
           <div className="text-[13px] mt-3" style={{ color: "#697386" }}>YTD</div>
         </div>
+      </div>
+
+      {/* ── Distribution Chart ── */}
+      <div className="glass rounded-xl p-6 mb-8">
+        <h2 className="text-[18px] font-semibold mb-5" style={{ color: "#1A1F36" }}>Distribution Income</h2>
+        <DistributionChart properties={properties} session={session} />
       </div>
 
       {/* ── Two-column layout ── */}
