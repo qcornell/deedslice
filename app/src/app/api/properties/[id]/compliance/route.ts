@@ -219,9 +219,10 @@ export async function POST(
       permUpdate[freezeStatusUpdate === "frozen" ? "freeze_tx_id" : "unfreeze_tx_id"] = result.txId;
     }
 
-    await supabaseAdmin.from("ds_token_permissions")
-      .upsert(permUpdate, { onConflict: "investor_id,token_id" })
-      .catch(() => {});
+    try {
+      await supabaseAdmin.from("ds_token_permissions")
+        .upsert(permUpdate, { onConflict: "investor_id,token_id" });
+    } catch {}
 
     return NextResponse.json({
       ok: true,
