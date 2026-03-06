@@ -9,8 +9,10 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,8 +25,21 @@ export default function LoginPage() {
       if (mode === "login") {
         const { error } = await (supabase as any).auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.push("/dashboard");
+        // Wait briefly for session to propagate, then redirect
+        await new Promise(r => setTimeout(r, 200));
+        window.location.href = "/dashboard";
+        return;
       } else {
+        if (password !== confirmPassword) {
+          setError("Passwords do not match");
+          setLoading(false);
+          return;
+        }
+        if (!agreedToTerms) {
+          setError("You must agree to the Terms of Service");
+          setLoading(false);
+          return;
+        }
         const res = await fetch("/api/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -39,7 +54,9 @@ export default function LoginPage() {
             refresh_token: data.session.refresh_token,
           });
         }
-        router.push("/dashboard");
+        // Use window.location for hard redirect to ensure cookies are set
+        await new Promise(r => setTimeout(r, 200));
+        window.location.href = "/dashboard";
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -133,6 +150,39 @@ export default function LoginPage() {
             />
           </div>
 
+          {mode === "signup" && (
+            <div>
+              <label className="block text-xs text-ds-muted mb-1.5 font-medium">Confirm Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full bg-white border border-ds-border rounded-lg px-4 py-2.5 text-sm text-ds-text focus:outline-none focus:border-ds-accent focus:ring-2 focus:ring-ds-accent-dim transition"
+                placeholder="••••••••"
+              />
+            </div>
+          )}
+
+          {mode === "signup" && (
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded accent-[#0D9488] flex-shrink-0"
+              />
+              <span className="text-[11px] text-ds-muted leading-relaxed">
+                I agree to the{" "}
+                <a href="/terms" target="_blank" className="text-ds-accent hover:underline">Terms of Service</a>{" "}
+                and{" "}
+                <a href="/privacy" target="_blank" className="text-ds-accent hover:underline">Privacy Policy</a>,
+                including the use of AI services for property analysis and communication features.
+              </span>
+            </label>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-sm text-ds-red">
               {error}
@@ -151,21 +201,14 @@ export default function LoginPage() {
           </button>
 
           {mode === "signup" && (
-            <>
-              <p className="text-center text-xs text-ds-muted">
-                Free Sandbox — testnet access, no credit card required.
-              </p>
-              <p className="text-center text-[10px] text-ds-muted/60">
-                By creating an account, you agree to our{" "}
-                <a href="/terms" className="text-ds-accent hover:underline">Terms of Service</a>{" "}
-                and <a href="/privacy" className="text-ds-accent hover:underline">Privacy Policy</a>.
-              </p>
-            </>
+            <p className="text-center text-xs text-ds-muted">
+              Free Sandbox — testnet access, no credit card required.
+            </p>
           )}
         </form>
 
         <p className="text-center text-xs text-ds-muted mt-6">
-          Powered by <a href="https://dappily.io" className="text-ds-accent hover:underline">Dappily</a> & <a href="https://hedera.com" className="text-ds-accent hover:underline">Hedera</a>
+          Powered by <a href="https://hedera.com" className="text-ds-accent hover:underline">Hedera</a>
         </p>
       </div>
     </div>
