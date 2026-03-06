@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeedSlice — Pricing | Real Estate Tokenization on Hedera</title>
+<meta name="description" content="Tokenize real estate on Hedera for $299/mo. Compare DeedSlice pricing vs Blocksquare, RealT, and traditional methods.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ───────────────────────── Reset & Base ───────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070c;--bg2:#0c0c14;--bg3:#11111b;
+  --surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);
+  --text:#e4e4e7;--text2:#a1a1aa;--text3:#71717a;
+  --accent:#0ACF83;--accent2:#0D9488;--accent-glow:rgba(10,207,131,.15);
+  --accent-glow2:rgba(10,207,131,.08);
+  --danger:#ef4444;--warn:#f59e0b;
+  --radius:16px;--radius-sm:10px;--radius-xs:6px;
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:var(--font);color:var(--text);background:var(--bg);
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:var(--accent);text-decoration:none;transition:color .2s}
+a:hover{color:#0efa9e}
+
+/* ───────────────────────── Background Glow ───────────────────── */
+body::before{
+  content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);
+  width:900px;height:900px;border-radius:50%;
+  background:radial-gradient(circle,rgba(10,207,131,.07) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ───────────────────────── Layout ─────────────────────────────── */
+.container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+section{padding:80px 0}
+@media(max-width:768px){section{padding:56px 0}}
+
+/* ───────────────────────── Nav ────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,7,12,.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:16px 0;
+}
+nav .container{display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;font-size:1.25rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:var(--bg)}
+nav .cta-sm{
+  padding:8px 20px;border-radius:8px;font-size:.875rem;font-weight:600;
+  background:var(--accent);color:var(--bg);border:none;cursor:pointer;
+  transition:all .2s;
+}
+nav .cta-sm:hover{background:#0efa9e;transform:translateY(-1px);box-shadow:0 4px 20px rgba(10,207,131,.3)}
+
+/* ───────────────────────── Hero ───────────────────────────────── */
+.hero{text-align:center;padding:100px 0 60px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border-radius:100px;font-size:.8rem;font-weight:500;
+  background:var(--accent-glow);color:var(--accent);border:1px solid rgba(10,207,131,.2);
+  margin-bottom:24px;
+}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{
+  font-size:clamp(2.5rem,5vw,4rem);font-weight:800;letter-spacing:-.03em;
+  line-height:1.1;margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 0%,#a1a1aa 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero h1 span{
+  background:linear-gradient(135deg,var(--accent) 0%,#0D9488 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero p{font-size:1.2rem;color:var(--text2);max-width:600px;margin:0 auto 36px}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ───────────────────────── Buttons ────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:var(--radius-sm);font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:all .25s;border:none;font-family:var(--font);
+}
+.btn-primary{
+  background:var(--accent);color:var(--bg);
+  box-shadow:0 0 0 0 rgba(10,207,131,0);
+}
+.btn-primary:hover{
+  background:#0efa9e;transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(10,207,131,.25);
+}
+.btn-secondary{
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border2);
+}
+.btn-secondary:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.btn-outline{
+  background:transparent;color:var(--accent);
+  border:1.5px solid var(--accent);
+}
+.btn-outline:hover{background:var(--accent-glow);transform:translateY(-2px)}
+
+/* ───────────────────────── Section Headers ────────────────────── */
+.section-label{
+  text-transform:uppercase;font-size:.8rem;font-weight:600;letter-spacing:.1em;
+  color:var(--accent);margin-bottom:12px;text-align:center;
+}
+.section-title{
+  font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:800;letter-spacing:-.02em;
+  text-align:center;margin-bottom:16px;line-height:1.2;
+}
+.section-sub{text-align:center;color:var(--text2);max-width:560px;margin:0 auto 48px;font-size:1.05rem}
+
+/* ───────────────────────── Pricing Cards ─────────────────────── */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start}
+@media(max-width:960px){.pricing-grid{grid-template-columns:1fr;max-width:460px;margin:0 auto}}
+.card{
+  background:var(--surface);backdrop-filter:blur(24px);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:36px 28px;position:relative;overflow:hidden;
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.card.featured{border-color:var(--accent);background:rgba(10,207,131,.03)}
+.card.featured::before{
+  content:'MOST POPULAR';position:absolute;top:16px;right:-30px;
+  background:var(--accent);color:var(--bg);font-size:.65rem;font-weight:700;
+  padding:4px 40px;transform:rotate(45deg);letter-spacing:.05em;
+}
+.card-tier{font-size:.85rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.card-name{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+.card-price{font-size:2.5rem;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.card-price span{font-size:1rem;font-weight:400;color:var(--text2)}
+.card-note{font-size:.85rem;color:var(--text3);margin-bottom:24px;min-height:20px}
+.card hr{border:none;border-top:1px solid var(--border);margin:0 0 20px}
+.card-features{list-style:none;margin-bottom:28px}
+.card-features li{
+  padding:6px 0;font-size:.9rem;color:var(--text2);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.card-features li::before{
+  content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px;
+}
+.card-features li.credit{background:var(--accent-glow2);margin:8px -28px;padding:10px 28px;border-radius:0}
+.card-features li.credit::before{content:'💰'}
+.card .btn{width:100%;justify-content:center;margin-top:auto}
+
+/* ───────────────────────── Calculator ─────────────────────────── */
+.calc-container{
+  background:var(--surface);backdrop-filter:blur(24px);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:48px 40px;
+}
+@media(max-width:768px){.calc-container{padding:32px 20px}}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-bottom:48px}
+@media(max-width:860px){.calc-grid{grid-template-columns:1fr;gap:32px}}
+.slider-group{margin-bottom:32px}
+.slider-group:last-child{margin-bottom:0}
+.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.slider-label span{font-size:.9rem;font-weight:500;color:var(--text2)}
+.slider-value{
+  font-size:1.1rem;font-weight:700;color:var(--accent);
+  background:var(--accent-glow);padding:2px 12px;border-radius:6px;
+}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:6px;border-radius:3px;
+  background:var(--surface2);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--bg);
+  box-shadow:0 0 10px rgba(10,207,131,.4);cursor:pointer;
+  transition:transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+input[type=range]::-moz-range-thumb{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--bg);
+  box-shadow:0 0 10px rgba(10,207,131,.4);cursor:pointer;
+}
+
+/* Right panel - results */
+.calc-results h3{font-size:1.3rem;font-weight:700;margin-bottom:24px}
+.cost-row{margin-bottom:20px}
+.cost-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cost-row-name{font-size:.9rem;font-weight:500;color:var(--text2)}
+.cost-row-amount{font-size:1rem;font-weight:700}
+.cost-row-amount.ds{color:var(--accent)}
+.cost-bar-bg{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.cost-bar{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.cost-bar.ds{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.cost-bar.bs{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.cost-bar.trad{background:linear-gradient(90deg,#ef4444,#dc2626)}
+
+.savings-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+@media(max-width:500px){.savings-cards{grid-template-columns:1fr}}
+.savings-card{
+  padding:16px;border-radius:var(--radius-sm);
+  background:var(--accent-glow2);border:1px solid rgba(10,207,131,.15);
+  text-align:center;
+}
+.savings-card .amount{font-size:1.4rem;font-weight:800;color:var(--accent);margin-bottom:4px}
+.savings-card .label{font-size:.8rem;color:var(--text2)}
+
+.recommendation{
+  margin-top:28px;padding:20px 24px;border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,rgba(10,207,131,.08),rgba(13,148,136,.05));
+  border:1px solid rgba(10,207,131,.2);
+  display:flex;align-items:center;gap:16px;
+}
+.recommendation .icon{font-size:1.8rem;flex-shrink:0}
+.recommendation .rec-text{font-size:.95rem}
+.recommendation .rec-text strong{color:var(--accent)}
+.per-prop{
+  margin-top:16px;padding:14px 20px;border-radius:var(--radius-xs);
+  background:var(--surface);border:1px solid var(--border);
+  font-size:.85rem;color:var(--text2);text-align:center;
+}
+.per-prop strong{color:var(--text);font-weight:600}
+
+/* ───────────────────────── Comparison Table ───────────────────── */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;min-width:640px}
+thead{background:var(--surface2)}
+th{padding:14px 20px;text-align:left;font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);white-space:nowrap}
+th:first-child{border-radius:var(--radius) 0 0 0}
+th:last-child{border-radius:0 var(--radius) 0 0}
+th.highlight{color:var(--accent);background:rgba(10,207,131,.05)}
+td{padding:14px 20px;font-size:.9rem;border-top:1px solid var(--border);color:var(--text2)}
+td.highlight{color:var(--text);font-weight:500;background:rgba(10,207,131,.02)}
+td .check{color:var(--accent);font-weight:700}
+td .cross{color:var(--text3)}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ───────────────────────── Bottom Line ────────────────────────── */
+.bottom-line{
+  text-align:center;padding:80px 24px;
+  background:linear-gradient(180deg,transparent,rgba(10,207,131,.03) 50%,transparent);
+}
+.bottom-line blockquote{
+  font-size:clamp(1.4rem,3vw,2rem);font-weight:700;letter-spacing:-.01em;
+  line-height:1.4;max-width:700px;margin:0 auto 12px;color:var(--text);
+}
+.bottom-line blockquote span{color:var(--accent)}
+.bottom-line .sub{color:var(--text3);font-size:1rem;margin-bottom:36px}
+.bottom-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ───────────────────────── Footer ─────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);padding:32px 0;text-align:center;
+  font-size:.85rem;color:var(--text3);
+}
+footer a{color:var(--text2)}
+
+/* ───────────────────────── Animations ─────────────────────────── */
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.fade-up{opacity:1;transform:none;transition:none}}
+
+/* ───────────────────────── Misc ───────────────────────────────── */
+.toggle-row{display:flex;justify-content:center;gap:8px;margin-bottom:32px;align-items:center}
+.toggle-row span{font-size:.9rem;color:var(--text2);font-weight:500}
+.toggle-row .active-label{color:var(--text);font-weight:600}
+.annual-badge{
+  font-size:.7rem;background:var(--accent-glow);color:var(--accent);
+  padding:2px 8px;border-radius:4px;font-weight:600;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ NAV ═══════════════════════ -->
+<nav>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">DS</div>
+      DeedSlice
+    </div>
+    <a href="https://console.deedslice.com/signup" class="cta-sm">Start Free</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><span class="dot"></span> Now on Hedera Mainnet</div>
+    <h1>Real Estate Tokenization.<br><span>Priced to Actually Use.</span></h1>
+    <p>No $40K license fees. No hidden costs. Start on testnet for free, go live for $299/mo. Scale to Enterprise when you're ready.</p>
+    <div class="hero-ctas">
+      <a href="https://console.deedslice.com/signup" class="btn btn-primary">Start Free on Testnet →</a>
+      <a href="mailto:info@deedslice.com" class="btn btn-secondary">Talk to Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ PRICING TIERS ═══════════════════════ -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Choose Your Plan</h2>
+    <p class="section-sub">From sandbox to enterprise — every stage of your tokenization journey.</p>
+    <div class="pricing-grid">
+
+      <!-- Sandbox -->
+      <div class="card fade-up">
+        <div class="card-tier">Sandbox</div>
+        <div class="card-name">Free</div>
+        <div class="card-price">$0 <span>/forever</span></div>
+        <div class="card-note">Testnet only — no credit card required</div>
+        <hr>
+        <ul class="card-features">
+          <li>Testnet sandbox environment</li>
+          <li>NFT deed + share tokens</li>
+          <li>Basic dashboard</li>
+          <li>HCS audit log</li>
+          <li>Try before you buy</li>
+        </ul>
+        <a href="https://console.deedslice.com/signup" class="btn btn-outline">Start Free →</a>
+      </div>
+
+      <!-- Operator -->
+      <div class="card featured fade-up" style="transition-delay:.1s">
+        <div class="card-tier">Operator</div>
+        <div class="card-name">Growth</div>
+        <div class="card-price">$299 <span>/mo</span></div>
+        <div class="card-note">Everything you need to tokenize on mainnet</div>
+        <hr>
+        <ul class="card-features">
+          <li>Full platform access</li>
+          <li>Mainnet deployment</li>
+          <li>Investor management</li>
+          <li>Document vault (SHA-256 → HCS)</li>
+          <li>Token transfers to wallets</li>
+          <li>Email support</li>
+          <li class="credit">$1,499/property — or 5 for $4,999 (33% off)</li>
+        </ul>
+        <a href="https://console.deedslice.com/signup" class="btn btn-primary">Get Started →</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="card fade-up" style="transition-delay:.2s">
+        <div class="card-tier">Enterprise</div>
+        <div class="card-name">Scale</div>
+        <div class="card-price">$50K <span>/yr</span></div>
+        <div class="card-note">~$4,167/mo · Unlimited tokenization</div>
+        <hr>
+        <ul class="card-features">
+          <li>Everything in Operator</li>
+          <li>Unlimited tokenization included</li>
+          <li>White-label investor portal</li>
+          <li>REST API access + webhooks</li>
+          <li>Custom domain & branding</li>
+          <li>Priority support + dedicated onboarding</li>
+        </ul>
+        <a href="mailto:info@deedslice.com" class="btn btn-secondary">Talk to Sales →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CALCULATOR ═══════════════════════ -->
+<section id="calculator">
+  <div class="container">
+    <div class="section-label">Cost Calculator</div>
+    <h2 class="section-title">See How Much You Save</h2>
+    <p class="section-sub">Adjust the sliders to match your portfolio. Watch the numbers speak for themselves.</p>
+    <div class="calc-container fade-up">
+      <div class="calc-grid">
+
+        <!-- Sliders -->
+        <div class="calc-sliders">
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Number of Properties</span>
+              <span class="slider-value" id="propVal">5</span>
+            </div>
+            <input type="range" id="propSlider" min="1" max="50" value="5">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Average Property Value</span>
+              <span class="slider-value" id="valVal">$500K</span>
+            </div>
+            <input type="range" id="valSlider" min="100000" max="50000000" value="500000" step="50000">
+          </div>
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Number of Investors</span>
+              <span class="slider-value" id="invVal">25</span>
+            </div>
+            <input type="range" id="invSlider" min="1" max="500" value="25">
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="calc-results">
+          <h3>Annual Cost Comparison</h3>
+
+          <!-- DeedSlice -->
+          <div class="cost-row">
+            <div class="cost-row-header">
+              <span class="cost-row-name">🟢 DeedSlice <span id="recPlan">(Operator)</span></span>
+              <span class="cost-row-amount ds" id="dsCost">$11,083</span>
+            </div>
+            <div class="cost-bar-bg"><div class="cost-bar ds" id="dsBar" style="width:10%"></div></div>
+          </div>
+
+          <!-- Blocksquare -->
+          <div class="cost-row">
+            <div class="cost-row-header">
+              <span class="cost-row-name">🟡 Blocksquare</span>
+              <span class="cost-row-amount" id="bsCost">$45,040</span>
+            </div>
+            <div class="cost-bar-bg"><div class="cost-bar bs" id="bsBar" style="width:50%"></div></div>
+          </div>
+
+          <!-- Traditional -->
+          <div class="cost-row">
+            <div class="cost-row-header">
+              <span class="cost-row-name">🔴 Traditional (Legal + Manual)</span>
+              <span class="cost-row-amount" id="tradCost">$80,000</span>
+            </div>
+            <div class="cost-bar-bg"><div class="cost-bar trad" id="tradBar" style="width:100%"></div></div>
+          </div>
+
+          <!-- Savings -->
+          <div class="savings-cards">
+            <div class="savings-card">
+              <div class="amount" id="saveBs">$33,957</div>
+              <div class="label">saved vs Blocksquare</div>
+            </div>
+            <div class="savings-card">
+              <div class="amount" id="saveTrad">$68,917</div>
+              <div class="label">saved vs Traditional</div>
+            </div>
+          </div>
+
+          <!-- Per property -->
+          <div class="per-prop" id="perProp">
+            Per-property cost: <strong>$2,217</strong> / year with DeedSlice
+          </div>
+
+          <!-- Recommendation -->
+          <div class="recommendation" id="recBox">
+            <div class="icon">💡</div>
+            <div class="rec-text">
+              With <strong>5 properties</strong>, the <strong>Operator plan</strong> is your best bet. You'll save $33,957 vs Blocksquare — and be live in days, not months.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ COMPARISON TABLE ═══════════════════════ -->
+<section id="compare">
+  <div class="container">
+    <div class="section-label">Comparison</div>
+    <h2 class="section-title">How We Stack Up</h2>
+    <p class="section-sub">Transparent pricing, superior tech, faster deployment.</p>
+    <div class="table-wrap fade-up">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th class="highlight">DeedSlice</th>
+            <th>Blocksquare</th>
+            <th>RealT</th>
+            <th>DIY / Custom</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Setup Cost</td>
+            <td class="highlight"><strong>$0</strong></td>
+            <td>$40,900 license</td>
+            <td>Closed platform</td>
+            <td>$50K – $200K+</td>
+          </tr>
+          <tr>
+            <td>Monthly Cost</td>
+            <td class="highlight"><strong>$299/mo</strong></td>
+            <td>$69/mo/property</td>
+            <td>Revenue share</td>
+            <td>$5K – $15K+</td>
+          </tr>
+          <tr>
+            <td>Per-Property Fee</td>
+            <td class="highlight"><strong>$1,499</strong> (or $999 in packs)</td>
+            <td>Included in license</td>
+            <td>N/A</td>
+            <td>$5K – $15K legal</td>
+          </tr>
+          <tr>
+            <td>White-Label</td>
+            <td class="highlight"><span class="check">✓</span> Enterprise</td>
+            <td><span class="check">✓</span> Included</td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span> You build it</td>
+          </tr>
+          <tr>
+            <td>Blockchain</td>
+            <td class="highlight"><strong>Hedera</strong> (fast, green, low fees)</td>
+            <td>Ethereum L2</td>
+            <td>Ethereum / Gnosis</td>
+            <td>Any</td>
+          </tr>
+          <tr>
+            <td>Time to Deploy</td>
+            <td class="highlight"><strong>Same day</strong></td>
+            <td>4 – 8 weeks</td>
+            <td>Managed for you</td>
+            <td>3 – 12 months</td>
+          </tr>
+          <tr>
+            <td>Audit Trail</td>
+            <td class="highlight"><span class="check">✓</span> HCS immutable log</td>
+            <td>Blockchain records</td>
+            <td>Blockchain records</td>
+            <td>Manual / varies</td>
+          </tr>
+          <tr>
+            <td>Your Brand</td>
+            <td class="highlight"><span class="check">✓</span> Custom domain & portal</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span> RealT brand</td>
+            <td><span class="check">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ BOTTOM LINE ═══════════════════════ -->
+<section class="bottom-line">
+  <div class="container">
+    <blockquote>
+      "Blocksquare charges <span>$40,900</span>.<br>
+      We charge <span>$299/mo</span>.<br>
+      Same capabilities. <span>Your brand.</span>"
+    </blockquote>
+    <p class="sub">Real estate tokenization shouldn't require a six-figure budget.</p>
+    <div class="bottom-ctas">
+      <a href="https://console.deedslice.com/signup" class="btn btn-primary">Start Free on Testnet →</a>
+      <a href="mailto:info@deedslice.com" class="btn btn-secondary">Talk to Sales</a>
+      <a href="https://console.deedslice.com" class="btn btn-outline">View Console</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer>
+  <div class="container">
+    © 2026 DeedSlice · Built on <a href="https://hedera.com" target="_blank" rel="noopener">Hedera</a> · <a href="mailto:info@deedslice.com">info@deedslice.com</a>
+  </div>
+</footer>
+
+<!-- ═══════════════════════ JS ═══════════════════════ -->
+<script>
+(function(){
+  // ── Fade-up observer ──
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }});
+  }, {threshold:0.15});
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+  // ── Slider refs ──
+  const propSlider = document.getElementById('propSlider');
+  const valSlider  = document.getElementById('valSlider');
+  const invSlider  = document.getElementById('invSlider');
+  const propVal    = document.getElementById('propVal');
+  const valVal     = document.getElementById('valVal');
+  const invVal     = document.getElementById('invVal');
+
+  // ── Result refs ──
+  const dsCostEl  = document.getElementById('dsCost');
+  const bsCostEl  = document.getElementById('bsCost');
+  const tradCostEl= document.getElementById('tradCost');
+  const dsBarEl   = document.getElementById('dsBar');
+  const bsBarEl   = document.getElementById('bsBar');
+  const tradBarEl = document.getElementById('tradBar');
+  const saveBsEl  = document.getElementById('saveBs');
+  const saveTradEl= document.getElementById('saveTrad');
+  const recPlanEl = document.getElementById('recPlan');
+  const recBoxEl  = document.getElementById('recBox');
+  const perPropEl = document.getElementById('perProp');
+
+  function fmt(n){
+    if(n >= 1e6) return '$' + (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
+    if(n >= 1e3) return '$' + Math.round(n/1e3).toLocaleString() + 'K';
+    return '$' + Math.round(n).toLocaleString();
+  }
+  function fmtFull(n){ return '$' + Math.round(n).toLocaleString() }
+
+  function calculate(){
+    const props = parseInt(propSlider.value);
+    const val   = parseInt(valSlider.value);
+    const inv   = parseInt(invSlider.value);
+
+    // Display values
+    propVal.textContent = props;
+    if(val >= 1e6) valVal.textContent = '$' + (val/1e6).toFixed(val%1e6===0?0:1) + 'M';
+    else valVal.textContent = '$' + (val/1e3) + 'K';
+    invVal.textContent = inv;
+
+    // ── DeedSlice cost ──
+    // Operator: $299/mo * 12 + tokenization credits
+    // Credits: 5-packs at $4,999, remainder at $1,499
+    const operatorBase = 299 * 12;
+    const fivePacks = Math.floor(props / 5);
+    const remainder = props % 5;
+    const tokenCredits = fivePacks * 4999 + remainder * 1499;
+    const operatorTotal = operatorBase + tokenCredits;
+    const enterpriseTotal = 50000;
+
+    // Smart recommendation: use whichever is cheaper
+    const useEnterprise = enterpriseTotal < operatorTotal;
+    const dsCost = useEnterprise ? enterpriseTotal : operatorTotal;
+    const planName = useEnterprise ? 'Enterprise' : 'Operator';
+
+    // ── Blocksquare cost (year 1) ──
+    const bsCost = 40900 + (69 * props * 12);
+
+    // ── Traditional cost ──
+    // $10,000 avg per property (legal) + $500/mo admin per property
+    const tradCost = (10000 * props) + (500 * props * 12);
+
+    // ── Update UI ──
+    dsCostEl.textContent  = fmtFull(dsCost);
+    bsCostEl.textContent  = fmtFull(bsCost);
+    tradCostEl.textContent= fmtFull(tradCost);
+    recPlanEl.textContent = '(' + planName + ')';
+
+    // Bars (relative to max)
+    const maxCost = Math.max(dsCost, bsCost, tradCost);
+    dsBarEl.style.width   = Math.max(3, (dsCost/maxCost)*100) + '%';
+    bsBarEl.style.width   = Math.max(3, (bsCost/maxCost)*100) + '%';
+    tradBarEl.style.width  = Math.max(3, (tradCost/maxCost)*100) + '%';
+
+    // Savings
+    const sBs   = bsCost - dsCost;
+    const sTrad = tradCost - dsCost;
+    saveBsEl.textContent   = sBs > 0 ? fmtFull(sBs) : '$0';
+    saveTradEl.textContent = sTrad > 0 ? fmtFull(sTrad) : '$0';
+
+    // Per property
+    const perPropCost = Math.round(dsCost / props);
+    perPropEl.innerHTML = 'Per-property cost: <strong>' + fmtFull(perPropCost) + '</strong> / year with DeedSlice';
+
+    // Recommendation
+    let recHTML = '';
+    if(useEnterprise){
+      recHTML = '<div class="icon">🏢</div><div class="rec-text">' +
+        'With <strong>' + props + ' properties</strong>, the <strong>Enterprise plan</strong> saves you ' +
+        fmtFull(operatorTotal - enterpriseTotal) + ' vs Operator — plus you get unlimited tokenization, white-label portal, and API access.' +
+        '</div>';
+    } else {
+      recHTML = '<div class="icon">💡</div><div class="rec-text">' +
+        'With <strong>' + props + ' propert' + (props===1?'y':'ies') + '</strong>, the <strong>Operator plan</strong> is your best bet. ' +
+        'You\'ll save ' + fmtFull(sBs) + ' vs Blocksquare — and be live in days, not months.' +
+        '</div>';
+    }
+    recBoxEl.innerHTML = recHTML;
+
+    // Update slider fills via CSS gradient
+    updateSliderFill(propSlider);
+    updateSliderFill(valSlider);
+    updateSliderFill(invSlider);
+  }
+
+  function updateSliderFill(slider){
+    const pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+    slider.style.background = 'linear-gradient(90deg, var(--accent) 0%, var(--accent2) ' + pct + '%, var(--surface2) ' + pct + '%)';
+  }
+
+  propSlider.addEventListener('input', calculate);
+  valSlider.addEventListener('input', calculate);
+  invSlider.addEventListener('input', calculate);
+
+  // Initial calc
+  calculate();
+})();
+</script>
+</body>
+</html>

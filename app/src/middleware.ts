@@ -30,12 +30,12 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith("/dashboard")) {
     // Check for Supabase auth token in cookies
     // Supabase stores session in sb-<ref>-auth-token cookie
-    const cookies = req.cookies;
     let hasSession = false;
 
     // Look for any Supabase auth cookie
-    for (const [name] of cookies) {
-      if (name.includes("-auth-token")) {
+    const allCookies = req.cookies.getAll();
+    for (const cookie of allCookies) {
+      if (cookie.name.includes("-auth-token")) {
         hasSession = true;
         break;
       }
