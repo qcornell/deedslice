@@ -24,36 +24,9 @@ export async function middleware(req: NextRequest) {
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
-  const { pathname } = req.nextUrl;
-
-  // ── Dashboard protection ──
-  if (pathname.startsWith("/dashboard")) {
-    // Check for Supabase auth token in cookies
-    // Supabase stores session in sb-<ref>-auth-token cookie
-    let hasSession = false;
-
-    // Look for any Supabase auth cookie
-    const allCookies = req.cookies.getAll();
-    for (const cookie of allCookies) {
-      if (cookie.name.includes("-auth-token")) {
-        hasSession = true;
-        break;
-      }
-    }
-
-    // Also check for Authorization header (API-style access)
-    const authHeader = req.headers.get("authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      hasSession = true;
-    }
-
-    if (!hasSession) {
-      // Redirect to login with return URL
-      const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
+  // Note: Dashboard auth is handled client-side by useAuth hook in dashboard/layout.tsx.
+  // Supabase JS stores sessions in localStorage (not cookies), so middleware can't
+  // reliably check auth state. The layout already redirects to /login if no session.
 
   return res;
 }
