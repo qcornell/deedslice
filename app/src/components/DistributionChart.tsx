@@ -199,7 +199,7 @@ export default function DistributionChart({ properties, session }: Props) {
           />
 
           <Tooltip
-            formatter={(value: number) => [formatTooltip(value), "Income"]}
+            formatter={(value: number | undefined) => [formatTooltip(value ?? 0), "Income"]}
             contentStyle={{
               background: "#fff",
               border: "1px solid #E3E8EF",
