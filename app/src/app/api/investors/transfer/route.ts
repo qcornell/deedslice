@@ -178,16 +178,18 @@ export async function POST(req: NextRequest) {
         }
 
         // Update token permissions table (if it exists)
-        await supabaseAdmin.from("ds_token_permissions").upsert({
-          investor_id: investor.id,
-          property_id: property.id,
-          token_id: property.share_token_id,
-          wallet_address: investor.wallet_address,
-          kyc_status: "granted",
-          approved_by: user.id,
-          approved_at: new Date().toISOString(),
-          kyc_grant_tx_id: kycResult.txId,
-        } as any, { onConflict: "investor_id,token_id" }).catch(() => {});
+        try {
+          await supabaseAdmin.from("ds_token_permissions").upsert({
+            investor_id: investor.id,
+            property_id: property.id,
+            token_id: property.share_token_id,
+            wallet_address: investor.wallet_address,
+            kyc_status: "granted",
+            approved_by: user.id,
+            approved_at: new Date().toISOString(),
+            kyc_grant_tx_id: kycResult.txId,
+          } as any, { onConflict: "investor_id,token_id" });
+        } catch {};
       }
     }
 
