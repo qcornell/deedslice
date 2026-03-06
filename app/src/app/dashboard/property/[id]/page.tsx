@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
-import ImageUpload from "@/components/ImageUpload";
-import DocumentVault from "@/components/DocumentVault";
-import DistributionManager from "@/components/DistributionManager";
+import dynamic from "next/dynamic";
 import InvestorUpdate from "@/components/InvestorUpdate";
-import InvestorProtectionPanel from "@/components/InvestorProtectionPanel";
-import IssuerCertificationModal from "@/components/IssuerCertificationModal";
+
+const ImageUpload = dynamic(() => import("@/components/ImageUpload"));
+const DocumentVault = dynamic(() => import("@/components/DocumentVault"));
+const DistributionManager = dynamic(() => import("@/components/DistributionManager"));
+const InvestorProtectionPanel = dynamic(() => import("@/components/InvestorProtectionPanel"));
+const IssuerCertificationModal = dynamic(() => import("@/components/IssuerCertificationModal"));
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
@@ -646,11 +648,11 @@ export default function PropertyDetailPage() {
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <div className="flex-1 bg-ds-bg border border-ds-border rounded-lg px-4 py-2.5 text-xs sm:text-sm font-mono text-ds-muted truncate">
-            console.deedslice.com/view/{id}
+            {(process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com").replace(/^https?:\/\//, "")}/view/{id}
           </div>
           <button
             onClick={() => {
-              try { navigator.clipboard.writeText(`https://console.deedslice.com/view/${id}`); } catch {}
+              try { navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com"}/view/${id}`); } catch {}
             }}
             className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px] shrink-0"
             style={{ background: "#0ab4aa", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}

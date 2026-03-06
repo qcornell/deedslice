@@ -3,7 +3,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import Link from "next/link";
-import DistributionChart from "@/components/DistributionChart";
+import dynamic from "next/dynamic";
+const DistributionChart = dynamic(() => import("@/components/DistributionChart"), {
+  loading: () => <div className="h-48 bg-[#E3E8EF] rounded-lg animate-pulse" />,
+  ssr: false,
+});
 import type { Property, Investor, AuditEntry } from "@/types/database";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -19,33 +23,19 @@ export default function DashboardPage() {
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load all dashboard data
+  // Load all dashboard data in a single request
   useEffect(() => {
     if (!session) return;
     const h = getAuthHeaders(session);
-    Promise.all([
-      fetch("/api/properties", { headers: h }).then(r => r.json()),
-      fetch("/api/audit/all", { headers: h }).then(r => r.json()).catch(() => ({ auditEntries: [] })),
-    ]).then(([propData, auditData]) => {
-      const props = propData.properties || [];
-      setProperties(props);
-      setAuditEntries((auditData.auditEntries || []).slice(0, 5));
-
-      // Load investors for all live properties
-      const liveProps = props.filter((p: Property) => p.status === "live");
-      if (liveProps.length > 0) {
-        Promise.all(
-          liveProps.map((p: Property) =>
-            fetch(`/api/properties/${p.id}`, { headers: h })
-              .then(r => r.json())
-              .then(d => (d.investors || []).map((inv: Investor) => ({ ...inv, _propertyName: p.name })))
-              .catch(() => [])
-          )
-        ).then(results => {
-          setInvestors(results.flat());
-        });
-      }
-    }).finally(() => setLoading(false));
+    fetch("/api/dashboard/summary", { headers: h })
+      .then(r => r.json())
+      .then(data => {
+        setProperties(data.properties || []);
+        setInvestors(data.investors || []);
+        setAuditEntries(data.auditEntries || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [session]);
 
   const stats = useMemo(() => {
@@ -95,7 +85,34 @@ export default function DashboardPage() {
     );
   }
 
-  if (properties.length === 0) {
+  // Auto-seed demo data for new users with empty dashboards
+  const [seeding, setSeeding] = useState(false);
+  const [demoSeeded, setDemoSeeded] = useState(false);
+
+  async function seedDemo() {
+    if (!session || seeding) return;
+    setSeeding(true);
+    try {
+      const res = await fetch("/api/demo/seed", {
+        method: "POST",
+        headers: getAuthHeaders(session),
+      });
+      const data = await res.json();
+      if (data.ok && data.propertyId) {
+        setDemoSeeded(true);
+        // Reload dashboard data
+        const summaryRes = await fetch("/api/dashboard/summary", { headers: getAuthHeaders(session) });
+        const summaryData = await summaryRes.json();
+        setProperties(summaryData.properties || []);
+        setInvestors(summaryData.investors || []);
+        setAuditEntries(summaryData.auditEntries || []);
+      }
+    } catch {} finally {
+      setSeeding(false);
+    }
+  }
+
+  if (properties.length === 0 && !demoSeeded) {
     return (
       <div className="max-w-xl mx-auto animate-fade-in">
         <div className="glass rounded-xl p-16 text-center">
@@ -105,18 +122,40 @@ export default function DashboardPage() {
             <svg width="40" height="40" fill="none" stroke="#0D9488" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
           </div>
           <h2 className="text-xl font-semibold mb-3" style={{ color: "var(--ds-text)" }}>No properties yet</h2>
-          <p className="text-[14px] max-w-md mx-auto mb-8" style={{ color: "#697386", lineHeight: "1.7" }}>
+          <p className="text-[14px] max-w-md mx-auto mb-6" style={{ color: "#697386", lineHeight: "1.7" }}>
             Tokenize your first property to create an NFT deed, share tokens, and a verifiable audit trail — all on Hedera.
           </p>
-          <Link
-            href="/dashboard/new"
-            className="inline-flex items-center gap-2 text-white font-medium px-8 py-3.5 rounded-lg text-[14px] transition-all hover:shadow-md"
-            style={{ background: "#0ab4aa" }}
-          >
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            Tokenize Your First Property
-          </Link>
-          <p className="text-[12px] mt-4" style={{ color: "#8792A2" }}>~$0.01 in Hedera fees · Takes about 10 seconds</p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+            <Link
+              href="/dashboard/new"
+              className="inline-flex items-center justify-center gap-2 text-white font-medium px-8 py-3.5 rounded-lg text-[14px] transition-all hover:shadow-md"
+              style={{ background: "#0ab4aa" }}
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              Tokenize Your First Property
+            </Link>
+            <button
+              onClick={seedDemo}
+              disabled={seeding}
+              className="inline-flex items-center justify-center gap-2 font-medium px-8 py-3.5 rounded-lg text-[14px] transition-all border hover:bg-[#F6F9FC] disabled:opacity-50"
+              style={{ borderColor: "#E3E8EF", color: "#697386" }}
+            >
+              {seeding ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-[#697386]/30 border-t-[#697386] rounded-full animate-spin" />
+                  Loading demo...
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  Explore with Demo Data
+                </>
+              )}
+            </button>
+          </div>
+
+          <p className="text-[12px]" style={{ color: "#8792A2" }}>~$0.01 in Hedera fees · Takes about 10 seconds</p>
         </div>
       </div>
     );

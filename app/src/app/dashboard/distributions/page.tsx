@@ -14,7 +14,8 @@ import { useEffect, useState } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import Link from "next/link";
 import type { Property, Investor } from "@/types/database";
-import DistributionManager from "@/components/DistributionManager";
+import dynamic from "next/dynamic";
+const DistributionManager = dynamic(() => import("@/components/DistributionManager"));
 
 export default function DistributionsPage() {
   const { session } = useAuth();

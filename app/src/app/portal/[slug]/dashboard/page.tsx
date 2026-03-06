@@ -523,6 +523,26 @@ function DetailRow({
 // ── Documents View ────────────────────────────────────────
 
 function DocumentsView({ documents, slug }: { documents: DocumentRecord[]; slug: string }) {
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  async function handleDownload(docId: string, fileName: string) {
+    setDownloading(docId);
+    try {
+      const token = localStorage.getItem(`lp_token_${slug}`);
+      if (!token) return;
+      const res = await fetch(`/api/lp/documents/download?id=${docId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.url) {
+        // Open signed URL in new tab to trigger download
+        window.open(data.url, "_blank");
+      }
+    } catch {} finally {
+      setDownloading(null);
+    }
+  }
+
   function formatSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -588,19 +608,22 @@ function DocumentsView({ documents, slug }: { documents: DocumentRecord[]; slug:
       key: "download",
       header: "",
       align: "right",
-      width: "40px",
+      width: "50px",
       render: (doc) => (
-        doc.download_url ? (
-          <a
-            href={doc.download_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[12px] transition-colors"
-            style={{ color: "var(--lp-primary, #0D9488)" }}
-          >
-            ↓
-          </a>
-        ) : <span style={{ color: "var(--lp-text-muted, #CBD5E1)" }}>—</span>
+        <button
+          onClick={() => handleDownload(doc.id, doc.file_name)}
+          disabled={downloading === doc.id}
+          className="p-1.5 rounded-md transition-all hover:bg-[rgba(13,148,136,0.06)]"
+          title="Download"
+        >
+          {downloading === doc.id ? (
+            <span className="w-3.5 h-3.5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin inline-block" />
+          ) : (
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--lp-primary, #0D9488)" }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          )}
+        </button>
       ),
     },
   ];

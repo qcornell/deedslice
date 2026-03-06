@@ -9,7 +9,7 @@ import { Suspense } from "react";
  * Supports magic link and password auth.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 export default function PortalLoginPage() {
@@ -229,7 +229,8 @@ function VerifyMagicLink({ slug, token }: { slug: string; token: string }) {
   const router = useRouter();
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
 
-  useState(() => {
+  useEffect(() => {
+    let cancelled = false;
     fetch("/api/lp/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -237,6 +238,7 @@ function VerifyMagicLink({ slug, token }: { slug: string; token: string }) {
     })
       .then(r => r.json())
       .then(data => {
+        if (cancelled) return;
         if (data.ok && data.token) {
           localStorage.setItem(`lp_token_${slug}`, data.token);
           setStatus("success");
@@ -245,8 +247,9 @@ function VerifyMagicLink({ slug, token }: { slug: string; token: string }) {
           setStatus("error");
         }
       })
-      .catch(() => setStatus("error"));
-  });
+      .catch(() => { if (!cancelled) setStatus("error"); });
+    return () => { cancelled = true; };
+  }, [slug, token, router]);
 
   return (
     <div className="flex items-center justify-center min-h-[60vh]">

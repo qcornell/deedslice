@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
 import { logAuditEntry } from "@/lib/hedera/engine";
+import { applyRateLimitAsync } from "@/lib/rate-limit";
 import { createHash } from "crypto";
 import type { Property } from "@/types/database";
 
@@ -21,6 +22,10 @@ const BUCKET = "property-documents";
  * Stores file in Supabase Storage, logs SHA-256 hash to HCS audit trail
  */
 export async function POST(req: NextRequest) {
+  // 5 document uploads per IP per 5 minutes
+  const blocked = await applyRateLimitAsync(req.headers, "documents-upload", { max: 5, windowSec: 300 });
+  if (blocked) return blocked;
+
   try {
     const token = extractToken(req.headers.get("authorization"));
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -64,13 +69,6 @@ export async function POST(req: NextRequest) {
     // Upload to Supabase Storage
     const ext = file.name.split(".").pop() || "pdf";
     const storagePath = `${user.id}/${propertyId}/${Date.now()}-${sha256.slice(0, 8)}.${ext}`;
-
-    // Ensure bucket exists
-    await supabaseAdmin.storage.createBucket(BUCKET, {
-      public: false, // Documents are private — accessed via signed URLs
-      fileSizeLimit: MAX_SIZE,
-      allowedMimeTypes: ALLOWED_TYPES,
-    });
 
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from(BUCKET)

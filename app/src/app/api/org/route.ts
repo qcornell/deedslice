@@ -31,8 +31,14 @@ export async function GET(req: NextRequest) {
       supabaseAdmin.from("ds_org_settings").select("*").eq("org_id", (org as any).id).single(),
     ]);
 
+    // Strip domain_verification_token from general GET — only show in settings UI
+    const safeOrg = { ...(org as any) };
+    if (!req.nextUrl.searchParams.get("includeVerification")) {
+      delete safeOrg.domain_verification_token;
+    }
+
     return NextResponse.json({
-      org,
+      org: safeOrg,
       branding: brandingRes.data || null,
       settings: settingsRes.data || null,
     });
@@ -172,7 +178,7 @@ export async function PATCH(req: NextRequest) {
     // Update branding
     if (branding) {
       const allowed = [
-        "logo_url", "favicon_url", "primary_color", "secondary_color",
+        "logo_url", "logo_dark_url", "favicon_url", "primary_color", "secondary_color",
         "accent_color", "text_color", "bg_color", "email_sender_name",
         "portal_title", "footer_text", "show_powered_by",
       ];

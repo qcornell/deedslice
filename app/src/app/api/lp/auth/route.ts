@@ -45,9 +45,10 @@ export async function POST(req: NextRequest) {
       }
 
       // Build magic link URL
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com";
       const baseUrl = tenant.org.custom_domain && tenant.org.domain_verified
         ? `https://${tenant.org.custom_domain}`
-        : `https://console.deedslice.com/portal/${orgSlug}`;
+        : `${appUrl}/portal/${orgSlug}`;
 
       const magicUrl = `${baseUrl}/auth/verify?token=${token}`;
 

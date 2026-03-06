@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 /**
  * GET /api/address-suggest?q=2960+Box&session=uuid
@@ -7,6 +8,10 @@ import { NextRequest, NextResponse } from "next/server";
  * We proxy server-side to keep the access token off the client.
  */
 export async function GET(req: NextRequest) {
+  // 30 suggestions per IP per minute (typeahead can be chatty)
+  const blocked = applyRateLimit(req.headers, "address-suggest", { max: 30, windowSec: 60 });
+  if (blocked) return blocked;
+
   const q = req.nextUrl.searchParams.get("q");
   const sessionToken = req.nextUrl.searchParams.get("session") || crypto.randomUUID();
 

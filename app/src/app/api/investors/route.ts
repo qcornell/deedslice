@@ -78,20 +78,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to add investor" }, { status: 500 });
     }
 
-    const { data: allInvestors } = await supabaseAdmin
-      .from("ds_investors")
-      .select("*")
-      .eq("property_id", propertyId);
-
-    if (allInvestors) {
-      for (const inv of allInvestors) {
-        const pct = Math.round(((inv as any).slices_owned / property.total_slices) * 10000) / 100;
-        await supabaseAdmin
+    // Recalculate all investor percentages in a single query
+    // instead of N individual UPDATE statements
+    await supabaseAdmin.rpc("recalculate_investor_percentages", {
+      p_property_id: propertyId,
+      p_total_slices: property.total_slices,
+    }).then(({ error: rpcErr }) => {
+      if (rpcErr) {
+        // Fallback to individual updates if RPC not deployed
+        console.warn("Percentage recalc RPC not available, using fallback:", rpcErr.message);
+        return supabaseAdmin
           .from("ds_investors")
-          .update({ percentage: pct } as any)
-          .eq("id", (inv as any).id);
+          .select("id, slices_owned")
+          .eq("property_id", propertyId)
+          .then(async ({ data: allInvestors }) => {
+            if (allInvestors) {
+              for (const inv of allInvestors) {
+                const pct = Math.round(((inv as any).slices_owned / property.total_slices) * 10000) / 100;
+                await supabaseAdmin
+                  .from("ds_investors")
+                  .update({ percentage: pct } as any)
+                  .eq("id", (inv as any).id);
+              }
+            }
+          });
       }
-    }
+    });
 
     if (property.audit_topic_id) {
       await logAuditEntry(property.audit_topic_id, "INVESTOR_ADDED", {

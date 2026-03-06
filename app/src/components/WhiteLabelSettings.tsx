@@ -86,7 +86,7 @@ export default function WhiteLabelSettings({ session }: Props) {
 
   async function loadOrg() {
     try {
-      const res = await fetch("/api/org", { headers: getAuthHeaders(session) });
+      const res = await fetch("/api/org?includeVerification=1", { headers: getAuthHeaders(session) });
       const data = await res.json();
       if (data.org) {
         setOrg(data.org);
@@ -258,9 +258,10 @@ export default function WhiteLabelSettings({ session }: Props) {
   }
 
   // ── Org exists: management UI ──
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com";
   const portalUrl = org.custom_domain && org.domain_verified
     ? `https://${org.custom_domain}`
-    : `https://console.deedslice.com/portal/${org.slug}`;
+    : `${appUrl}/portal/${org.slug}`;
 
   return (
     <div className="space-y-6 mt-8">

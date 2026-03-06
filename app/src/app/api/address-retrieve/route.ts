@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { applyRateLimit } from "@/lib/rate-limit";
 
 /**
  * GET /api/address-retrieve?id=mapboxId&session=uuid
@@ -6,6 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
  * Retrieves full structured address from Mapbox after user selects a suggestion.
  */
 export async function GET(req: NextRequest) {
+  // 20 retrieves per IP per minute
+  const blocked = applyRateLimit(req.headers, "address-retrieve", { max: 20, windowSec: 60 });
+  if (blocked) return blocked;
+
   const mapboxId = req.nextUrl.searchParams.get("id");
   const sessionToken = req.nextUrl.searchParams.get("session") || crypto.randomUUID();
 

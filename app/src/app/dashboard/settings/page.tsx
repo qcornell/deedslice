@@ -13,9 +13,14 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabase/client";
 import type { Profile, ApiKey, Webhook } from "@/types/database";
-import WhiteLabelSettings from "@/components/WhiteLabelSettings";
+import dynamic from "next/dynamic";
+const WhiteLabelSettings = dynamic(() => import("@/components/WhiteLabelSettings"), {
+  loading: () => <div className="glass rounded-2xl p-6 mt-8"><div className="h-40 bg-[#E3E8EF] rounded-lg animate-pulse" /></div>,
+});
+const LpAccountManager = dynamic(() => import("@/components/LpAccountManager"), {
+  loading: () => <div className="glass rounded-2xl p-6 mt-6"><div className="h-40 bg-[#E3E8EF] rounded-lg animate-pulse" /></div>,
+});
 
 const PLAN_DETAILS = {
   starter: {
@@ -114,13 +119,11 @@ function SettingsPageInner() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("ds_profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single()
-      .then(({ data }) => {
+    if (!user || !session) return;
+    const h = getAuthHeaders(session);
+    fetch("/api/profile", { headers: h })
+      .then(r => r.json())
+      .then(({ profile: data }) => {
         if (data) {
           setProfile(data as any);
           setProfileFullName((data as any).full_name || "");
@@ -236,15 +239,19 @@ function SettingsPageInner() {
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !session) return;
     setProfileSaving(true);
     setProfileMsg("");
     try {
-      const { error } = await supabase
-        .from("ds_profiles")
-        .update({ full_name: profileFullName || null, company_name: profileCompany || null })
-        .eq("id", user.id);
-      if (error) throw error;
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { ...getAuthHeaders(session), "Content-Type": "application/json" },
+        body: JSON.stringify({ full_name: profileFullName || null, company_name: profileCompany || null }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to save");
+      }
       setProfileMsg("Profile updated");
       setTimeout(() => setProfileMsg(""), 3000);
     } catch (err: any) {
@@ -714,6 +721,9 @@ function SettingsPageInner() {
 
           {/* White-Label */}
           {profile?.plan === "enterprise" && session && <WhiteLabelSettings session={session} />}
+
+          {/* LP Account Management */}
+          {profile?.plan === "enterprise" && session && <LpAccountManager session={session} />}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
+import { applyRateLimitAsync } from "@/lib/rate-limit";
 
 /**
  * POST /api/upload-image
@@ -18,6 +19,10 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const BUCKET = "property-images";
 
 export async function POST(req: NextRequest) {
+  // 10 uploads per IP per 5 minutes
+  const blocked = await applyRateLimitAsync(req.headers, "upload-image", { max: 10, windowSec: 300 });
+  if (blocked) return blocked;
+
   try {
     const token = extractToken(req.headers.get("authorization"));
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -47,13 +52,6 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    // Ensure bucket exists (idempotent — will silently fail if already exists)
-    await supabaseAdmin.storage.createBucket(BUCKET, {
-      public: true,
-      fileSizeLimit: MAX_SIZE,
-      allowedMimeTypes: ALLOWED_TYPES,
-    });
 
     const { data, error: uploadError } = await supabaseAdmin.storage
       .from(BUCKET)

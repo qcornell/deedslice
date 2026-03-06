@@ -165,19 +165,40 @@ export async function POST(req: NextRequest) {
       percentage: 100,
     } as any);
 
-    // Deduct tokenization credit for Operator mainnet deployments
+    // Deduct tokenization credit for Operator mainnet deployments (atomic)
     // Enterprise does NOT deduct — unlimited tokenization included
-    const updatePayload: any = { properties_used: profile.properties_used + 1 };
     if (deployNetwork === "mainnet" && profile.plan === "pro") {
-      const currentCredits = (profile as any).tokenization_credits || 0;
-      if (currentCredits > 0) {
-        updatePayload.tokenization_credits = currentCredits - 1;
+      const { data: remainingCredits, error: decrError } = await supabaseAdmin
+        .rpc("decrement_tokenization_credit", { user_id: user.id });
+
+      if (decrError) {
+        // Fallback if RPC not deployed yet
+        console.warn("Credit decrement RPC failed, using fallback:", decrError);
+        const currentCredits = (profile as any).tokenization_credits || 0;
+        if (currentCredits > 0) {
+          await supabaseAdmin
+            .from("ds_profiles")
+            .update({ tokenization_credits: currentCredits - 1 } as any)
+            .eq("id", user.id);
+        }
+      } else if (remainingCredits === -1) {
+        // This shouldn't happen because we checked above, but guard anyway
+        console.error("Atomic decrement returned -1 (no credits) after pre-check");
       }
     }
-    await supabaseAdmin
-      .from("ds_profiles")
-      .update(updatePayload)
-      .eq("id", user.id);
+
+    // Atomic properties_used increment
+    const { error: incrError } = await supabaseAdmin
+      .rpc("increment_properties_used", { user_id: user.id });
+
+    if (incrError) {
+      // Fallback
+      console.warn("Properties increment RPC failed, using fallback:", incrError);
+      await supabaseAdmin
+        .from("ds_profiles")
+        .update({ properties_used: profile.properties_used + 1 } as any)
+        .eq("id", user.id);
+    }
 
     // Send tokenization confirmation email (fire and forget)
     sendTokenizationEmail(

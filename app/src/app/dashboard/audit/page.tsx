@@ -83,13 +83,25 @@ const ACTION_CONFIG: Record<string, { label: string; color: string; bg: string; 
     bg: "rgba(10,207,131,0.1)",
     icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>,
   },
+  BATCH_DISTRIBUTION_RECORDED: {
+    label: "Distribution Recorded",
+    color: "#0ACF83",
+    bg: "rgba(10,207,131,0.1)",
+    icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+  },
+  BATCH_DISTRIBUTION_PAID: {
+    label: "Distribution Paid",
+    color: "#0ACF83",
+    bg: "rgba(10,207,131,0.1)",
+    icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>,
+  },
 };
 
 const DEFAULT_CONFIG = {
   label: "Event",
   color: "#8792A2",
   bg: "rgba(135,146,162,0.1)",
-  icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" strokeWidth={2} /></svg>,
+  icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
 };
 
 const EVENT_TYPES = [
@@ -100,6 +112,8 @@ const EVENT_TYPES = [
   "TRANSFER_FAILED",
   "DISTRIBUTION_RECORDED",
   "DISTRIBUTION_PAID",
+  "BATCH_DISTRIBUTION_RECORDED",
+  "BATCH_DISTRIBUTION_PAID",
   "DOCUMENT_ADDED",
   "VALUATION_UPDATED",
   "PROPERTY_UPDATED",
@@ -192,12 +206,12 @@ export default function AuditPage() {
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
         <p className="text-[14px]" style={{ color: "#697386" }}>
           Immutable blockchain record of all property transactions
         </p>
         <div
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap self-start sm:self-auto flex-shrink-0"
           style={{ background: "rgba(13,148,136,0.08)", color: "#0D9488" }}
         >
           <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -490,7 +490,7 @@ function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, pr
           </div>
 
           <p className="text-[13px] mb-6" style={{ color: "#8792A2" }}>
-            Share your investor dashboard: <span className="font-mono" style={{ color: "#0ab4aa" }}>console.deedslice.com/view/{propertyId}</span>
+            Share your investor dashboard: <span className="font-mono" style={{ color: "#0ab4aa" }}>{(process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com").replace(/^https?:\/\//, "")}/view/{propertyId}</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

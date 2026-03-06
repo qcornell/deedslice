@@ -62,21 +62,27 @@ export async function POST(req: NextRequest) {
       if (userId && type === "tokenization_credits") {
         const creditCount = parseInt(session.metadata?.credit_count || "1", 10);
 
-        // Read current credits then increment (Supabase doesn't have atomic increment)
-        const { data: currentProfile } = await supabaseAdmin
-          .from("ds_profiles")
-          .select("tokenization_credits")
-          .eq("id", userId)
-          .single();
+        // Atomic increment via Postgres RPC — no race condition
+        const { data: newCredits, error: rpcError } = await supabaseAdmin
+          .rpc("increment_tokenization_credits", { user_id: userId, amount: creditCount });
 
-        const currentCredits = (currentProfile as any)?.tokenization_credits || 0;
-
-        await supabaseAdmin
-          .from("ds_profiles")
-          .update({ tokenization_credits: currentCredits + creditCount } as any)
-          .eq("id", userId);
-
-        console.log(`Added ${creditCount} tokenization credit(s) to user ${userId} (total: ${currentCredits + creditCount})`);
+        if (rpcError) {
+          console.error("Credit increment RPC failed, falling back:", rpcError);
+          // Fallback: read-then-write (only if RPC not deployed yet)
+          const { data: currentProfile } = await supabaseAdmin
+            .from("ds_profiles")
+            .select("tokenization_credits")
+            .eq("id", userId)
+            .single();
+          const currentCredits = (currentProfile as any)?.tokenization_credits || 0;
+          await supabaseAdmin
+            .from("ds_profiles")
+            .update({ tokenization_credits: currentCredits + creditCount } as any)
+            .eq("id", userId);
+          console.log(`Added ${creditCount} credit(s) to user ${userId} (fallback, total: ${currentCredits + creditCount})`);
+        } else {
+          console.log(`Added ${creditCount} tokenization credit(s) to user ${userId} (total: ${newCredits})`);
+        }
       }
       break;
     }

@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     org_name: tenant.org.name,
     logo_url: tenant.branding.logo_url,
+    logo_dark_url: tenant.branding.logo_dark_url,
     favicon_url: tenant.branding.favicon_url,
     primary_color: tenant.branding.primary_color,
     secondary_color: tenant.branding.secondary_color,
@@ -23,5 +24,9 @@ export async function GET(req: NextRequest) {
     portal_title: tenant.branding.portal_title,
     footer_text: tenant.branding.footer_text,
     show_powered_by: tenant.branding.show_powered_by,
+  }, {
+    headers: {
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+    },
   });
 }
