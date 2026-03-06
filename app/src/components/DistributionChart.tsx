@@ -20,9 +20,16 @@ import type { Property } from "@/types/database";
  *  Falls back to sample data when no distributions exist yet.
  * ═══════════════════════════════════════════════════════════════ */
 
+interface Session {
+  access_token: string;
+  refresh_token: string;
+  user: { id: string; [key: string]: any };
+  [key: string]: any;
+}
+
 interface Props {
   properties: Property[];
-  session: { access_token: string; [key: string]: any } | null;
+  session: Session | null;
 }
 
 interface MonthPoint {
