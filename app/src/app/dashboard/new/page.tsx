@@ -32,13 +32,6 @@ export default function NewPropertyPage() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [deployNetwork, setDeployNetwork] = useState<"mainnet" | "testnet">("mainnet");
   const [fetchingValue, setFetchingValue] = useState(false);
-
-  // Set default network based on plan
-  useEffect(() => {
-    if (profile) {
-      setDeployNetwork(profile.plan === "starter" ? "testnet" : "mainnet");
-    }
-  }, [profile]);
   const [valuationSource, setValuationSource] = useState<string | null>(null);
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails>({});
 
@@ -57,6 +50,13 @@ export default function NewPropertyPage() {
     supabase.from("ds_profiles").select("*").eq("id", user.id).single()
       .then(({ data }) => { if (data) setProfile(data as any); });
   }, [user]);
+
+  // Set default network based on plan
+  useEffect(() => {
+    if (profile) {
+      setDeployNetwork(profile.plan === "starter" ? "testnet" : "mainnet");
+    }
+  }, [profile]);
 
   const pricePerSlice = valuationUsd && totalSlices ? Math.round(Number(valuationUsd) / Number(totalSlices)) : 0;
   const credits = (profile as any)?.tokenization_credits || 0;
