@@ -403,7 +403,6 @@ export default function InvestorsPage() {
                     <span className="text-[28px] font-bold leading-none" style={{ color: "#1A1F36" }}>
                       {Math.round(totalPct)}%
                     </span>
-                    <span className="text-[12px] mt-1" style={{ color: "#697386" }}>allocated</span>
                   </div>
                 </div>
 

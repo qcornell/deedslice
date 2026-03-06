@@ -62,6 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ============ DASHBOARD SHOWCASE TABS ============
+  document.querySelectorAll('.showcase-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.showcase-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.showcase-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.getAttribute('data-tab');
+      const panel = document.getElementById('showcase-' + target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
   // ============ DEMO ENGINE ============
   const step1 = document.getElementById('demoStep1');
   const step2 = document.getElementById('demoStep2');

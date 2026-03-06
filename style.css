@@ -329,6 +329,51 @@ input, select { font-family: inherit; }
 }
 .mockup-try-live:hover { background: var(--teal-hover); transform: translateX(-50%) translateY(-2px); box-shadow: 0 6px 20px rgba(13,148,136,0.4); }
 
+/* ===================== FLOATING CARDS (HERO) ===================== */
+@keyframes float-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes float-bob-alt {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+.floating-card {
+  position: absolute; z-index: 4;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 28px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.04);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.floating-card-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--teal-light); color: var(--teal); flex-shrink: 0;
+}
+.floating-card-icon svg { width: 20px; height: 20px; }
+.floating-card-text { display: flex; flex-direction: column; gap: 1px; }
+.floating-card-label { font-size: 0.6875rem; font-weight: 500; color: #697386; letter-spacing: 0.01em; }
+.floating-card-value { font-size: 0.9rem; font-weight: 700; color: #1A1F36; letter-spacing: -0.01em; }
+
+.floating-card-tl {
+  top: 4%; left: -28px;
+  animation: float-bob 3.6s ease-in-out infinite;
+}
+.floating-card-mr {
+  top: 38%; right: -32px;
+  animation: float-bob-alt 3.2s ease-in-out 0.6s infinite;
+}
+.floating-card-bl {
+  bottom: 12%; left: -24px;
+  animation: float-bob 4s ease-in-out 1.2s infinite;
+}
+@media (max-width: 768px) {
+  .floating-card { display: none; }
+}
+
 /* ===================== HEDERA COUNCIL BAR ===================== */
 .council-section {
   background: var(--navy);
@@ -384,6 +429,56 @@ input, select { font-family: inherit; }
 .cl-upper { text-transform: uppercase; font-weight: 600; letter-spacing: 0.06em; font-size: 0.85rem; }
 .cl-lower { text-transform: lowercase; font-style: normal; }
 .cl-g { color: rgba(255,255,255,0.55); } /* Google G highlight */
+
+/* ===================== DASHBOARD SHOWCASE ===================== */
+.showcase-tabs {
+  display: flex; justify-content: center; gap: 6px; margin-bottom: 32px;
+}
+.showcase-tab {
+  padding: 10px 24px; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
+  background: var(--bg); border: 1px solid var(--border);
+  cursor: pointer; transition: all var(--transition);
+}
+.showcase-tab:hover { border-color: var(--teal-border); color: var(--teal); }
+.showcase-tab.active {
+  background: var(--teal); color: var(--white); border-color: var(--teal);
+  box-shadow: 0 2px 8px rgba(13,148,136,0.25);
+}
+.showcase-frame {
+  max-width: 960px; margin: 0 auto;
+  border-radius: var(--radius-lg); overflow: hidden;
+  background: var(--white); border: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
+}
+.showcase-browser-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: var(--bg-light); border-bottom: 1px solid var(--border);
+}
+.showcase-dots { display: flex; gap: 6px; }
+.showcase-dots span { width: 10px; height: 10px; border-radius: 50%; background: #D1D5DB; }
+.showcase-dots span:first-child { background: #FCA5A5; }
+.showcase-dots span:nth-child(2) { background: #FCD34D; }
+.showcase-dots span:last-child { background: #86EFAC; }
+.showcase-url {
+  font-size: 0.72rem; font-weight: 500; color: var(--text-muted); padding: 4px 12px;
+  border-radius: 6px; background: var(--white); border: 1px solid var(--border);
+  letter-spacing: 0.01em;
+}
+.showcase-spacer { width: 60px; }
+.showcase-screen { background: var(--bg-light); }
+.showcase-panel { display: none; }
+.showcase-panel.active { display: block; }
+.showcase-panel img { width: 100%; display: block; }
+.showcase-caption {
+  text-align: center; padding: 16px 20px;
+  font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;
+  background: var(--white); border-top: 1px solid var(--border);
+}
+@media (max-width: 640px) {
+  .showcase-tabs { flex-wrap: wrap; }
+  .showcase-tab { padding: 8px 16px; font-size: 0.8rem; }
+}
 
 /* ===================== CTA CONSOLE BUTTON ===================== */
 .cta-console-btn { text-align: center; margin-top: 8px; }
