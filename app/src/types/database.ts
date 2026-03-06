@@ -54,6 +54,14 @@ export type Database = {
           network: "testnet" | "mainnet";
           filing_due_date: string | null;
           deployed_at: string | null;
+          // Compliance fields (Phase 1)
+          offering_type: "506b" | "506c" | "regs" | "private" | "test";
+          requires_accreditation: boolean;
+          requires_kyc: boolean;
+          transfer_restricted: boolean;
+          issuer_certified: boolean;
+          issuer_certified_at: string | null;
+          issuer_certified_ip: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -77,6 +85,13 @@ export type Database = {
           network?: "testnet" | "mainnet";
           filing_due_date?: string | null;
           deployed_at?: string | null;
+          offering_type?: "506b" | "506c" | "regs" | "private" | "test";
+          requires_accreditation?: boolean;
+          requires_kyc?: boolean;
+          transfer_restricted?: boolean;
+          issuer_certified?: boolean;
+          issuer_certified_at?: string | null;
+          issuer_certified_ip?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -99,6 +114,13 @@ export type Database = {
           kyc_document_path: string | null;
           kyc_reviewed_at: string | null;
           kyc_notes: string | null;
+          // Accreditation fields (Phase 1 Compliance)
+          accreditation_status: "none" | "pending" | "verified" | "rejected" | "expired";
+          accreditation_method: "self_attested" | "document_upload" | "third_party" | "manual_override" | null;
+          accreditation_verified_at: string | null;
+          accreditation_verified_by: string | null;
+          accreditation_expiry: string | null;
+          accreditation_notes: string | null;
           added_at: string;
         };
         Insert: {
@@ -116,6 +138,12 @@ export type Database = {
           kyc_document_path?: string | null;
           kyc_reviewed_at?: string | null;
           kyc_notes?: string | null;
+          accreditation_status?: "none" | "pending" | "verified" | "rejected" | "expired";
+          accreditation_method?: "self_attested" | "document_upload" | "third_party" | "manual_override" | null;
+          accreditation_verified_at?: string | null;
+          accreditation_verified_by?: string | null;
+          accreditation_expiry?: string | null;
+          accreditation_notes?: string | null;
           added_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["ds_investors"]["Row"]>;
@@ -387,6 +415,36 @@ export type OrgBranding = Database["public"]["Tables"]["ds_org_branding"]["Row"]
 export type OrgSettings = Database["public"]["Tables"]["ds_org_settings"]["Row"];
 export type LpAccount = Database["public"]["Tables"]["ds_lp_accounts"]["Row"];
 export type Distribution = Database["public"]["Tables"]["ds_distributions"]["Row"];
+
+export type TokenPermission = {
+  id: string;
+  investor_id: string;
+  property_id: string;
+  token_id: string;
+  wallet_address: string;
+  kyc_status: "pending" | "granted" | "revoked";
+  freeze_status: "frozen" | "unfrozen";
+  accreditation_required: boolean;
+  approved_by: string | null;
+  approved_at: string | null;
+  kyc_grant_tx_id: string | null;
+  kyc_revoke_tx_id: string | null;
+  freeze_tx_id: string | null;
+  unfreeze_tx_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type IssuerCertification = {
+  id: string;
+  property_id: string;
+  user_id: string;
+  certified_at: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  certification_text: string;
+  checkboxes_checked: string[];
+};
 
 export interface AiUsageLog {
   id: string;

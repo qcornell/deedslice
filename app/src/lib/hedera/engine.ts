@@ -21,6 +21,12 @@ import {
   TokenSupplyType,
   TokenMintTransaction,
   TokenAssociateTransaction,
+  TokenGrantKycTransaction,
+  TokenRevokeKycTransaction,
+  TokenFreezeTransaction,
+  TokenUnfreezeTransaction,
+  TokenPauseTransaction,
+  TokenUnpauseTransaction,
   TransferTransaction,
   TopicCreateTransaction,
   TopicMessageSubmitTransaction,
@@ -143,7 +149,9 @@ export async function tokenizeProperty(input: PropertyTokenInput): Promise<Token
       .setTreasuryAccountId(operatorId)
       .setAdminKey(operatorKey.publicKey)
       .setSupplyKey(operatorKey.publicKey)
-      .setTokenMemo(`DeedSlice Master Deed: ${input.name}`);
+      .setTokenMemo(`DeedSlice Master Deed: ${input.name}`)
+      // Compliance keys — NFT deed is non-transferable by default
+      .setFreezeDefault(true);
 
     const nftResponse = await nftTx.execute(client as any);
     const nftReceipt = await nftResponse.getReceipt(client as any);
@@ -188,7 +196,7 @@ export async function tokenizeProperty(input: PropertyTokenInput): Promise<Token
     const mintTxId = mintResponse.transactionId.toString();
     transactions.push({ step: "Mint Master Deed NFT", txId: mintTxId, explorerUrl: getExplorerUrl(mintTxId) });
 
-    // ── Step 3: Create Fungible Share Tokens ─────────────
+    // ── Step 3: Create Fungible Share Tokens (with Compliance Keys) ──
     const shareTx = new TokenCreateTransaction()
       .setTokenName(`${input.name} — Slices`)
       .setTokenSymbol(symbol)
@@ -200,6 +208,15 @@ export async function tokenizeProperty(input: PropertyTokenInput): Promise<Token
       .setTreasuryAccountId(operatorId)
       .setAdminKey(operatorKey.publicKey)
       .setSupplyKey(operatorKey.publicKey)
+      // ── Compliance Keys ──
+      // KYC Key: investor wallets must be KYC-granted before receiving tokens
+      .setKycKey(operatorKey.publicKey)
+      // Freeze Key: allows emergency freeze of individual investor accounts
+      .setFreezeKey(operatorKey.publicKey)
+      // Pause Key: allows emergency pause of ALL token operations
+      .setPauseKey(operatorKey.publicKey)
+      // Freeze default: new associations are FROZEN until explicitly granted KYC
+      .setFreezeDefault(true)
       .setTokenMemo(`DeedSlice Shares: ${input.name} | ${input.totalSlices} slices @ $${Math.round(input.valuationUsd / input.totalSlices)}/slice`);
 
     const shareResponse = await shareTx.execute(client as any);
@@ -428,6 +445,187 @@ export async function transferShares(input: TransferSharesInput): Promise<Transf
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return { ok: false, error: message };
+  }
+}
+
+// ── Compliance: Grant KYC ───────────────────────────────────
+/**
+ * Grant KYC to an investor's wallet for a specific token.
+ * This allows the account to receive/send the token.
+ * Requires the token to have been created with a KYC Key.
+ */
+export async function grantTokenKyc(
+  tokenId: string,
+  accountId: string,
+  network?: "mainnet" | "testnet"
+): Promise<{ ok: boolean; txId?: string; error?: string }> {
+  const net = network || NETWORK;
+  const client = getClient(net);
+
+  try {
+    const tx = new TokenGrantKycTransaction()
+      .setTokenId(tokenId)
+      .setAccountId(AccountId.fromString(accountId));
+
+    const response = await tx.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Grant KYC failed: ${receipt.status}` };
+    }
+
+    return { ok: true, txId: response.transactionId.toString() };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+// ── Compliance: Revoke KYC ──────────────────────────────────
+/**
+ * Revoke KYC from an investor's wallet for a specific token.
+ * This prevents the account from receiving/sending the token.
+ */
+export async function revokeTokenKyc(
+  tokenId: string,
+  accountId: string,
+  network?: "mainnet" | "testnet"
+): Promise<{ ok: boolean; txId?: string; error?: string }> {
+  const net = network || NETWORK;
+  const client = getClient(net);
+
+  try {
+    const tx = new TokenRevokeKycTransaction()
+      .setTokenId(tokenId)
+      .setAccountId(AccountId.fromString(accountId));
+
+    const response = await tx.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Revoke KYC failed: ${receipt.status}` };
+    }
+
+    return { ok: true, txId: response.transactionId.toString() };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+// ── Compliance: Freeze Account ──────────────────────────────
+/**
+ * Freeze an investor's account for a specific token.
+ * The account cannot send or receive the token while frozen.
+ */
+export async function freezeTokenAccount(
+  tokenId: string,
+  accountId: string,
+  network?: "mainnet" | "testnet"
+): Promise<{ ok: boolean; txId?: string; error?: string }> {
+  const net = network || NETWORK;
+  const client = getClient(net);
+
+  try {
+    const tx = new TokenFreezeTransaction()
+      .setTokenId(tokenId)
+      .setAccountId(AccountId.fromString(accountId));
+
+    const response = await tx.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Freeze failed: ${receipt.status}` };
+    }
+
+    return { ok: true, txId: response.transactionId.toString() };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+// ── Compliance: Unfreeze Account ────────────────────────────
+/**
+ * Unfreeze an investor's account for a specific token.
+ */
+export async function unfreezeTokenAccount(
+  tokenId: string,
+  accountId: string,
+  network?: "mainnet" | "testnet"
+): Promise<{ ok: boolean; txId?: string; error?: string }> {
+  const net = network || NETWORK;
+  const client = getClient(net);
+
+  try {
+    const tx = new TokenUnfreezeTransaction()
+      .setTokenId(tokenId)
+      .setAccountId(AccountId.fromString(accountId));
+
+    const response = await tx.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Unfreeze failed: ${receipt.status}` };
+    }
+
+    return { ok: true, txId: response.transactionId.toString() };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+// ── Compliance: Pause Token (Emergency) ─────────────────────
+/**
+ * Emergency pause ALL operations on a token.
+ * No transfers, mints, or burns can occur while paused.
+ */
+export async function pauseToken(
+  tokenId: string,
+  network?: "mainnet" | "testnet"
+): Promise<{ ok: boolean; txId?: string; error?: string }> {
+  const net = network || NETWORK;
+  const client = getClient(net);
+
+  try {
+    const tx = new TokenPauseTransaction()
+      .setTokenId(tokenId);
+
+    const response = await tx.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Pause failed: ${receipt.status}` };
+    }
+
+    return { ok: true, txId: response.transactionId.toString() };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+// ── Compliance: Unpause Token ───────────────────────────────
+/**
+ * Resume ALL operations on a previously paused token.
+ */
+export async function unpauseToken(
+  tokenId: string,
+  network?: "mainnet" | "testnet"
+): Promise<{ ok: boolean; txId?: string; error?: string }> {
+  const net = network || NETWORK;
+  const client = getClient(net);
+
+  try {
+    const tx = new TokenUnpauseTransaction()
+      .setTokenId(tokenId);
+
+    const response = await tx.execute(client as any);
+    const receipt = await response.getReceipt(client as any);
+
+    if (receipt.status !== Status.Success) {
+      return { ok: false, error: `Unpause failed: ${receipt.status}` };
+    }
+
+    return { ok: true, txId: response.transactionId.toString() };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
 

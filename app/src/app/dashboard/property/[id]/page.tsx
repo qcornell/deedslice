@@ -6,6 +6,8 @@ import ImageUpload from "@/components/ImageUpload";
 import DocumentVault from "@/components/DocumentVault";
 import DistributionManager from "@/components/DistributionManager";
 import InvestorUpdate from "@/components/InvestorUpdate";
+import InvestorProtectionPanel from "@/components/InvestorProtectionPanel";
+import IssuerCertificationModal from "@/components/IssuerCertificationModal";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
@@ -36,6 +38,9 @@ export default function PropertyDetailPage() {
   // Transfer state
   const [transferring, setTransferring] = useState<string | null>(null);
   const [transferMsg, setTransferMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Compliance state
+  const [showCertModal, setShowCertModal] = useState(false);
 
   // Edit mode state
   const [editing, setEditing] = useState(false);
@@ -269,6 +274,63 @@ export default function PropertyDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Investor Protection Panel */}
+      <div className="mb-8">
+        <InvestorProtectionPanel property={property as any} />
+      </div>
+
+      {/* Compliance Certification Banner */}
+      {property.status === "live" && !(property as any).issuer_certified && (
+        <div
+          className="rounded-xl p-4 mb-8 flex items-center justify-between"
+          style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.15)" }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-[20px]">⚠️</span>
+            <div>
+              <div className="text-[14px] font-semibold" style={{ color: "#DC2626" }}>
+                Compliance Certification Required
+              </div>
+              <p className="text-[12px]" style={{ color: "#92400E" }}>
+                You must certify your compliance responsibilities before transferring tokens to investors.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCertModal(true)}
+            className="text-white font-medium px-4 py-2 rounded-lg text-[13px] transition-all hover:shadow-md flex-shrink-0"
+            style={{ background: "#DC2626" }}
+          >
+            Certify Now
+          </button>
+        </div>
+      )}
+
+      {/* Certification Modal */}
+      {showCertModal && session && (
+        <IssuerCertificationModal
+          propertyId={id}
+          propertyName={property.name}
+          session={session}
+          onCertified={(result) => {
+            setShowCertModal(false);
+            setProperty((p) => p ? {
+              ...p,
+              offering_type: result.offeringType as any,
+              requires_accreditation: result.requiresAccreditation,
+              requires_kyc: result.requiresKyc,
+              issuer_certified: true,
+              issuer_certified_at: new Date().toISOString(),
+            } as any : p);
+            // Refresh audit entries
+            fetch(`/api/properties/${id}`, { headers: getAuthHeaders(session) })
+              .then((r) => r.json())
+              .then((d) => setAuditEntries(d.auditEntries || []));
+          }}
+          onCancel={() => setShowCertModal(false)}
+        />
       )}
 
       {/* On-chain Assets Grid */}

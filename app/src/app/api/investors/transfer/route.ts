@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
-import { transferShares, logAuditEntry, formatTxUrlSafe } from "@/lib/hedera/engine";
+import { transferShares, grantTokenKyc, logAuditEntry, formatTxUrlSafe } from "@/lib/hedera/engine";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { fireWebhooks } from "@/lib/webhooks";
 import type { Property, Investor } from "@/types/database";
@@ -87,11 +87,109 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Invalid Hedera account ID format: ${investor.wallet_address}. Expected format: 0.0.XXXXX` }, { status: 400 });
     }
 
+    // ── COMPLIANCE GATE ─────────────────────────────────────
+    // Enforce KYC + accreditation requirements before any transfer.
+
+    // Check 1: Issuer must have certified compliance
+    if (!property.issuer_certified) {
+      return NextResponse.json({
+        error: "Issuer has not certified compliance for this property. Go to property settings and complete the Issuer Certification before transferring tokens.",
+      }, { status: 403 });
+    }
+
+    // Check 2: KYC must be verified (if required by offering type)
+    const requiresKyc = (property as any).requires_kyc !== false; // default true
+    if (requiresKyc && investor.kyc_status !== "verified") {
+      return NextResponse.json({
+        error: `Investor ${investor.name} has not passed KYC verification. Current status: ${investor.kyc_status}. Verify their identity before transferring tokens.`,
+      }, { status: 403 });
+    }
+
+    // Check 3: Accreditation must be verified (if required by offering type)
+    const requiresAccreditation = (property as any).requires_accreditation === true;
+    if (requiresAccreditation) {
+      const accStatus = (investor as any).accreditation_status || "none";
+      if (accStatus !== "verified") {
+        return NextResponse.json({
+          error: `This is a ${(property as any).offering_type || "506c"} offering requiring accredited investors. ${investor.name}'s accreditation status: ${accStatus}. Verify accreditation before transferring tokens.`,
+        }, { status: 403 });
+      }
+
+      // Check accreditation expiry
+      const accExpiry = (investor as any).accreditation_expiry;
+      if (accExpiry && new Date(accExpiry) < new Date()) {
+        return NextResponse.json({
+          error: `${investor.name}'s accreditation has expired (${new Date(accExpiry).toLocaleDateString()}). Re-verify before transferring tokens.`,
+        }, { status: 403 });
+      }
+    }
+    // ── END COMPLIANCE GATE ─────────────────────────────────
+
     // Mark as pending
     await supabaseAdmin
       .from("ds_investors")
       .update({ transfer_status: "pending" } as any)
       .eq("id", investorId);
+
+    // ── Grant on-chain KYC before transfer ─────────────────
+    // Tokens are created with freezeDefault=true and KYC Key enabled.
+    // We must grant KYC to the investor's wallet before they can receive tokens.
+    if (property.share_token_id && investor.wallet_address) {
+      const kycResult = await grantTokenKyc(
+        property.share_token_id,
+        investor.wallet_address,
+        property.network as "mainnet" | "testnet"
+      );
+
+      if (!kycResult.ok) {
+        // KYC already granted is fine (e.g., re-transfer attempt)
+        const isAlreadyGranted = kycResult.error?.includes("TOKEN_HAS_NO_KYC_KEY") ||
+          kycResult.error?.includes("ACCOUNT_KYC_ALREADY_GRANTED");
+        if (!isAlreadyGranted) {
+          // Log the grant failure
+          await supabaseAdmin.from("ds_audit_entries").insert({
+            property_id: property.id,
+            action: "KYC_GRANT_FAILED",
+            details: `Failed to grant on-chain KYC for ${investor.name} (${investor.wallet_address}): ${kycResult.error}`,
+          } as any);
+
+          return NextResponse.json({
+            ok: false,
+            error: `Failed to grant on-chain KYC for wallet ${investor.wallet_address}. The token requires KYC approval before transfers.`,
+          }, { status: 400 });
+        }
+      } else {
+        // Log successful KYC grant
+        await supabaseAdmin.from("ds_audit_entries").insert({
+          property_id: property.id,
+          action: "KYC_GRANTED",
+          details: `On-chain KYC granted for ${investor.name} (${investor.wallet_address})`,
+          tx_id: kycResult.txId || null,
+        } as any);
+
+        // Log to HCS
+        if (property.audit_topic_id) {
+          await logAuditEntry(property.audit_topic_id, "KYC_GRANTED", {
+            investor: investor.name,
+            wallet: investor.wallet_address,
+            shareToken: property.share_token_id,
+            txId: kycResult.txId,
+          }, property.network as "mainnet" | "testnet").catch(() => {});
+        }
+
+        // Update token permissions table (if it exists)
+        await supabaseAdmin.from("ds_token_permissions").upsert({
+          investor_id: investor.id,
+          property_id: property.id,
+          token_id: property.share_token_id,
+          wallet_address: investor.wallet_address,
+          kyc_status: "granted",
+          approved_by: user.id,
+          approved_at: new Date().toISOString(),
+          kyc_grant_tx_id: kycResult.txId,
+        } as any, { onConflict: "investor_id,token_id" }).catch(() => {});
+      }
+    }
 
     // Execute the transfer
     const result = await transferShares({

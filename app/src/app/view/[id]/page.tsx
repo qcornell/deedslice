@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { HASHSCAN_BASE, HEDERA_NETWORK } from "@/lib/hedera/config";
+import InvestorProtectionPanel from "@/components/InvestorProtectionPanel";
 import type { Property, Investor, AuditEntry } from "@/types/database";
 
 /**
@@ -121,6 +122,11 @@ export default function InvestorViewPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Investor Protection Panel */}
+        <div className="mb-6">
+          <InvestorProtectionPanel property={property as any} />
         </div>
 
         {/* On-chain verification */}
