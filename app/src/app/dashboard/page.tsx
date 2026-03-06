@@ -23,26 +23,44 @@ export default function DashboardPage() {
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load all dashboard data in a single request
+  // Load dashboard data — try summary endpoint, fall back to original pattern
   useEffect(() => {
     if (!session) return;
     const h = getAuthHeaders(session);
+
     fetch("/api/dashboard/summary", { headers: h })
       .then(r => {
-        if (!r.ok) throw new Error("Failed to load");
+        if (!r.ok) throw new Error("summary failed");
         return r.json();
       })
       .then(data => {
-        if (data.error) {
-          console.error("Dashboard summary error:", data.error);
-        } else {
-          setProperties(data.properties || []);
-          setInvestors(data.investors || []);
-          setAuditEntries(data.auditEntries || []);
-        }
+        if (data.error) throw new Error(data.error);
+        setProperties(data.properties || []);
+        setInvestors(data.investors || []);
+        setAuditEntries(data.auditEntries || []);
       })
-      .catch((err) => {
-        console.error("Dashboard fetch error:", err);
+      .catch(() => {
+        // Fallback: original pattern (properties + audit separately)
+        Promise.all([
+          fetch("/api/properties", { headers: h }).then(r => r.json()),
+          fetch("/api/audit/all", { headers: h }).then(r => r.json()).catch(() => ({ auditEntries: [] })),
+        ]).then(([propData, auditData]) => {
+          const props = propData.properties || [];
+          setProperties(props);
+          setAuditEntries((auditData.auditEntries || []).slice(0, 5));
+
+          const liveProps = props.filter((p: Property) => p.status === "live");
+          if (liveProps.length > 0) {
+            Promise.all(
+              liveProps.map((p: Property) =>
+                fetch(`/api/properties/${p.id}`, { headers: h })
+                  .then(r => r.json())
+                  .then(d => (d.investors || []).map((inv: Investor) => ({ ...inv, _propertyName: p.name })))
+                  .catch(() => [])
+              )
+            ).then(results => setInvestors(results.flat()));
+          }
+        }).catch(() => {});
       })
       .finally(() => setLoading(false));
   }, [session]);
@@ -86,6 +104,10 @@ export default function DashboardPage() {
   };
   const defaultActivity = { icon: "•", bgClass: "bg-[rgba(135,146,162,0.1)]", colorClass: "text-[#8792A2]" };
 
+  // Auto-seed demo data for new users with empty dashboards
+  const [seeding, setSeeding] = useState(false);
+  const [demoSeeded, setDemoSeeded] = useState(false);
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -93,10 +115,6 @@ export default function DashboardPage() {
       </div>
     );
   }
-
-  // Auto-seed demo data for new users with empty dashboards
-  const [seeding, setSeeding] = useState(false);
-  const [demoSeeded, setDemoSeeded] = useState(false);
 
   async function seedDemo() {
     if (!session || seeding) return;

@@ -365,7 +365,7 @@ function SettingsPageInner() {
                   style={{
                     background:
                       currentPlan === "enterprise"
-                        ? "rgba(223,27,65,0.1)"
+                        ? "rgba(26,31,54,0.08)"
                         : currentPlan === "pro"
                           ? "rgba(13,148,136,0.1)"
                           : "rgba(135,146,162,0.15)",

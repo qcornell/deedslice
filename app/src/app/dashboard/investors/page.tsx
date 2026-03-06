@@ -46,41 +46,40 @@ function DonutChart({ slices, colors }: { slices: { label: string; value: number
   const strokeWidth = 28;
   const circumference = 2 * Math.PI * radius;
 
+  const [animated, setAnimated] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setAnimated(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   let offset = 0;
-  const segments = slices.map((sl, i) => {
+  const segmentData = slices.map((sl, i) => {
     const pct = sl.value / total;
     const dashLength = pct * circumference;
     const dashOffset = -offset;
     offset += dashLength;
-    return (
-      <circle
-        key={i}
-        cx={cx}
-        cy={cy}
-        r={radius}
-        fill="none"
-        stroke={colors[i % colors.length]}
-        strokeWidth={strokeWidth}
-        strokeDasharray={`${dashLength} ${circumference - dashLength}`}
-        strokeDashoffset={dashOffset}
-        style={{ transition: "stroke-dasharray 0.6s ease, stroke-dashoffset 0.6s ease" }}
-      />
-    );
+    return { dashLength, dashOffset, color: colors[i % colors.length], delay: i * 100 };
   });
-
-  // Remaining unallocated
-  const allocated = slices.reduce((s, sl) => s + sl.value, 0);
-  if (allocated < 100) {
-    const remaining = 100 - allocated;
-    const pct = remaining / total * (total / 100); // normalize
-    // Actually let's compute from percentage
-  }
 
   return (
     <svg viewBox="0 0 180 180" className="w-full h-full" style={{ transform: "rotate(-90deg)" }}>
-      {/* Background ring */}
       <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#E3E8EF" strokeWidth={strokeWidth} />
-      {segments}
+      {segmentData.map((seg, i) => (
+        <circle
+          key={i}
+          cx={cx}
+          cy={cy}
+          r={radius}
+          fill="none"
+          stroke={seg.color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={animated ? `${seg.dashLength} ${circumference - seg.dashLength}` : `0 ${circumference}`}
+          strokeDashoffset={animated ? seg.dashOffset : 0}
+          style={{
+            transition: `stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${seg.delay}ms, stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${seg.delay}ms`,
+          }}
+        />
+      ))}
     </svg>
   );
 }
