@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
       company_name: companyName || null,
       plan: "starter",
       properties_used: 0,
-      properties_limit: 1,
+      properties_limit: 999,
+      tokenization_credits: 0,
     } as any);
 
     const { data: signIn } = await (supabaseAuth as any).auth.signInWithPassword({ email, password });

@@ -74,9 +74,9 @@ export async function sendWelcomeEmail(to: string, name?: string) {
   const greeting = name ? `Welcome, ${name}!` : "Welcome to DeedSlice!";
   const html = layout("Welcome to DeedSlice 🎉", `
     ${p(`${greeting} You're all set to start tokenizing real estate on Hedera.`)}
-    ${p("Your <strong>Starter plan</strong> includes:")}
+    ${p("Your <strong>Sandbox</strong> account includes:")}
     <ul style="margin:0 0 14px;padding-left:20px;font-size:14px;line-height:2;color:${TEXT};">
-      <li>1 free property tokenization (testnet sandbox)</li>
+      <li>Unlimited testnet tokenizations</li>
       <li>NFT master deed + fractional share tokens</li>
       <li>Tamper-proof HCS audit trail</li>
       <li>Shareable investor dashboard</li>
@@ -84,7 +84,7 @@ export async function sendWelcomeEmail(to: string, name?: string) {
     ${p("Try tokenizing a property in the sandbox — it's free and takes about 10 seconds.")}
     ${button("Launch Console →", `${APP_URL()}/dashboard`)}
     ${divider()}
-    ${muted("Ready for mainnet? Upgrade to <strong>Pro ($99.99/mo)</strong> for up to 5 live properties, document vault, and investor management.")}
+    ${muted("Ready for mainnet? Upgrade to <strong>Operator ($299/mo)</strong> for full platform access, investor management, and document vault.")}
   `);
 
   return getResend().emails.send({
@@ -170,12 +170,12 @@ export async function sendInvestorAddedEmail(
 
 /** Plan upgraded */
 export async function sendUpgradeEmail(to: string, plan: string) {
-  const planName = plan === "pro" ? "Pro" : plan === "enterprise" ? "Enterprise" : plan;
+  const planName = plan === "pro" ? "Operator" : plan === "enterprise" ? "Enterprise" : plan;
   const html = layout(`Welcome to ${planName}! 🚀`, `
     ${p(`Your DeedSlice account has been upgraded to <strong>${planName}</strong>.`)}
     ${p(plan === "pro"
-      ? "You now have access to <strong>5 mainnet properties</strong>, document vault with SHA-256 verification, and full investor management."
-      : "You now have <strong>unlimited properties</strong>, REST API access, webhooks, priority support, and custom integrations. White-label dashboard is coming Q2."
+      ? "You now have full platform access on mainnet — investor dashboard, document vault, KYC & compliance tools, and token transfers. Purchase tokenization credits to deploy properties."
+      : "You now have <strong>unlimited tokenization</strong>, white-label investor portal, REST API access, webhooks, priority support, and custom integrations."
     )}
     ${button("Start Tokenizing →", `${APP_URL()}/dashboard/new`)}
     ${divider()}

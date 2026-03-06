@@ -30,7 +30,15 @@ export default function NewPropertyPage() {
   const [totalSlices, setTotalSlices] = useState("1000");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [deployNetwork, setDeployNetwork] = useState<"mainnet" | "testnet">("mainnet");
   const [fetchingValue, setFetchingValue] = useState(false);
+
+  // Set default network based on plan
+  useEffect(() => {
+    if (profile) {
+      setDeployNetwork(profile.plan === "starter" ? "testnet" : "mainnet");
+    }
+  }, [profile]);
   const [valuationSource, setValuationSource] = useState<string | null>(null);
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails>({});
 
@@ -51,22 +59,34 @@ export default function NewPropertyPage() {
   }, [user]);
 
   const pricePerSlice = valuationUsd && totalSlices ? Math.round(Number(valuationUsd) / Number(totalSlices)) : 0;
-  const needsTokenizationFee = profile ? profile.plan === "pro" && profile.properties_used >= 1 : false;
+  const credits = (profile as any)?.tokenization_credits || 0;
+  const isMainnet = deployNetwork === "mainnet";
+  const needsTokenizationFee = profile ? profile.plan === "pro" && isMainnet && credits < 1 : false;
 
-  async function handlePayAndDeploy() {
+  async function handlePayAndDeploy(pack?: "5pack") {
     if (!session) return;
     setPaymentPending(true); setError("");
     try {
       const res = await fetch("/api/stripe/tokenize-checkout", {
         method: "POST", headers: getAuthHeaders(session),
-        body: JSON.stringify({ propertyName: name, returnData: { name, address, propertyType, valuationUsd: Number(valuationUsd), totalSlices: Number(totalSlices), description, imageUrl } }),
+        body: JSON.stringify({ propertyName: name, pack: pack || "single" }),
       });
       const data = await res.json();
+      if (data.free) {
+        // Has credits or is free tier — just deploy directly
+        const form = document.getElementById("tokenize-form") as HTMLFormElement;
+        if (form) form.requestSubmit();
+        return;
+      }
       if (data.url) {
         sessionStorage.setItem("ds_pending_tokenize", JSON.stringify({ name, address, propertyType, valuationUsd, totalSlices, description, imageUrl }));
         window.location.href = data.url;
       } else { setError(data.error || "Failed to create payment"); }
     } catch (err: any) { setError(err.message || "Network error"); } finally { setPaymentPending(false); }
+  }
+
+  function handleBuyPack() {
+    handlePayAndDeploy("5pack");
   }
 
   useEffect(() => {
@@ -93,7 +113,7 @@ export default function NewPropertyPage() {
     try {
       const res = await fetch("/api/tokenize", {
         method: "POST", headers: getAuthHeaders(session),
-        body: JSON.stringify({ name, address, propertyType, valuationUsd: Number(valuationUsd), totalSlices: Number(totalSlices), description, imageUrl }),
+        body: JSON.stringify({ name, address, propertyType, valuationUsd: Number(valuationUsd), totalSlices: Number(totalSlices), description, imageUrl, network: deployNetwork }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Tokenization failed"); if (data.transactions) setTransactions(data.transactions); return; }
@@ -214,18 +234,43 @@ export default function NewPropertyPage() {
             <ImageUpload session={session} currentUrl={imageUrl} onUploaded={url => setImageUrl(url)} />
           </div>
 
-          {/* Network indicator */}
+          {/* Network selector */}
           <div className="rounded-lg p-4 border" style={{
-            background: HEDERA_NETWORK === "mainnet" ? "rgba(10,207,131,0.05)" : "rgba(255,165,0,0.05)",
-            borderColor: HEDERA_NETWORK === "mainnet" ? "rgba(10,207,131,0.2)" : "rgba(255,165,0,0.2)",
+            background: deployNetwork === "mainnet" ? "rgba(10,207,131,0.05)" : "rgba(255,165,0,0.05)",
+            borderColor: deployNetwork === "mainnet" ? "rgba(10,207,131,0.2)" : "rgba(255,165,0,0.2)",
           }}>
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`w-2 h-2 rounded-full ${HEDERA_NETWORK === "mainnet" ? "bg-[#0ACF83]" : "bg-yellow-400"}`} />
-              <span className="text-[13px]" style={{ color: "#1A1F36", fontWeight: 500 }}>Deploying to Hedera {HEDERA_NETWORK === "mainnet" ? "Mainnet" : "Testnet"}</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`w-2 h-2 rounded-full ${deployNetwork === "mainnet" ? "bg-[#0ACF83]" : "bg-yellow-400"}`} />
+                  <span className="text-[13px]" style={{ color: "#1A1F36", fontWeight: 500 }}>
+                    Deploying to Hedera {deployNetwork === "mainnet" ? "Mainnet" : "Testnet"}
+                  </span>
+                </div>
+                <p className="text-[12px] ml-4" style={{ color: "#8792A2" }}>
+                  {deployNetwork === "mainnet"
+                    ? "Live blockchain — tokens are real and permanent."
+                    : profile?.plan === "starter"
+                      ? "Sandbox mode — free to experiment. Upgrade to Operator for mainnet."
+                      : "Sandbox mode — test before going live. No real tokens created."}
+                </p>
+              </div>
+
+              {/* Toggle — only for Pro/Enterprise */}
+              {profile && profile.plan !== "starter" && (
+                <button
+                  type="button"
+                  onClick={() => setDeployNetwork(n => n === "mainnet" ? "testnet" : "mainnet")}
+                  className="flex-shrink-0 ml-4 relative inline-flex h-7 w-[52px] items-center rounded-full transition-colors duration-200"
+                  style={{ background: deployNetwork === "mainnet" ? "#0ACF83" : "#F59E0B" }}
+                >
+                  <span
+                    className="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200"
+                    style={{ transform: deployNetwork === "mainnet" ? "translateX(26px)" : "translateX(4px)" }}
+                  />
+                </button>
+              )}
             </div>
-            <p className="text-[12px] ml-4" style={{ color: "#8792A2" }}>
-              {HEDERA_NETWORK === "mainnet" ? "Live blockchain — tokens are real and permanent." : "Sandbox mode — free to experiment. Upgrade to Pro for mainnet."}
-            </p>
           </div>
 
           {/* Deployment Preview */}
@@ -260,29 +305,45 @@ export default function NewPropertyPage() {
                 </div>
                 <span style={{ color: "#0ACF83" }}>~$0.01</span>
               </div>
+              {isMainnet && profile?.plan === "pro" && credits > 0 && (
+                <div className="flex justify-between pt-3 border-t" style={{ borderColor: "#E3E8EF" }}>
+                  <div className="flex items-center gap-2" style={{ color: "#697386" }}>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    Tokenization Credit
+                  </div>
+                  <span style={{ color: "#0ACF83", fontWeight: 600 }}>1 of {credits} credits</span>
+                </div>
+              )}
               {needsTokenizationFee && (
                 <div className="flex justify-between pt-3 border-t" style={{ borderColor: "#E3E8EF" }}>
                   <div className="flex items-center gap-2" style={{ color: "#697386" }}>
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                    Tokenization Fee
+                    Tokenization Credit Required
                   </div>
-                  <span style={{ color: "#1A1F36", fontWeight: 600 }}>$199.99</span>
+                  <span style={{ color: "#DF1B41", fontWeight: 600 }}>$1,499</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Tokenization fee notice */}
+          {/* Tokenization credit notice */}
           {needsTokenizationFee && (
             <div className="rounded-lg p-4 border" style={{ background: "rgba(255,165,0,0.05)", borderColor: "rgba(255,165,0,0.2)" }}>
               <div className="flex items-center gap-2 mb-1">
                 <svg width="16" height="16" fill="none" stroke="#D97706" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                <span className="text-[13px]" style={{ color: "#D97706", fontWeight: 600 }}>Tokenization Fee — $199.99</span>
+                <span className="text-[13px]" style={{ color: "#D97706", fontWeight: 600 }}>Tokenization Credit Required</span>
               </div>
               <p className="text-[13px] ml-6" style={{ color: "#697386" }}>
-                Pro plan includes 1 free tokenization. Additional properties are $199.99 each.
-                {profile?.plan === "pro" && " Upgrade to Enterprise for unlimited tokenizations."}
+                You need a tokenization credit to deploy on mainnet. Purchase below or save with the 5-pack.
               </p>
+              <div className="flex gap-3 ml-6 mt-3">
+                <button type="button" onClick={() => handlePayAndDeploy()} className="px-4 py-2 rounded-lg text-white text-[13px] font-medium transition-all hover:shadow-md" style={{ background: "#0ab4aa" }}>
+                  Buy 1 Credit — $1,499
+                </button>
+                <button type="button" onClick={() => { handleBuyPack(); }} className="px-4 py-2 rounded-lg text-[13px] font-medium border transition-all hover:bg-[#F6F9FC]" style={{ borderColor: "#0D9488", color: "#0D9488" }}>
+                  Buy 5 Credits — $4,999 <span className="text-[11px] opacity-70">(save $2,496)</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -329,7 +390,7 @@ export default function NewPropertyPage() {
               onMouseLeave={e => { e.currentTarget.style.background = "#0ab4aa"; }}
             >
               {deploying ? "Deploying to Hedera..." : paymentPending ? "Redirecting to payment..." : needsTokenizationFee ? (
-                <><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>Pay $199.99 &amp; Deploy</>
+                <><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>Purchase Credit to Deploy</>
               ) : (
                 <><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>Deploy to Hedera</>
               )}
@@ -338,7 +399,7 @@ export default function NewPropertyPage() {
 
           <p className="text-center text-[12px]" style={{ color: "#8792A2" }}>
             5 on-chain transactions · ~$0.01 Hedera fees · results in ~10 seconds
-            {needsTokenizationFee && " · +$199.99 tokenization fee"}
+            {isMainnet && profile?.plan === "pro" && credits > 0 && ` · using 1 of ${credits} credits`}
           </p>
           <p className="text-center text-[11px]" style={{ color: "#8792A2", opacity: 0.6 }}>
             By deploying, you agree to our <a href="/terms" target="_blank" className="hover:underline" style={{ color: "#0ab4aa" }}>Terms of Service</a>.

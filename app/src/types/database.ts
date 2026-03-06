@@ -14,6 +14,7 @@ export type Database = {
           stripe_subscription_id: string | null;
           properties_used: number;
           properties_limit: number;
+          tokenization_credits: number;
           created_at: string;
           updated_at: string;
         };
@@ -27,6 +28,7 @@ export type Database = {
           stripe_subscription_id?: string | null;
           properties_used?: number;
           properties_limit?: number;
+          tokenization_credits?: number;
           created_at?: string;
           updated_at?: string;
         };

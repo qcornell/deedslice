@@ -153,7 +153,7 @@ export default function LoginPage() {
           {mode === "signup" && (
             <>
               <p className="text-center text-xs text-ds-muted">
-                Free Starter plan — 1 property, no credit card required.
+                Free Sandbox — testnet access, no credit card required.
               </p>
               <p className="text-center text-[10px] text-ds-muted/60">
                 By creating an account, you agree to our{" "}

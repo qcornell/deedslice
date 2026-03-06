@@ -8,12 +8,19 @@ import type { Profile } from "@/types/database";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-12-18.acacia" as any });
 
 /**
- * Use existing Stripe Price IDs (created in Stripe Dashboard).
- * Pro: $99.99/mo  |  Enterprise: $499.99/mo
+ * Stripe Price IDs (set in Stripe Dashboard, wired via env vars).
+ * Operator: $299/mo (subscription)
+ * Enterprise: $50,000/yr (subscription)
  */
 const PLANS: Record<string, { priceId: string; propertiesLimit: number }> = {
-  pro: { priceId: "price_1T6YXyCmXrnPCTDOn3yBZPOG", propertiesLimit: 5 },
-  enterprise: { priceId: "price_1T6YcBCmXrnPCTDOEAnT0uVU", propertiesLimit: 999 },
+  pro: {
+    priceId: process.env.STRIPE_PRICE_OPERATOR || "price_1T7wDbCmXrnPCTDO45KHdLit",
+    propertiesLimit: 999,
+  },
+  enterprise: {
+    priceId: process.env.STRIPE_PRICE_ENTERPRISE || "price_1T7wGKCmXrnPCTDOmeRoq84J",
+    propertiesLimit: 999,
+  },
 };
 
 export async function POST(req: NextRequest) {
@@ -51,6 +58,7 @@ export async function POST(req: NextRequest) {
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com";
 
+    // Both Operator and Enterprise are subscription mode
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",

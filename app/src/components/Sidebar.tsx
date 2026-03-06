@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { HEDERA_NETWORK } from "@/lib/hedera/config";
 
 /* ── SVG icon components (Heroicons outline, 20×20) ─────────── */
 const icons: Record<string, React.ReactNode> = {
@@ -61,7 +60,6 @@ interface Props {
 
 export default function Sidebar({ mobileOpen, onClose }: Props) {
   const pathname = usePathname();
-  const isMainnet = HEDERA_NETWORK === "mainnet";
 
   return (
     <>
@@ -123,16 +121,8 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
           })}
         </nav>
 
-        {/* Network indicator */}
-        <div className="p-3 border-t border-white/[0.06]">
-          <div
-            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-[13px] text-white/50"
-            style={{ background: "rgba(255,255,255,0.03)", fontWeight: 400 }}
-          >
-            <div className={`w-2 h-2 rounded-full ${isMainnet ? "bg-[#0ACF83]" : "bg-yellow-400"}`} />
-            <span>{isMainnet ? "Hedera Mainnet" : "Hedera Testnet"}</span>
-          </div>
-        </div>
+        {/* Bottom spacer */}
+        <div className="p-3" />
       </aside>
     </>
   );

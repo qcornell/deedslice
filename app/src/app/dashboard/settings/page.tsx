@@ -19,25 +19,25 @@ import WhiteLabelSettings from "@/components/WhiteLabelSettings";
 
 const PLAN_DETAILS = {
   starter: {
-    name: "Starter",
+    name: "Sandbox",
     price: "Free",
     color: "#8792A2",
-    properties: "1 property",
-    features: ["1 property (testnet sandbox)", "NFT deed + share tokens", "Basic dashboard", "HCS audit log", "Try before you buy"],
+    properties: "Testnet only",
+    features: ["Testnet sandbox", "NFT deed + share tokens", "Basic dashboard", "HCS audit log", "Try before you buy"],
   },
   pro: {
-    name: "Pro",
-    price: "$99.99/mo",
+    name: "Operator",
+    price: "$299/mo",
     color: "#0D9488",
-    properties: "5 properties",
-    features: ["5 properties (mainnet)", "Full investor dashboard", "Document vault (SHA-256 → HCS)", "Investor management", "Token transfers to wallets", "Email support", "+$199 per additional tokenization"],
+    properties: "Unlimited properties",
+    features: ["Full platform access", "Mainnet deployment", "Investor dashboard", "Document vault (SHA-256 → HCS)", "Investor management", "Token transfers to wallets", "KYC & compliance tools", "Email support"],
   },
   enterprise: {
     name: "Enterprise",
-    price: "$499.99/mo",
+    price: "$50,000/yr",
     color: "#DF1B41",
     properties: "Unlimited",
-    features: ["Unlimited properties", "REST API access", "Priority support", "Custom integrations", "Webhooks", "White-label investor portal"],
+    features: ["Everything in Operator", "Unlimited tokenization included", "White-label investor portal", "REST API access", "Webhooks & custom integrations", "Priority support", "Custom domain & branding", "Dedicated onboarding"],
   },
 };
 
@@ -361,6 +361,72 @@ function SettingsPageInner() {
             </div>
           </div>
 
+          {/* Tokenization Credits — shown for Operator plan */}
+          {currentPlan === "pro" && (
+            <div className="glass rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b" style={{ borderColor: "#E3E8EF" }}>
+                <h2 className="text-[18px] font-semibold" style={{ color: "#1A1F36" }}>Tokenization Credits</h2>
+                <p className="text-[13px] mt-0.5" style={{ color: "#697386" }}>
+                  Each mainnet property deployment uses 1 credit
+                </p>
+              </div>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="text-[12px] font-medium uppercase tracking-wider" style={{ color: "#697386" }}>Available Credits</div>
+                    <div className="text-[36px] font-bold mt-1" style={{ color: ((profile as any)?.tokenization_credits || 0) > 0 ? "#0ACF83" : "#DF1B41" }}>
+                      {(profile as any)?.tokenization_credits || 0}
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={async () => {
+                        if (!session) return;
+                        try {
+                          const res = await fetch("/api/stripe/tokenize-checkout", {
+                            method: "POST",
+                            headers: getAuthHeaders(session),
+                            body: JSON.stringify({ pack: "single" }),
+                          });
+                          const data = await res.json();
+                          if (data.url) window.location.href = data.url;
+                        } catch {}
+                      }}
+                      className="px-5 py-2.5 rounded-lg text-white text-[14px] font-medium transition-all hover:shadow-md"
+                      style={{ background: "#0ab4aa" }}
+                    >
+                      Buy 1 — $1,499
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!session) return;
+                        try {
+                          const res = await fetch("/api/stripe/tokenize-checkout", {
+                            method: "POST",
+                            headers: getAuthHeaders(session),
+                            body: JSON.stringify({ pack: "5pack" }),
+                          });
+                          const data = await res.json();
+                          if (data.url) window.location.href = data.url;
+                        } catch {}
+                      }}
+                      className="px-5 py-2.5 rounded-lg text-[14px] font-medium border transition-all hover:bg-[#F6F9FC] hover:shadow-sm"
+                      style={{ borderColor: "#0D9488", color: "#0D9488" }}
+                    >
+                      Buy 5 — $4,999 <span className="text-[11px] opacity-70">(save 33%)</span>
+                    </button>
+                  </div>
+                </div>
+                <div className="rounded-lg p-4" style={{ background: "#F6F9FC" }}>
+                  <p className="text-[13px]" style={{ color: "#697386" }}>
+                    Credits never expire. Each credit deploys one property to Hedera mainnet.
+                    Need unlimited? <a href="mailto:info@deedslice.com?subject=Enterprise%20Inquiry" style={{ color: "#0D9488", fontWeight: 600 }}>Upgrade to Enterprise</a> — includes unlimited tokenization + white-label portal.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Pricing Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {(Object.entries(PLAN_DETAILS) as [string, (typeof PLAN_DETAILS)["starter"]][]).map(([key, plan]) => {
@@ -415,6 +481,15 @@ function SettingsPageInner() {
                     ))}
                   </ul>
                   {canUpgrade ? (
+                    key === "enterprise" ? (
+                      <a
+                        href="mailto:info@deedslice.com?subject=Enterprise%20Inquiry"
+                        className="block w-full text-center text-white font-medium py-2.5 rounded-lg text-[14px] transition-all hover:shadow-md"
+                        style={{ background: "#0ab4aa" }}
+                      >
+                        Contact Us
+                      </a>
+                    ) : (
                     <button
                       onClick={() => handleUpgrade(key as "pro" | "enterprise")}
                       disabled={!!upgrading}
@@ -423,6 +498,7 @@ function SettingsPageInner() {
                     >
                       {upgrading === key ? "Redirecting..." : `Upgrade to ${plan.name}`}
                     </button>
+                    )
                   ) : isCurrent ? (
                     <div
                       className="w-full text-center py-2.5 text-[14px] border-t"

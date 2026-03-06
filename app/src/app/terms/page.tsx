@@ -81,9 +81,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold mb-2">6. Fees and Billing</h2>
             <p className="text-sm text-ds-text/80">
-              The Starter plan includes one free property. Paid plans (Pro, Enterprise) are billed monthly via Stripe.
+              The Sandbox plan provides free testnet access. The Operator plan ($299/mo) provides full platform access; mainnet tokenization requires credits ($1,499/property or $4,999 for 5). Enterprise ($50,000/yr) includes unlimited tokenization and white-label features. Subscriptions are billed via Stripe.
               Hedera network fees (~$0.01 per tokenization) are paid by DeedSlice on behalf of users.
-              Subscription fees are non-refundable except as required by applicable law.
+              Subscription fees and tokenization credits are non-refundable except as required by applicable law.
             </p>
           </section>
 

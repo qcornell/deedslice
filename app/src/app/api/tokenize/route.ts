@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
     let profile = profileData as Profile | null;
 
     if (!profile) {
-      // Auto-create profile for users who signed up via Supabase Auth directly
       const { data: newProfile } = await supabaseAdmin
         .from("ds_profiles")
         .insert({
@@ -37,7 +36,8 @@ export async function POST(req: NextRequest) {
           email: user.email || "",
           plan: "starter",
           properties_used: 0,
-          properties_limit: 1,
+          properties_limit: 999,
+          tokenization_credits: 0,
         } as any)
         .select()
         .single();
@@ -47,17 +47,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (profile.properties_used >= profile.properties_limit) {
-      const upgradeMsg = profile.plan === "starter"
-        ? "Starter plan allows 1 free property (testnet). Upgrade to Pro for mainnet and up to 5 properties."
-        : profile.plan === "pro"
-        ? "Pro plan limited to 5 properties. Upgrade to Enterprise for unlimited."
-        : "You've reached your property limit. Contact support.";
-      return NextResponse.json({ error: upgradeMsg }, { status: 403 });
-    }
-
+    // Parse body first
     const body = await req.json();
-    const { name: rawName, address: rawAddress, propertyType: rawType, valuationUsd: rawVal, totalSlices: rawSlices, description: rawDesc, imageUrl } = body;
+    const { name: rawName, address: rawAddress, propertyType: rawType, valuationUsd: rawVal, totalSlices: rawSlices, description: rawDesc, imageUrl, network: requestedNetwork } = body;
 
     // Sanitize all user inputs
     const name = rawName ? sanitizePropertyName(rawName) : "";
@@ -75,9 +67,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Total slices cannot exceed 10,000,000" }, { status: 400 });
     }
 
-    // Starter plan → testnet sandbox, Pro+ → mainnet
-    const deployNetwork: "mainnet" | "testnet" =
-      profile.plan === "starter" ? "testnet" : "mainnet";
+    // Determine deploy network
+    // Sandbox (starter) → testnet only
+    // Operator (pro) → mainnet by default, can choose testnet
+    // Enterprise → mainnet by default, can choose testnet, unlimited tokenization
+    let deployNetwork: "mainnet" | "testnet";
+    if (profile.plan === "starter") {
+      deployNetwork = "testnet";
+    } else if (requestedNetwork === "testnet") {
+      deployNetwork = "testnet";
+    } else {
+      deployNetwork = "mainnet";
+    }
+
+    // Credit check: Operator on mainnet needs credits, Enterprise bypasses
+    if (deployNetwork === "mainnet" && profile.plan === "pro") {
+      const credits = (profile as any).tokenization_credits || 0;
+      if (credits < 1) {
+        return NextResponse.json({
+          error: "No tokenization credits remaining. Purchase credits ($1,499/property or $4,999 for 5) in Settings to deploy on mainnet.",
+        }, { status: 403 });
+      }
+    }
+    // Enterprise: no credit check needed — unlimited mainnet tokenization
+
+    if (profile.properties_used >= profile.properties_limit) {
+      return NextResponse.json({ error: "Property limit reached. Contact support." }, { status: 403 });
+    }
 
     const { data: propertyData, error: insertError } = await supabaseAdmin
       .from("ds_properties")
@@ -149,9 +165,18 @@ export async function POST(req: NextRequest) {
       percentage: 100,
     } as any);
 
+    // Deduct tokenization credit for Operator mainnet deployments
+    // Enterprise does NOT deduct — unlimited tokenization included
+    const updatePayload: any = { properties_used: profile.properties_used + 1 };
+    if (deployNetwork === "mainnet" && profile.plan === "pro") {
+      const currentCredits = (profile as any).tokenization_credits || 0;
+      if (currentCredits > 0) {
+        updatePayload.tokenization_credits = currentCredits - 1;
+      }
+    }
     await supabaseAdmin
       .from("ds_profiles")
-      .update({ properties_used: profile.properties_used + 1 } as any)
+      .update(updatePayload)
       .eq("id", user.id);
 
     // Send tokenization confirmation email (fire and forget)
