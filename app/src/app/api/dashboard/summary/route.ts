@@ -20,45 +20,50 @@ export async function GET(req: NextRequest) {
     const { user, error: authError } = await getUserFromToken(token);
     if (authError || !user) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    // Fetch all three in parallel — 3 queries instead of 3*N
-    const [propertiesRes, investorsRes, auditRes] = await Promise.all([
-      supabaseAdmin
-        .from("ds_properties")
-        .select("*")
-        .eq("owner_id", user.id)
-        .order("created_at", { ascending: false }),
+    // Step 1: Get all properties for this user
+    const { data: properties } = await supabaseAdmin
+      .from("ds_properties")
+      .select("*")
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: false });
 
-      supabaseAdmin
-        .from("ds_investors")
-        .select("*, ds_properties!inner(owner_id, name, status)")
-        .eq("ds_properties.owner_id", user.id)
-        .eq("ds_properties.status", "live")
-        .order("percentage", { ascending: false }),
+    const allProps = properties || [];
+    const livePropertyIds = allProps.filter((p: any) => p.status === "live").map((p: any) => p.id);
+    const allPropertyIds = allProps.map((p: any) => p.id);
 
-      supabaseAdmin
-        .from("ds_audit_entries")
-        .select("*, ds_properties!inner(owner_id)")
-        .eq("ds_properties.owner_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(5),
+    // Build name lookup
+    const nameMap = new Map(allProps.map((p: any) => [p.id, p.name]));
+
+    // Step 2: Fetch investors + audit in parallel (simple queries, no joins)
+    const [investorsRes, auditRes] = await Promise.all([
+      livePropertyIds.length > 0
+        ? supabaseAdmin
+            .from("ds_investors")
+            .select("*")
+            .in("property_id", livePropertyIds)
+            .order("percentage", { ascending: false })
+        : Promise.resolve({ data: [] }),
+
+      allPropertyIds.length > 0
+        ? supabaseAdmin
+            .from("ds_audit_entries")
+            .select("*")
+            .in("property_id", allPropertyIds)
+            .order("created_at", { ascending: false })
+            .limit(5)
+        : Promise.resolve({ data: [] }),
     ]);
 
-    const properties = propertiesRes.data || [];
-
-    // Map investors with property name attached
+    // Attach property names to investors
     const investors = (investorsRes.data || []).map((inv: any) => ({
       ...inv,
-      _propertyName: inv.ds_properties?.name || "",
-      ds_properties: undefined, // strip the join data
+      _propertyName: nameMap.get(inv.property_id) || "",
     }));
 
-    const auditEntries = (auditRes.data || []).map((entry: any) => ({
-      ...entry,
-      ds_properties: undefined,
-    }));
+    const auditEntries = auditRes.data || [];
 
     return NextResponse.json({
-      properties,
+      properties: allProps,
       investors,
       auditEntries,
     });

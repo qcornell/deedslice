@@ -28,13 +28,22 @@ export default function DashboardPage() {
     if (!session) return;
     const h = getAuthHeaders(session);
     fetch("/api/dashboard/summary", { headers: h })
-      .then(r => r.json())
-      .then(data => {
-        setProperties(data.properties || []);
-        setInvestors(data.investors || []);
-        setAuditEntries(data.auditEntries || []);
+      .then(r => {
+        if (!r.ok) throw new Error("Failed to load");
+        return r.json();
       })
-      .catch(() => {})
+      .then(data => {
+        if (data.error) {
+          console.error("Dashboard summary error:", data.error);
+        } else {
+          setProperties(data.properties || []);
+          setInvestors(data.investors || []);
+          setAuditEntries(data.auditEntries || []);
+        }
+      })
+      .catch((err) => {
+        console.error("Dashboard fetch error:", err);
+      })
       .finally(() => setLoading(false));
   }, [session]);
 

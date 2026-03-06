@@ -40,7 +40,7 @@ const PLAN_DETAILS = {
   enterprise: {
     name: "Enterprise",
     price: "$50,000/yr",
-    color: "#DF1B41",
+    color: "#1A1F36",
     properties: "Unlimited",
     features: ["Everything in Operator", "Unlimited tokenization included", "White-label investor portal", "REST API access", "Webhooks & custom integrations", "Priority support", "Custom domain & branding", "Dedicated onboarding"],
   },
@@ -66,6 +66,12 @@ const TABS = [
     id: "security",
     label: "Security",
     icon: <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>,
+  },
+  {
+    id: "whitelabel",
+    label: "White-Label",
+    icon: <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>,
+    enterpriseOnly: true,
   },
 ];
 
@@ -276,20 +282,24 @@ function SettingsPageInner() {
       {/* ── Tabs ── */}
       <div className="glass rounded-xl mb-6 overflow-hidden">
         <div className="flex overflow-x-auto border-b" style={{ borderColor: "#E3E8EF" }}>
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`inline-flex items-center gap-2 px-6 py-3.5 text-[14px] font-medium transition-all border-b-2 whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "text-[#0D9488] border-[#0D9488]"
-                  : "text-[#697386] border-transparent hover:text-[#1A1F36]"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
+          {TABS.map((tab) => {
+            // Hide enterprise-only tabs for non-enterprise users
+            if ((tab as any).enterpriseOnly && profile?.plan !== "enterprise") return null;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`inline-flex items-center gap-2 px-6 py-3.5 text-[14px] font-medium transition-all border-b-2 whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? "text-[#0D9488] border-[#0D9488]"
+                    : "text-[#697386] border-transparent hover:text-[#1A1F36]"
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -719,11 +729,6 @@ function SettingsPageInner() {
             </div>
           </div>
 
-          {/* White-Label */}
-          {profile?.plan === "enterprise" && session && <WhiteLabelSettings session={session} />}
-
-          {/* LP Account Management */}
-          {profile?.plan === "enterprise" && session && <LpAccountManager session={session} />}
         </div>
       )}
 
@@ -870,6 +875,14 @@ function SettingsPageInner() {
               </a>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ═══ WHITE-LABEL TAB ═══ */}
+      {activeTab === "whitelabel" && profile?.plan === "enterprise" && session && (
+        <div className="space-y-0">
+          <WhiteLabelSettings session={session} />
+          <LpAccountManager session={session} />
         </div>
       )}
     </div>
