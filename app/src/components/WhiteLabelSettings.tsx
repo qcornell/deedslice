@@ -536,9 +536,53 @@ export default function WhiteLabelSettings({ session }: Props) {
         )}
 
         {org.custom_domain && org.domain_verified && (
-          <div className="bg-ds-green/5 rounded-lg px-4 py-3 mt-2 flex items-center gap-2">
-            <span className="text-ds-green text-[13px]">✓</span>
-            <span className="text-[12px] text-ds-green font-medium">Domain verified and active</span>
+          <div className="space-y-3 mt-3">
+            <div className="bg-ds-green/5 rounded-lg px-4 py-3 flex items-center gap-2">
+              <span className="text-ds-green text-[13px]">✓</span>
+              <span className="text-[12px] text-ds-green font-medium">Domain verified and active</span>
+            </div>
+
+            {/* Setup completion checklist */}
+            <div className="bg-ds-bg rounded-xl p-4">
+              <p className="text-[11px] font-semibold text-ds-muted tracking-wide uppercase mb-3">Setup Checklist</p>
+              <div className="space-y-2.5">
+                <SetupStep done label="Set custom domain" detail={org.custom_domain} />
+                <SetupStep done label="Verify DNS ownership" detail="TXT or CNAME verified" />
+                <SetupStep
+                  done={false}
+                  label="Add domain in Vercel"
+                  detail={
+                    <span>
+                      Go to your{" "}
+                      <a href="https://vercel.com/dashboard" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: "#0D9488" }}>
+                        Vercel project settings
+                      </a>
+                      {" "}→ Domains → Add &quot;{org.custom_domain}&quot;. Vercel needs this to accept traffic.
+                    </span>
+                  }
+                />
+                <SetupStep
+                  done={false}
+                  label="Add CNAME record"
+                  detail={
+                    <span className="font-mono text-[10px]">
+                      {org.custom_domain} → CNAME → cname.vercel-dns.com
+                    </span>
+                  }
+                />
+                <SetupStep
+                  done={false}
+                  label="Wait for SSL (automatic)"
+                  detail="Vercel provisions a free SSL certificate. Usually takes 1-5 minutes."
+                />
+              </div>
+              <div className="mt-3 pt-3 border-t border-ds-border">
+                <p className="text-[10px] text-ds-muted leading-relaxed">
+                  After all steps are complete, <strong className="text-ds-text-secondary">{org.custom_domain}</strong> will serve your
+                  investor portal with full SSL. Your investors will never see &quot;deedslice.com&quot; in their browser.
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -574,6 +618,42 @@ function Field({
         className="w-full bg-ds-bg border border-ds-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition"
       />
       {hint && <p className="text-[10px] text-ds-muted mt-1">{hint}</p>}
+    </div>
+  );
+}
+
+function SetupStep({
+  done,
+  label,
+  detail,
+}: {
+  done: boolean;
+  label: string;
+  detail: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <div className="mt-0.5 shrink-0">
+        {done ? (
+          <div className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(16,185,129,0.15)" }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 5.5L4 7.5L8 3" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        ) : (
+          <div className="w-4 h-4 rounded-full border-2" style={{ borderColor: "#CBD5E1" }} />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className={`text-[12px] font-medium ${done ? "text-ds-muted line-through" : "text-ds-text"}`}>
+          {label}
+        </div>
+        {!done && detail && (
+          <div className="text-[11px] text-ds-muted mt-0.5 leading-relaxed">
+            {detail}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

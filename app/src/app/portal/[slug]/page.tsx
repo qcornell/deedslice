@@ -11,6 +11,7 @@ import { Suspense } from "react";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function PortalLoginPage() {
   return (
@@ -30,6 +31,20 @@ function PortalLoginInner() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [selfRegisterAllowed, setSelfRegisterAllowed] = useState(false);
+
+  // Check if self-registration is allowed
+  useEffect(() => {
+    if (!slug) return;
+    fetch(`/api/lp/org-settings?slug=${slug}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.allow_investor_self_register) {
+          setSelfRegisterAllowed(true);
+        }
+      })
+      .catch(() => {});
+  }, [slug]);
 
   // Handle magic link verification from URL
   const verifyToken = searchParams.get("token");
@@ -213,8 +228,22 @@ function PortalLoginInner() {
           </form>
         </div>
 
+        {/* Create account link — only if self-registration is enabled */}
+        {selfRegisterAllowed && (
+          <p className="text-center text-[12px] mt-5" style={{ color: "var(--lp-text-secondary, #64748B)" }}>
+            Don&apos;t have an account?{" "}
+            <Link
+              href={`/portal/${slug}/register`}
+              className="font-medium transition-colors"
+              style={{ color: "var(--lp-primary, #0D9488)" }}
+            >
+              Create an account
+            </Link>
+          </p>
+        )}
+
         {/* Security note */}
-        <p className="text-center text-[10px] mt-5" style={{ color: "var(--lp-text-muted, #CBD5E1)" }}>
+        <p className="text-center text-[10px] mt-3" style={{ color: "var(--lp-text-muted, #CBD5E1)" }}>
           Secured connection · Data encrypted in transit
         </p>
       </div>

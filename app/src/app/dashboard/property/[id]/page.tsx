@@ -10,6 +10,7 @@ const DocumentVault = dynamic(() => import("@/components/DocumentVault"));
 const DistributionManager = dynamic(() => import("@/components/DistributionManager"));
 const InvestorProtectionPanel = dynamic(() => import("@/components/InvestorProtectionPanel"));
 const IssuerCertificationModal = dynamic(() => import("@/components/IssuerCertificationModal"));
+const NotifyInvestorsModal = dynamic(() => import("@/components/NotifyInvestorsModal"));
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
@@ -44,6 +45,13 @@ export default function PropertyDetailPage() {
   // Compliance state
   const [showCertModal, setShowCertModal] = useState(false);
 
+  // Notify investors state
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [distributionPeriods, setDistributionPeriods] = useState<string[]>([]);
+
+  // Certificate download state
+  const [downloadingCert, setDownloadingCert] = useState(false);
+
   // Edit mode state
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
@@ -70,6 +78,17 @@ export default function PropertyDetailPage() {
     fetch(`/api/documents?propertyId=${id}`, { headers: getAuthHeaders(session) })
       .then((r) => r.json())
       .then((d) => setDocuments(d.documents || []))
+      .catch(() => {});
+    // Load distribution periods for notify modal
+    fetch(`/api/distributions?propertyId=${id}&limit=100`, { headers: getAuthHeaders(session) })
+      .then((r) => r.json())
+      .then((d) => {
+        const periods = new Set<string>();
+        (d.distributions || []).forEach((dist: any) => {
+          if (dist.period) periods.add(dist.period);
+        });
+        setDistributionPeriods(Array.from(periods).sort().reverse());
+      })
       .catch(() => {});
   }, [session, id]);
 
@@ -271,8 +290,63 @@ export default function PropertyDetailPage() {
           <div className="sm:text-right">
             <div className="text-2xl sm:text-3xl font-bold">${property.valuation_usd.toLocaleString()}</div>
             <div className="text-xs text-ds-muted mt-1">${pricePerSlice}/slice · {property.total_slices.toLocaleString()} slices</div>
-            <div className="mt-3">
+            <div className="mt-3 flex items-center gap-2 justify-end flex-wrap">
+              {investors.length > 0 && (
+                <button
+                  onClick={() => setShowNotifyModal(true)}
+                  className="text-[11px] font-medium border px-3 py-1.5 rounded-lg transition hover:opacity-80 inline-flex items-center gap-1.5"
+                  style={{
+                    borderColor: "var(--ds-border)",
+                    color: "var(--ds-text)",
+                  }}
+                >
+                  🔔 Notify Investors
+                </button>
+              )}
               <InvestorUpdate session={session} propertyId={id} propertyName={property.name} />
+              {property.status === "live" && (
+                <button
+                  onClick={async () => {
+                    if (!session) return;
+                    setDownloadingCert(true);
+                    try {
+                      const res = await fetch(`/api/certificate?propertyId=${id}`, {
+                        headers: getAuthHeaders(session),
+                      });
+                      if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(err.error || "Failed to generate certificate");
+                      }
+                      const blob = await res.blob();
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `DeedSlice_Certificate_${property.name.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                      URL.revokeObjectURL(url);
+                    } catch (err: any) {
+                      console.error("Certificate download error:", err);
+                      alert(err.message || "Failed to download certificate");
+                    } finally {
+                      setDownloadingCert(false);
+                    }
+                  }}
+                  disabled={downloadingCert}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-white rounded-lg text-xs font-medium transition-all disabled:opacity-50 hover:translate-y-[-1px]"
+                  style={{ background: "#0D9488", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+                >
+                  {downloadingCert ? (
+                    <>
+                      <span className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>📄 Download Certificate</>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -661,6 +735,19 @@ export default function PropertyDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* Notify Investors Modal */}
+      {showNotifyModal && session && (
+        <NotifyInvestorsModal
+          session={session}
+          propertyId={id}
+          propertyName={property.name}
+          investorCount={investors.length}
+          investorsWithEmailCount={investors.filter(i => i.email).length}
+          distributionPeriods={distributionPeriods}
+          onClose={() => setShowNotifyModal(false)}
+        />
+      )}
     </div>
   );
 }

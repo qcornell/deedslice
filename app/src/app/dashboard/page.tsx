@@ -8,7 +8,8 @@ const DistributionChart = dynamic(() => import("@/components/DistributionChart")
   loading: () => <div className="h-48 bg-[#E3E8EF] rounded-lg animate-pulse" />,
   ssr: false,
 });
-import type { Property, Investor, AuditEntry } from "@/types/database";
+import OnboardingChecklist from "@/components/OnboardingChecklist";
+import type { Property, Investor, AuditEntry, Profile, Organization } from "@/types/database";
 
 /* ═══════════════════════════════════════════════════════════════
  *  Dashboard — Two-column layout matching upgrade mockup
@@ -21,12 +22,24 @@ export default function DashboardPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [org, setOrg] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Load dashboard data — try summary endpoint, fall back to original pattern
   useEffect(() => {
     if (!session) return;
     const h = getAuthHeaders(session);
+
+    // Fetch profile + org for onboarding checklist (independent of summary)
+    fetch("/api/profile", { headers: h })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.profile) setProfile(data.profile); })
+      .catch(() => {});
+    fetch("/api/org", { headers: h })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.org) setOrg(data.org); })
+      .catch(() => {});
 
     fetch("/api/dashboard/summary", { headers: h })
       .then(r => {
@@ -44,7 +57,7 @@ export default function DashboardPage() {
         Promise.all([
           fetch("/api/properties", { headers: h }).then(r => r.json()),
           fetch("/api/audit/all", { headers: h }).then(r => r.json()).catch(() => ({ auditEntries: [] })),
-        ]).then(([propData, auditData]) => {
+        ]).then(([propData, auditData]: [any, any]) => {
           const props = propData.properties || [];
           setProperties(props);
           setAuditEntries((auditData.auditEntries || []).slice(0, 5));
@@ -190,6 +203,14 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-fade-in">
+      {/* ── Onboarding Checklist (first-time setup guide) ── */}
+      <OnboardingChecklist
+        properties={properties}
+        investors={investors}
+        profile={profile}
+        org={org}
+      />
+
       {/* ── Stats Grid (4 cards) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {/* Portfolio Value — Featured teal */}
