@@ -25,7 +25,7 @@ export default function NewPropertyPage() {
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [propertyType, setPropertyType] = useState("single_family");
+  const [propertyType, setPropertyType] = useState("residential");
   const [valuationUsd, setValuationUsd] = useState("");
   const [totalSlices, setTotalSlices] = useState("1000");
   const [description, setDescription] = useState("");
@@ -41,6 +41,8 @@ export default function NewPropertyPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [propertyId, setPropertyId] = useState("");
+  const [shareTokenId, setShareTokenId] = useState("");
+  const [nftTokenId, setNftTokenId] = useState("");
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [paymentPending, setPaymentPending] = useState(false);
@@ -96,7 +98,7 @@ export default function NewPropertyPage() {
       if (saved) {
         sessionStorage.removeItem("ds_pending_tokenize");
         const data = JSON.parse(saved);
-        setName(data.name || ""); setAddress(data.address || ""); setPropertyType(data.propertyType || "single_family");
+        setName(data.name || ""); setAddress(data.address || ""); setPropertyType(data.propertyType || "residential");
         setValuationUsd(data.valuationUsd || ""); setTotalSlices(data.totalSlices || "1000");
         setDescription(data.description || ""); setImageUrl(data.imageUrl || null);
         window.history.replaceState({}, "", "/dashboard/new");
@@ -117,12 +119,12 @@ export default function NewPropertyPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Tokenization failed"); if (data.transactions) setTransactions(data.transactions); return; }
-      setTransactions(data.transactions || []); setPropertyId(data.propertyId); setSuccess(true);
+      setTransactions(data.transactions || []); setPropertyId(data.propertyId); setShareTokenId(data.shareTokenId || ""); setNftTokenId(data.nftTokenId || ""); setSuccess(true);
     } catch (err: any) { setError(err.message || "Network error"); } finally { setDeploying(false); setCurrentStep(""); }
   }
 
   if (success) {
-    return <TokenizationSuccess name={name} valuationUsd={Number(valuationUsd)} totalSlices={Number(totalSlices)} transactions={transactions} propertyId={propertyId} />;
+    return <TokenizationSuccess name={name} valuationUsd={Number(valuationUsd)} totalSlices={Number(totalSlices)} transactions={transactions} propertyId={propertyId} shareTokenId={shareTokenId} nftTokenId={nftTokenId} network={deployNetwork} />;
   }
 
   // Shared input classes matching Claude Code's form styling
@@ -148,44 +150,21 @@ export default function NewPropertyPage() {
         <p className="text-[14px] mb-6" style={{ color: "#697386" }}>Provide details about the property you want to tokenize</p>
 
         <div className="space-y-5">
-          {/* Property Name */}
-          <div>
-            <label className={labelCls} style={labelStyle}>Property Name <span style={{ color: "#DF1B41" }}>*</span></label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g., 2960 Boxelder Drive" className={inputCls} style={inputStyle} />
-          </div>
-
-          {/* Property Type Chips */}
-          <div>
-            <label className={labelCls} style={labelStyle}>Property Type</label>
-            <div className="flex flex-wrap gap-2">
-              {([
-                { value: "single_family", label: "Single Family", icon: "🏠" },
-                { value: "multi_family", label: "Multi Family", icon: "🏘️" },
-                { value: "condo", label: "Condo", icon: "🏢" },
-                { value: "townhouse", label: "Townhouse", icon: "🏡" },
-                { value: "commercial", label: "Commercial", icon: "🏬" },
-                { value: "hotel", label: "Hotel", icon: "🏨" },
-                { value: "land", label: "Land", icon: "🌿" },
-                { value: "industrial", label: "Industrial", icon: "🏭" },
-                { value: "mixed_use", label: "Mixed Use", icon: "🔀" },
-              ] as const).map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setPropertyType(opt.value)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] border transition-all"
-                  style={{
-                    background: propertyType === opt.value ? "#0ab4aa" : "white",
-                    color: propertyType === opt.value ? "white" : "#1A1F36",
-                    borderColor: propertyType === opt.value ? "#0ab4aa" : "#E3E8EF",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                  }}
-                >
-                  <span>{opt.icon}</span>
-                  {opt.label}
-                </button>
-              ))}
+          {/* Row: Name + Type */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className={labelCls} style={labelStyle}>Property Name <span style={{ color: "#DF1B41" }}>*</span></label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g., 2960 Boxelder Drive" className={inputCls} style={inputStyle} />
+            </div>
+            <div>
+              <label className={labelCls} style={labelStyle}>Property Type</label>
+              <select value={propertyType} onChange={e => setPropertyType(e.target.value)} className={inputCls} style={{ ...inputStyle, appearance: "none" as const, backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", paddingRight: "40px", cursor: "pointer" }}>
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+                <option value="land">Land</option>
+                <option value="industrial">Industrial</option>
+                <option value="mixed">Mixed Use</option>
+              </select>
             </div>
           </div>
 
@@ -205,10 +184,23 @@ export default function NewPropertyPage() {
                   const data = await res.json();
                   if (data.estimate) { setValuationUsd(String(Math.round(data.estimate))); setValuationSource(data.source === "rentcast_avm" ? "RentCast AVM estimate" : "Tax assessment"); }
                   if (data.propertyType) {
-                    const typeMap: Record<string, string> = { "Single Family": "single_family", "Multi Family": "multi_family", "Condo": "condo", "Townhouse": "townhouse", "Commercial": "commercial", "Land": "land", "Industrial": "industrial" };
+                    const typeMap: Record<string, string> = { "Single Family": "residential", "Multi Family": "residential", "Condo": "residential", "Townhouse": "residential", "Commercial": "commercial", "Land": "land", "Industrial": "industrial" };
                     const mapped = typeMap[data.propertyType]; if (mapped) setPropertyType(mapped);
                   }
-                  setPropertyDetails({ bedrooms: data.bedrooms, bathrooms: data.bathrooms, squareFootage: data.squareFootage, yearBuilt: data.yearBuilt });
+                  const details: PropertyDetails = { bedrooms: data.bedrooms, bathrooms: data.bathrooms, squareFootage: data.squareFootage, yearBuilt: data.yearBuilt };
+                  setPropertyDetails(details);
+                  // Auto-populate description from RentCast data
+                  const parts: string[] = [];
+                  if (data.propertyType) parts.push(data.propertyType);
+                  if (details.bedrooms && details.bathrooms) parts.push(`${details.bedrooms} bed / ${details.bathrooms} bath`);
+                  else if (details.bedrooms) parts.push(`${details.bedrooms} bed`);
+                  if (details.squareFootage) parts.push(`${details.squareFootage.toLocaleString()} sq ft`);
+                  if (details.yearBuilt) parts.push(`Built ${details.yearBuilt}`);
+                  if (data.estimate) parts.push(`Estimated value: $${Math.round(data.estimate).toLocaleString()}`);
+                  if (parts.length > 0) {
+                    const autoDesc = parts.join(" · ") + ".";
+                    setDescription(prev => prev ? prev : autoDesc);
+                  }
                 } catch {} finally { setFetchingValue(false); }
               }}
               placeholder="Start typing an address..."
@@ -357,7 +349,7 @@ export default function NewPropertyPage() {
                 <span className="text-[13px]" style={{ color: "#D97706", fontWeight: 600 }}>Tokenization Credit Required</span>
               </div>
               <p className="text-[13px] ml-6" style={{ color: "#697386" }}>
-                You need a tokenization credit to deploy on mainnet. Purchase below or save with the 5-pack.
+                You need a tokenization credit to deploy on mainnet. Purchase below, save with the 5-pack, or <a href="/dashboard/settings" className="underline hover:no-underline" style={{ color: "#0D9488", fontWeight: 500 }}>upgrade your plan</a> in Settings.
               </p>
               <div className="flex gap-3 ml-6 mt-3">
                 <button type="button" onClick={() => handlePayAndDeploy()} className="px-4 py-2 rounded-lg text-white text-[13px] font-medium transition-all hover:shadow-md" style={{ background: "#0ab4aa" }}>
@@ -373,6 +365,11 @@ export default function NewPropertyPage() {
           {error && (
             <div className="rounded-lg px-4 py-3 text-[14px]" style={{ background: "rgba(223,27,65,0.06)", border: "1px solid rgba(223,27,65,0.2)", color: "#DF1B41" }}>
               {error}
+              {(error.toLowerCase().includes("settings") || error.toLowerCase().includes("upgrade")) && (
+                <a href="/dashboard/settings" className="block mt-2 underline hover:no-underline text-[13px]" style={{ color: "#0D9488" }}>
+                  Go to Settings →
+                </a>
+              )}
             </div>
           )}
 
@@ -438,14 +435,15 @@ export default function NewPropertyPage() {
  *  Success Screen — keeping the celebration energy
  * ═══════════════════════════════════════════════════════════════ */
 
-function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, propertyId }: {
-  name: string; valuationUsd: number; totalSlices: number; transactions: TxStep[]; propertyId: string;
+function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, propertyId, shareTokenId, nftTokenId, network }: {
+  name: string; valuationUsd: number; totalSlices: number; transactions: TxStep[]; propertyId: string; shareTokenId: string; nftTokenId: string; network: "mainnet" | "testnet";
 }) {
   const router = useRouter();
   const confettiCanvas = useRef<HTMLCanvasElement>(null);
   const [showContent, setShowContent] = useState(false);
   const [countedVal, setCountedVal] = useState(0);
   const [animationFaded, setAnimationFaded] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     const canvas = confettiCanvas.current; if (!canvas) return;
@@ -516,11 +514,37 @@ function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, pr
             ))}
           </div>
 
-          <p className="text-[13px] mb-6" style={{ color: "#8792A2" }}>
-            Share your investor dashboard: <span className="font-mono" style={{ color: "#0ab4aa" }}>{(process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com").replace(/^https?:\/\//, "")}/view/{propertyId}</span>
-          </p>
+          {/* Share Link + Copy */}
+          <div className="mb-6 rounded-xl p-4" style={{ background: "#F6F9FC", border: "1px solid #E3E8EF" }}>
+            <div className="text-[12px] uppercase tracking-[0.5px] mb-2" style={{ color: "#8792A2", fontWeight: 500 }}>Share with Investors</div>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 rounded-lg px-3 py-2.5 text-[13px] font-mono truncate" style={{ background: "white", border: "1px solid #E3E8EF", color: "#0ab4aa" }}>
+                {(process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com")}/view/{propertyId}
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com"}/view/${propertyId}`);
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 2000);
+                }}
+                className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] transition-all"
+                style={{
+                  background: linkCopied ? "#0ACF83" : "#0ab4aa",
+                  color: "white",
+                  fontWeight: 500,
+                }}
+              >
+                {linkCopied ? (
+                  <><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>Copied!</>
+                ) : (
+                  <><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copy Link</>
+                )}
+              </button>
+            </div>
+          </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
             <button onClick={() => router.push(`/dashboard/property/${propertyId}`)} className="text-white px-8 py-3.5 rounded-lg text-[14px] transition-all hover:shadow-md" style={{ background: "#0ab4aa", fontWeight: 500 }} onMouseEnter={e => { e.currentTarget.style.background = "#089991"; }} onMouseLeave={e => { e.currentTarget.style.background = "#0ab4aa"; }}>
               View Property Dashboard →
             </button>
@@ -528,6 +552,39 @@ function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, pr
               All Properties
             </button>
           </div>
+
+          {/* HashScan Links — see it live on Hedera */}
+          {(shareTokenId || nftTokenId) && (
+            <div className="rounded-xl p-4" style={{ background: "linear-gradient(135deg, rgba(13,148,136,0.04) 0%, rgba(99,102,241,0.04) 100%)", border: "1px solid rgba(13,148,136,0.15)" }}>
+              <div className="text-[12px] uppercase tracking-[0.5px] mb-3 text-center" style={{ color: "#8792A2", fontWeight: 500 }}>View Live on Hedera</div>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                {shareTokenId && (
+                  <a
+                    href={`https://hashscan.io/${network}/token/${shareTokenId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-[13px] transition-all hover:shadow-md"
+                    style={{ background: "linear-gradient(135deg, #0D9488, #0ab4aa)", color: "white", fontWeight: 500 }}
+                  >
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Share Token on HashScan ↗
+                  </a>
+                )}
+                {nftTokenId && (
+                  <a
+                    href={`https://hashscan.io/${network}/token/${nftTokenId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg border text-[13px] transition-all hover:bg-[#F6F9FC]"
+                    style={{ borderColor: "rgba(13,148,136,0.3)", color: "#0D9488", fontWeight: 500 }}
+                  >
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    NFT Deed on HashScan ↗
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

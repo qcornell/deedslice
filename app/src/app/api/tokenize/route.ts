@@ -85,14 +85,14 @@ export async function POST(req: NextRequest) {
       const credits = (profile as any).tokenization_credits || 0;
       if (credits < 1) {
         return NextResponse.json({
-          error: "No tokenization credits remaining. Purchase credits ($1,499/property or $4,999 for 5) in Settings to deploy on mainnet.",
+          error: "No tokenization credits remaining. Go to Settings to purchase credits or upgrade your plan.",
         }, { status: 403 });
       }
     }
     // Enterprise: no credit check needed — unlimited mainnet tokenization
 
     if (profile.properties_used >= profile.properties_limit) {
-      return NextResponse.json({ error: "Property limit reached. Contact support." }, { status: 403 });
+      return NextResponse.json({ error: "Property limit reached. Go to Settings to upgrade your plan." }, { status: 403 });
     }
 
     const { data: propertyData, error: insertError } = await supabaseAdmin
