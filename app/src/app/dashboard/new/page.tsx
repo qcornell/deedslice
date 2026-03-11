@@ -25,7 +25,7 @@ export default function NewPropertyPage() {
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [propertyType, setPropertyType] = useState("residential");
+  const [propertyType, setPropertyType] = useState("single_family");
   const [valuationUsd, setValuationUsd] = useState("");
   const [totalSlices, setTotalSlices] = useState("1000");
   const [description, setDescription] = useState("");
@@ -96,7 +96,7 @@ export default function NewPropertyPage() {
       if (saved) {
         sessionStorage.removeItem("ds_pending_tokenize");
         const data = JSON.parse(saved);
-        setName(data.name || ""); setAddress(data.address || ""); setPropertyType(data.propertyType || "residential");
+        setName(data.name || ""); setAddress(data.address || ""); setPropertyType(data.propertyType || "single_family");
         setValuationUsd(data.valuationUsd || ""); setTotalSlices(data.totalSlices || "1000");
         setDescription(data.description || ""); setImageUrl(data.imageUrl || null);
         window.history.replaceState({}, "", "/dashboard/new");
@@ -148,21 +148,44 @@ export default function NewPropertyPage() {
         <p className="text-[14px] mb-6" style={{ color: "#697386" }}>Provide details about the property you want to tokenize</p>
 
         <div className="space-y-5">
-          {/* Row: Name + Type */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className={labelCls} style={labelStyle}>Property Name <span style={{ color: "#DF1B41" }}>*</span></label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g., 2960 Boxelder Drive" className={inputCls} style={inputStyle} />
-            </div>
-            <div>
-              <label className={labelCls} style={labelStyle}>Property Type</label>
-              <select value={propertyType} onChange={e => setPropertyType(e.target.value)} className={inputCls} style={{ ...inputStyle, appearance: "none" as const, backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238792A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", paddingRight: "40px", cursor: "pointer" }}>
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
-                <option value="land">Land</option>
-                <option value="industrial">Industrial</option>
-                <option value="mixed">Mixed Use</option>
-              </select>
+          {/* Property Name */}
+          <div>
+            <label className={labelCls} style={labelStyle}>Property Name <span style={{ color: "#DF1B41" }}>*</span></label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g., 2960 Boxelder Drive" className={inputCls} style={inputStyle} />
+          </div>
+
+          {/* Property Type Chips */}
+          <div>
+            <label className={labelCls} style={labelStyle}>Property Type</label>
+            <div className="flex flex-wrap gap-2">
+              {([
+                { value: "single_family", label: "Single Family", icon: "🏠" },
+                { value: "multi_family", label: "Multi Family", icon: "🏘️" },
+                { value: "condo", label: "Condo", icon: "🏢" },
+                { value: "townhouse", label: "Townhouse", icon: "🏡" },
+                { value: "commercial", label: "Commercial", icon: "🏬" },
+                { value: "hotel", label: "Hotel", icon: "🏨" },
+                { value: "land", label: "Land", icon: "🌿" },
+                { value: "industrial", label: "Industrial", icon: "🏭" },
+                { value: "mixed_use", label: "Mixed Use", icon: "🔀" },
+              ] as const).map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setPropertyType(opt.value)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] border transition-all"
+                  style={{
+                    background: propertyType === opt.value ? "#0ab4aa" : "white",
+                    color: propertyType === opt.value ? "white" : "#1A1F36",
+                    borderColor: propertyType === opt.value ? "#0ab4aa" : "#E3E8EF",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  <span>{opt.icon}</span>
+                  {opt.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -182,7 +205,7 @@ export default function NewPropertyPage() {
                   const data = await res.json();
                   if (data.estimate) { setValuationUsd(String(Math.round(data.estimate))); setValuationSource(data.source === "rentcast_avm" ? "RentCast AVM estimate" : "Tax assessment"); }
                   if (data.propertyType) {
-                    const typeMap: Record<string, string> = { "Single Family": "residential", "Multi Family": "residential", "Condo": "residential", "Townhouse": "residential", "Commercial": "commercial", "Land": "land", "Industrial": "industrial" };
+                    const typeMap: Record<string, string> = { "Single Family": "single_family", "Multi Family": "multi_family", "Condo": "condo", "Townhouse": "townhouse", "Commercial": "commercial", "Land": "land", "Industrial": "industrial" };
                     const mapped = typeMap[data.propertyType]; if (mapped) setPropertyType(mapped);
                   }
                   setPropertyDetails({ bedrooms: data.bedrooms, bathrooms: data.bathrooms, squareFootage: data.squareFootage, yearBuilt: data.yearBuilt });
@@ -422,6 +445,7 @@ function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, pr
   const confettiCanvas = useRef<HTMLCanvasElement>(null);
   const [showContent, setShowContent] = useState(false);
   const [countedVal, setCountedVal] = useState(0);
+  const [animationFaded, setAnimationFaded] = useState(false);
 
   useEffect(() => {
     const canvas = confettiCanvas.current; if (!canvas) return;
@@ -443,6 +467,9 @@ function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, pr
 
   useEffect(() => { const t = setTimeout(() => setShowContent(true), 400); return () => clearTimeout(t); }, []);
 
+  // Fade out animation overlay + confetti after 3 seconds
+  useEffect(() => { const t = setTimeout(() => setAnimationFaded(true), 3000); return () => clearTimeout(t); }, []);
+
   useEffect(() => {
     if (!showContent) return;
     const target = valuationUsd; const duration = 1500; const start = performance.now();
@@ -452,10 +479,10 @@ function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, pr
 
   return (
     <div className="max-w-2xl mx-auto relative">
-      <canvas ref={confettiCanvas} className="fixed inset-0 pointer-events-none z-50" />
+      <canvas ref={confettiCanvas} className="fixed inset-0 pointer-events-none z-50" style={{ opacity: animationFaded ? 0 : 1, transition: "opacity 1.5s ease-out" }} />
       <div className={`relative z-10 transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
         <div className="glass rounded-xl p-6 sm:p-10 text-center relative overflow-hidden">
-          <div className="absolute inset-0 rounded-xl p-[1px] pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 rounded-xl p-[1px] pointer-events-none overflow-hidden" style={{ opacity: animationFaded ? 0 : 1, transition: "opacity 1.5s ease-out" }}>
             <div className="absolute -inset-full animate-spin-slow" style={{ background: "conic-gradient(from 0deg, transparent, #0D9488, transparent, #6366F1, transparent)", animationDuration: "4s" }} />
           </div>
 

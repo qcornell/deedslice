@@ -30,6 +30,8 @@ export default function PropertiesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!session) return;
@@ -38,6 +40,25 @@ export default function PropertiesPage() {
       .then(d => setProperties(d.properties || []))
       .finally(() => setLoading(false));
   }, [session]);
+
+  async function handleDeleteProperty(id: string) {
+    if (!session) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/properties/${id}`, { method: "DELETE", headers: getAuthHeaders(session) });
+      const data = await res.json();
+      if (data.ok) {
+        setProperties(prev => prev.filter(p => p.id !== id));
+        setDeleteConfirmId(null);
+      } else {
+        alert(data.error || "Failed to delete property");
+      }
+    } catch {
+      alert("Network error");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   // Stats
   const stats = useMemo(() => {
@@ -182,11 +203,15 @@ export default function PropertiesPage() {
         </select>
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="py-2.5 pl-3 rounded-lg border text-[14px]" style={{ ...selectStyle, borderColor: "#E3E8EF", background: "white" }}>
           <option value="all">All Types</option>
-          <option value="residential">Residential</option>
+          <option value="single_family">Single Family</option>
+          <option value="multi_family">Multi Family</option>
+          <option value="condo">Condo</option>
+          <option value="townhouse">Townhouse</option>
           <option value="commercial">Commercial</option>
-          <option value="mixed">Mixed Use</option>
+          <option value="hotel">Hotel</option>
           <option value="land">Land</option>
           <option value="industrial">Industrial</option>
+          <option value="mixed_use">Mixed Use</option>
         </select>
         <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="py-2.5 pl-3 rounded-lg border text-[14px]" style={{ ...selectStyle, borderColor: "#E3E8EF", background: "white" }}>
           <option value="newest">Sort by: Newest</option>
@@ -269,7 +294,51 @@ export default function PropertiesPage() {
                     >
                       Manage
                     </Link>
+                    {(p.status === "failed" || p.status === "draft") && p.network === "testnet" && (
+                      <button
+                        type="button"
+                        onClick={() => setDeleteConfirmId(p.id)}
+                        className="px-3 py-2 rounded-lg border text-[13px] transition-all hover:bg-red-50"
+                        style={{ borderColor: "#E3E8EF", color: "#DF1B41", fontWeight: 500 }}
+                        title="Delete Property"
+                      >
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    )}
                   </div>
+
+                  {/* Delete Confirmation Modal */}
+                  {deleteConfirmId === p.id && (
+                    <div className="mt-3 rounded-lg p-4 border" style={{ background: "rgba(223,27,65,0.04)", borderColor: "rgba(223,27,65,0.2)" }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <svg width="16" height="16" fill="none" stroke="#DF1B41" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <span className="text-[13px]" style={{ color: "#DF1B41", fontWeight: 600 }}>Delete this property?</span>
+                      </div>
+                      <p className="text-[12px] mb-3" style={{ color: "#697386" }}>
+                        This will permanently remove <strong style={{ color: "#1A1F36" }}>{p.name}</strong> and all associated data. This action cannot be undone.
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="flex-1 py-2 rounded-lg border text-[12px] transition-all hover:bg-[#F6F9FC]"
+                          style={{ borderColor: "#E3E8EF", color: "#697386", fontWeight: 500 }}
+                          disabled={deleting}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProperty(p.id)}
+                          className="flex-1 py-2 rounded-lg text-white text-[12px] transition-all hover:opacity-90"
+                          style={{ background: "#DF1B41", fontWeight: 500 }}
+                          disabled={deleting}
+                        >
+                          {deleting ? "Deleting..." : "Delete Permanently"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
