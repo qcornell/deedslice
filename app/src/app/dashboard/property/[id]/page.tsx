@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import dynamic from "next/dynamic";
 import InvestorUpdate from "@/components/InvestorUpdate";
@@ -51,6 +51,10 @@ export default function PropertyDetailPage() {
 
   // Certificate download state
   const [downloadingCert, setDownloadingCert] = useState(false);
+
+  // Copy link state
+  const [linkCopied, setLinkCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Edit mode state
   const [editing, setEditing] = useState(false);
@@ -726,12 +730,22 @@ export default function PropertyDetailPage() {
           </div>
           <button
             onClick={() => {
-              try { navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com"}/view/${id}`); } catch {}
+              try {
+                navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL || "https://console.deedslice.com"}/view/${id}`);
+                setLinkCopied(true);
+                if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+                copyTimeoutRef.current = setTimeout(() => setLinkCopied(false), 2000);
+              } catch {}
             }}
-            className="px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all hover:translate-y-[-1px] shrink-0"
-            style={{ background: "#0ab4aa", boxShadow: "0 2px 8px rgba(13,148,136,0.25)" }}
+            className={`px-4 py-2.5 text-white rounded-[10px] text-sm font-medium transition-all duration-300 hover:translate-y-[-1px] shrink-0 ${linkCopied ? "scale-105" : ""}`}
+            style={{
+              background: linkCopied ? "#10b981" : "#0ab4aa",
+              boxShadow: linkCopied
+                ? "0 2px 12px rgba(16,185,129,0.4)"
+                : "0 2px 8px rgba(13,148,136,0.25)",
+            }}
           >
-            Copy Link
+            {linkCopied ? "✓ Copied!" : "Copy Link"}
           </button>
         </div>
       </div>

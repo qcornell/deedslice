@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getUserFromToken, extractToken } from "@/lib/supabase/auth";
-import { transferShares, grantTokenKyc, logAuditEntry, formatTxUrlSafe } from "@/lib/hedera/engine";
+import { transferShares, grantTokenKyc, unfreezeTokenAccount, logAuditEntry, formatTxUrlSafe } from "@/lib/hedera/engine";
 import { applyRateLimit } from "@/lib/rate-limit";
 import { fireWebhooks } from "@/lib/webhooks";
 import type { Property, Investor } from "@/types/database";
@@ -131,10 +131,11 @@ export async function POST(req: NextRequest) {
       .update({ transfer_status: "pending" } as any)
       .eq("id", investorId);
 
-    // ── Grant on-chain KYC before transfer ─────────────────
-    // Tokens are created with freezeDefault=true and KYC Key enabled.
-    // We must grant KYC to the investor's wallet before they can receive tokens.
+    // ── Grant on-chain KYC + Unfreeze before transfer ─────
+    // Tokens are created with freezeDefault=true, KYC Key, and Freeze Key.
+    // Flow: 1) Grant KYC → 2) Unfreeze account → 3) Transfer tokens.
     if (property.share_token_id && investor.wallet_address) {
+      // Step A: Grant KYC
       const kycResult = await grantTokenKyc(
         property.share_token_id,
         investor.wallet_address,
@@ -190,6 +191,49 @@ export async function POST(req: NextRequest) {
             kyc_grant_tx_id: kycResult.txId,
           } as any, { onConflict: "investor_id,token_id" });
         } catch {};
+      }
+
+      // Step B: Unfreeze account (tokens created with freezeDefault=true)
+      const unfreezeResult = await unfreezeTokenAccount(
+        property.share_token_id,
+        investor.wallet_address,
+        property.network as "mainnet" | "testnet"
+      );
+
+      if (!unfreezeResult.ok) {
+        // Already unfrozen is fine
+        const isAlreadyUnfrozen = unfreezeResult.error?.includes("TOKEN_NOT_ASSOCIATED") ||
+          unfreezeResult.error?.includes("ACCOUNT_IS_NOT_FROZEN") ||
+          unfreezeResult.error?.includes("TOKEN_HAS_NO_FREEZE_KEY");
+        if (!isAlreadyUnfrozen) {
+          await supabaseAdmin.from("ds_audit_entries").insert({
+            property_id: property.id,
+            action: "UNFREEZE_FAILED",
+            details: `Failed to unfreeze ${investor.name} (${investor.wallet_address}): ${unfreezeResult.error}`,
+          } as any);
+
+          return NextResponse.json({
+            ok: false,
+            error: `Failed to unfreeze wallet ${investor.wallet_address} for token transfers. The account is frozen by default and must be unfrozen before receiving tokens.`,
+          }, { status: 400 });
+        }
+      } else {
+        // Log successful unfreeze
+        await supabaseAdmin.from("ds_audit_entries").insert({
+          property_id: property.id,
+          action: "ACCOUNT_UNFROZEN",
+          details: `Account unfrozen for ${investor.name} (${investor.wallet_address}) — ready for token transfer`,
+          tx_id: unfreezeResult.txId || null,
+        } as any);
+
+        if (property.audit_topic_id) {
+          await logAuditEntry(property.audit_topic_id, "ACCOUNT_UNFROZEN", {
+            investor: investor.name,
+            wallet: investor.wallet_address,
+            shareToken: property.share_token_id,
+            txId: unfreezeResult.txId,
+          }, property.network as "mainnet" | "testnet").catch(() => {});
+        }
       }
     }
 

@@ -149,9 +149,11 @@ export async function tokenizeProperty(input: PropertyTokenInput): Promise<Token
       .setTreasuryAccountId(operatorId)
       .setAdminKey(operatorKey.publicKey)
       .setSupplyKey(operatorKey.publicKey)
-      .setTokenMemo(`DeedSlice Master Deed: ${input.name}`)
       // Compliance keys — NFT deed is non-transferable by default
-      .setFreezeDefault(true);
+      .setFreezeKey(operatorKey.publicKey)
+      .setKycKey(operatorKey.publicKey)
+      .setFreezeDefault(true)
+      .setTokenMemo(`DeedSlice Master Deed: ${input.name}`);
 
     const nftResponse = await nftTx.execute(client as any);
     const nftReceipt = await nftResponse.getReceipt(client as any);
