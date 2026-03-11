@@ -187,20 +187,7 @@ export default function NewPropertyPage() {
                     const typeMap: Record<string, string> = { "Single Family": "residential", "Multi Family": "residential", "Condo": "residential", "Townhouse": "residential", "Commercial": "commercial", "Land": "land", "Industrial": "industrial" };
                     const mapped = typeMap[data.propertyType]; if (mapped) setPropertyType(mapped);
                   }
-                  const details: PropertyDetails = { bedrooms: data.bedrooms, bathrooms: data.bathrooms, squareFootage: data.squareFootage, yearBuilt: data.yearBuilt };
-                  setPropertyDetails(details);
-                  // Auto-populate description from RentCast data
-                  const parts: string[] = [];
-                  if (data.propertyType) parts.push(data.propertyType);
-                  if (details.bedrooms && details.bathrooms) parts.push(`${details.bedrooms} bed / ${details.bathrooms} bath`);
-                  else if (details.bedrooms) parts.push(`${details.bedrooms} bed`);
-                  if (details.squareFootage) parts.push(`${details.squareFootage.toLocaleString()} sq ft`);
-                  if (details.yearBuilt) parts.push(`Built ${details.yearBuilt}`);
-                  if (data.estimate) parts.push(`Estimated value: $${Math.round(data.estimate).toLocaleString()}`);
-                  if (parts.length > 0) {
-                    const autoDesc = parts.join(" · ") + ".";
-                    setDescription(prev => prev ? prev : autoDesc);
-                  }
+                  setPropertyDetails({ bedrooms: data.bedrooms, bathrooms: data.bathrooms, squareFootage: data.squareFootage, yearBuilt: data.yearBuilt });
                 } catch {} finally { setFetchingValue(false); }
               }}
               placeholder="Start typing an address..."

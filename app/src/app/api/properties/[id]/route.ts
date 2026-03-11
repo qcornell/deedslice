@@ -44,7 +44,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-/** DELETE /api/properties/[id] — hard delete a property (failed/draft, testnet, no investors) */
+/**
+ * DELETE /api/properties/[id] — hard delete a testnet property
+ *
+ * Rules:
+ *   - network must be testnet (testnet assets are disposable)
+ *   - no investors with transferred tokens (transfer_status = "transferred")
+ *   - no token distributions exist
+ *   - mainnet properties can NEVER be hard deleted (archive/delist only)
+ */
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = extractToken(req.headers.get("authorization"));
@@ -65,35 +73,46 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
-    // Check conditions: status must be failed/draft, network must be testnet
-    if (!["failed", "draft"].includes((property as any).status)) {
-      return NextResponse.json({ error: "Only failed or draft properties can be deleted" }, { status: 400 });
-    }
-    if ((property as any).network !== "testnet") {
-      return NextResponse.json({ error: "Only testnet properties can be deleted" }, { status: 400 });
+    const p = property as any;
+
+    // Rule 1: Must be testnet — mainnet is never deletable
+    if (p.network !== "testnet") {
+      return NextResponse.json({ error: "Mainnet properties cannot be deleted. Use archive or delist instead." }, { status: 400 });
     }
 
-    // Check no investors attached
-    const { count } = await supabaseAdmin
+    // Rule 2: No investors with transferred tokens
+    const { count: transferredCount } = await supabaseAdmin
       .from("ds_investors")
+      .select("*", { count: "exact", head: true })
+      .eq("property_id", params.id)
+      .eq("transfer_status", "transferred");
+
+    if (transferredCount && transferredCount > 0) {
+      return NextResponse.json({ error: "Cannot delete property with transferred tokens. Investors have received on-chain tokens." }, { status: 400 });
+    }
+
+    // Rule 3: No token distributions
+    const { count: distCount } = await supabaseAdmin
+      .from("ds_distributions")
       .select("*", { count: "exact", head: true })
       .eq("property_id", params.id);
 
-    if (count && count > 0) {
-      return NextResponse.json({ error: "Cannot delete property with investors" }, { status: 400 });
+    if (distCount && distCount > 0) {
+      return NextResponse.json({ error: "Cannot delete property with distribution history." }, { status: 400 });
     }
 
-    // Delete audit entries first (cascade)
-    await supabaseAdmin
-      .from("ds_audit_entries")
-      .delete()
-      .eq("property_id", params.id);
+    // Safe to delete — clean up all related records
+    // Delete documents
+    await supabaseAdmin.from("ds_documents").delete().eq("property_id", params.id).then(() => {});
 
-    // Delete investors (should be 0 but cleanup)
-    await supabaseAdmin
-      .from("ds_investors")
-      .delete()
-      .eq("property_id", params.id);
+    // Delete token permissions
+    await supabaseAdmin.from("ds_token_permissions").delete().eq("property_id", params.id).then(() => {});
+
+    // Delete audit entries
+    await supabaseAdmin.from("ds_audit_entries").delete().eq("property_id", params.id);
+
+    // Delete investors (non-transferred only at this point)
+    await supabaseAdmin.from("ds_investors").delete().eq("property_id", params.id);
 
     // Delete the property
     const { error: deleteError } = await supabaseAdmin

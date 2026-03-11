@@ -296,11 +296,11 @@ export default function PropertiesPage() {
                       className="px-3 py-2 rounded-lg border text-[13px] transition-all"
                       style={{
                         borderColor: "#E3E8EF",
-                        color: (p.status === "failed" || p.status === "draft") && p.network === "testnet" ? "#DF1B41" : "#8792A2",
+                        color: p.network === "testnet" ? "#DF1B41" : "#8792A2",
                         fontWeight: 500,
                       }}
-                      title={(p.status === "failed" || p.status === "draft") && p.network === "testnet" ? "Delete Property" : "Archive Property"}
-                      onMouseEnter={e => { e.currentTarget.style.background = (p.status === "failed" || p.status === "draft") && p.network === "testnet" ? "rgba(223,27,65,0.05)" : "#F6F9FC"; }}
+                      title={p.network === "testnet" ? "Delete Property" : "Cannot delete mainnet property"}
+                      onMouseEnter={e => { e.currentTarget.style.background = p.network === "testnet" ? "rgba(223,27,65,0.05)" : "#F6F9FC"; }}
                       onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
                     >
                       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -309,14 +309,14 @@ export default function PropertiesPage() {
 
                   {/* Delete/Archive Confirmation Modal */}
                   {deleteConfirmId === p.id && (
-                    (p.status === "failed" || p.status === "draft") && p.network === "testnet" ? (
+                    p.network === "testnet" ? (
                       <div className="mt-3 rounded-lg p-4 border" style={{ background: "rgba(223,27,65,0.04)", borderColor: "rgba(223,27,65,0.2)" }}>
                         <div className="flex items-center gap-2 mb-2">
                           <svg width="16" height="16" fill="none" stroke="#DF1B41" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                          <span className="text-[13px]" style={{ color: "#DF1B41", fontWeight: 600 }}>Delete this property?</span>
+                          <span className="text-[13px]" style={{ color: "#DF1B41", fontWeight: 600 }}>Delete this testnet property?</span>
                         </div>
                         <p className="text-[12px] mb-3" style={{ color: "#697386" }}>
-                          This will permanently remove <strong style={{ color: "#1A1F36" }}>{p.name}</strong> and all associated data. This action cannot be undone.
+                          This will permanently remove <strong style={{ color: "#1A1F36" }}>{p.name}</strong> and all associated data. Testnet assets are disposable. This action cannot be undone.
                         </p>
                         <div className="flex gap-2">
                           <button
@@ -343,10 +343,10 @@ export default function PropertiesPage() {
                       <div className="mt-3 rounded-lg p-4 border" style={{ background: "rgba(135,146,162,0.05)", borderColor: "#E3E8EF" }}>
                         <div className="flex items-center gap-2 mb-2">
                           <svg width="16" height="16" fill="none" stroke="#697386" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-[13px]" style={{ color: "#1A1F36", fontWeight: 600 }}>Cannot delete this property</span>
+                          <span className="text-[13px]" style={{ color: "#1A1F36", fontWeight: 600 }}>Cannot delete mainnet property</span>
                         </div>
                         <p className="text-[12px] mb-3" style={{ color: "#697386" }}>
-                          {p.status === "live" ? "Active tokenized properties" : "Mainnet properties"} cannot be permanently deleted because they have blockchain records, audit trails, or investor history. Use <strong style={{ color: "#1A1F36" }}>Manage</strong> to edit or update the property instead.
+                          Mainnet properties have permanent blockchain records and cannot be deleted. Use <strong style={{ color: "#1A1F36" }}>Manage</strong> to edit, archive, or delist the property instead.
                         </p>
                         <button
                           type="button"
