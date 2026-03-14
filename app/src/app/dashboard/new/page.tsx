@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth, getAuthHeaders } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { HEDERA_NETWORK, HASHSCAN_BASE } from "@/lib/hedera/config";
+// hedera config import removed — network comes from props now
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import ImageUpload from "@/components/ImageUpload";
 import { supabase } from "@/lib/supabase/client";
@@ -479,7 +479,7 @@ function TokenizationSuccess({ name, valuationUsd, totalSlices, transactions, pr
           </div>
 
           <h1 className="text-2xl sm:text-3xl mb-2" style={{ fontWeight: 700, color: "#1A1F36" }}>Property Tokenized!</h1>
-          <p style={{ color: "#697386" }}>{name} is now <span style={{ color: "#0ACF83", fontWeight: 600 }}>live on Hedera {HEDERA_NETWORK === "mainnet" ? "Mainnet" : "Testnet"}</span></p>
+          <p style={{ color: "#697386" }}>{name} is now <span style={{ color: "#0ACF83", fontWeight: 600 }}>live on Hedera {network === "mainnet" ? "Mainnet" : "Testnet"}</span></p>
 
           <div className="my-6 py-5 rounded-xl" style={{ background: "#F6F9FC" }}>
             <div className="text-3xl sm:text-5xl" style={{ fontWeight: 700, color: "#1A1F36", fontVariantNumeric: "tabular-nums" }}>${countedVal.toLocaleString()}</div>
