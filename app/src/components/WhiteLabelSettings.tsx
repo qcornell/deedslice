@@ -9,6 +9,7 @@
 
 import { useEffect, useState } from "react";
 import { getAuthHeaders } from "@/hooks/useAuth";
+import LogoUploader from "./LogoUploader";
 
 interface OrgData {
   id: string;
@@ -352,25 +353,38 @@ export default function WhiteLabelSettings({ session }: Props) {
               placeholder="e.g. Smith Capital"
               hint="Used in magic link emails instead of 'DeedSlice'"
             />
-            <Field
-              label="Logo URL (Light Mode)"
-              value={branding.logo_url || ""}
-              onChange={v => setBranding(b => ({ ...b, logo_url: v || null }))}
-              placeholder="https://yoursite.com/logo.png"
-              hint="Dark logo for light backgrounds. Recommended: 200×40px transparent PNG"
+            <LogoUploader
+              slot="logo"
+              label="Logo (Light Mode)"
+              hint="Dark logo for light backgrounds. Auto-resized to fit."
+              currentUrl={branding.logo_url}
+              session={session}
+              maxWidth={800}
+              maxHeight={200}
+              previewBg="#F8FAFC"
+              onUploaded={(url) => setBranding(b => ({ ...b, logo_url: url }))}
             />
-            <Field
-              label="Logo URL (Dark Mode)"
-              value={branding.logo_dark_url || ""}
-              onChange={v => setBranding(b => ({ ...b, logo_dark_url: v || null }))}
-              placeholder="https://yoursite.com/logo-white.png"
-              hint="Light/white logo for dark backgrounds. If empty, light-mode logo is used everywhere."
+            <LogoUploader
+              slot="logo_dark"
+              label="Logo (Dark Mode)"
+              hint="White/light logo for dark backgrounds. If empty, light-mode logo is used everywhere."
+              currentUrl={branding.logo_dark_url}
+              session={session}
+              maxWidth={800}
+              maxHeight={200}
+              previewBg="#1E293B"
+              onUploaded={(url) => setBranding(b => ({ ...b, logo_dark_url: url }))}
             />
-            <Field
-              label="Favicon URL"
-              value={branding.favicon_url || ""}
-              onChange={v => setBranding(b => ({ ...b, favicon_url: v || null }))}
-              placeholder="https://yoursite.com/favicon.ico"
+            <LogoUploader
+              slot="favicon"
+              label="Favicon"
+              hint="Browser tab icon. Auto-cropped to square."
+              currentUrl={branding.favicon_url}
+              session={session}
+              maxWidth={128}
+              maxHeight={128}
+              previewBg="#F8FAFC"
+              onUploaded={(url) => setBranding(b => ({ ...b, favicon_url: url }))}
             />
             <Field
               label="Footer Text"
