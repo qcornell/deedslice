@@ -1,0 +1,35 @@
+Real estate is a three hundred trillion dollar market — and it's still running on spreadsheets, PDFs, and handshake deals.
+
+If you're a syndicator or sponsor, you know the pain. Tracking investors, managing ownership records, distributing returns — it's a mess. And tokenization? That was supposed to fix everything, but the platforms out there charge forty thousand dollars just to get started.
+
+That's why we built DeedSlice.
+
+DeedSlice is real estate tokenization infrastructure — built on Hedera Hashgraph. It lets you tokenize properties, manage investors, and distribute returns — all from one dashboard.
+
+Let me show you how it works.
+
+Here's the console. Clean, simple, everything you need in the sidebar — properties, tokenization, investors, distributions, and a tamper-proof audit trail.
+
+Let's look at a live property — Cornell Corner. You can see the full ownership breakdown: who holds what, how many slices, current valuation, and price per slice. Everything is tracked in real time.
+
+On the right, the audit trail — every single event is logged to the Hedera blockchain. Tokenization, distributions, transfers — it's all immutable and verifiable.
+
+We can even generate quarterly investor reports automatically. Professional PDF updates with property performance, distribution summaries, and forward-looking statements — ready to send.
+
+Now here's the powerful part — distributions. See the full breakdown: total distributed, paid, pending. Click into any period, and you see exactly which investor got what, when, and the transaction status. One click to draft an email or generate PDF notices for your investors.
+
+Let's tokenize a brand new property. Fill in the name, pick the type, and start typing an address. DeedSlice auto-fills the property valuation from RentCast's AVM data — no manual appraisals needed. Set your total slices, and the price per slice calculates instantly.
+
+Add a description for your investor portal, upload property photos, and flip the toggle to deploy on Hedera Mainnet. This is live blockchain — tokens are real and permanent.
+
+Hit tokenize, review the summary — property value, slices, price per slice — and confirm.
+
+Watch this. Five blockchain transactions execute in seconds: Create the NFT deed collection. Mint the master deed. Create fractional share tokens. Initialize the audit trail. And log the first entry. All verified on Hedera.
+
+And here's the proof — click verify, and you're looking at the actual NFT on HashScan, Hedera's block explorer. Token ID, treasury account, creation timestamp — it's all on-chain and permanent.
+
+Back in the console, manage your investors — see ownership percentages, wallet status, verification badges. The audit trail captures every event with full transparency.
+
+DeedSlice is built for sponsors who want to move fast. Sandbox plan to test on testnet. Operator plan for the full platform. And Enterprise for unlimited white-label deployments.
+
+This is DeedSlice — tokenize real estate in minutes, not months. Built on Hedera. Try it free at deedslice.com.

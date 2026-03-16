@@ -1,0 +1,25 @@
+DEEDSLICE MARKETING VIDEO - VOICEOVER SCRIPT
+Target: 65 seconds
+Voice: Will (ElevenLabs)
+Style: Punchy, direct, YouTube-style
+
+---
+
+[0-5s — HOOK]
+Real estate is a three hundred trillion dollar market. And it still runs on spreadsheets.
+
+[5-15s — PAIN POINT]
+If you're a syndicator, you know the drill. Tracking investors in Excel. Chasing signatures on PDFs. Paying forty thousand dollars for a tokenization platform that takes months to set up.
+
+[15-20s — TRANSITION]
+There's a better way. Meet DeedSlice.
+
+[20-55s — PRODUCT SHOWCASE]
+DeedSlice lets you tokenize any property in under five minutes. Enter your property details, and it auto-fills the valuation. Set your slices, hit tokenize, and watch five blockchain transactions execute in seconds — NFT deed, share tokens, audit trail — all deployed live on Hedera.
+
+Every investor, every distribution, every transfer — tracked in real time with a tamper-proof audit trail. Generate quarterly reports with one click. Distribute returns and notify investors instantly.
+
+No code. No lawyers. No six-figure setup fees.
+
+[55-65s — CTA]
+DeedSlice — tokenize real estate in minutes, not months. Built on Hedera. Try it free at deedslice.com.
