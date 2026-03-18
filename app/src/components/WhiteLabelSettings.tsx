@@ -10,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { getAuthHeaders } from "@/hooks/useAuth";
 import LogoUploader from "./LogoUploader";
+import { SUPPORTED_CURRENCIES } from "@/lib/currency";
 
 interface OrgData {
   id: string;
@@ -148,6 +149,7 @@ export default function WhiteLabelSettings({ session }: Props) {
           settings: settings ? {
             require_kyc_for_transfer: settings.require_kyc_for_transfer,
             allow_investor_self_register: settings.allow_investor_self_register,
+            currency: settings.currency,
           } : undefined,
         }),
       });
@@ -479,6 +481,19 @@ export default function WhiteLabelSettings({ session }: Props) {
                   className="w-4 h-4 rounded accent-[#0ab4aa]"
                 />
                 <label className="text-[12px] text-ds-text-secondary">Allow investors to self-register (vs invite-only)</label>
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold mb-1.5 text-ds-muted tracking-wide uppercase">Display Currency</label>
+                <select
+                  value={settings.currency || "USD"}
+                  onChange={e => setSettings(s => s ? { ...s, currency: e.target.value } : s)}
+                  className="w-full max-w-xs bg-ds-bg border border-ds-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-ds-accent transition"
+                >
+                  {SUPPORTED_CURRENCIES.map(c => (
+                    <option key={c.code} value={c.code}>{c.symbol} {c.code} — {c.name}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-ds-muted mt-1">Currency used for display in dashboards. Does not affect on-chain operations.</p>
               </div>
             </div>
           </div>

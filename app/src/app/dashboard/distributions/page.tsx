@@ -16,6 +16,7 @@ import Link from "next/link";
 import type { Property, Investor } from "@/types/database";
 import dynamic from "next/dynamic";
 const DistributionManager = dynamic(() => import("@/components/DistributionManager"));
+import TaxReportGenerator from "@/components/TaxReportGenerator";
 
 export default function DistributionsPage() {
   const { session } = useAuth();
@@ -137,6 +138,14 @@ export default function DistributionsPage() {
               investors={investors}
             />
           )}
+
+          {/* Tax Report Generator */}
+          <div className="mt-6">
+            <TaxReportGenerator
+              properties={properties.map(p => ({ id: p.id, name: p.name }))}
+              session={session}
+            />
+          </div>
         </>
       )}
     </div>

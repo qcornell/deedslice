@@ -9,6 +9,7 @@ const DistributionChart = dynamic(() => import("@/components/DistributionChart")
   ssr: false,
 });
 import OnboardingChecklist from "@/components/OnboardingChecklist";
+import { formatCurrency } from "@/lib/currency";
 import type { Property, Investor, AuditEntry, Profile, Organization } from "@/types/database";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -24,6 +25,8 @@ export default function DashboardPage() {
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [org, setOrg] = useState<Organization | null>(null);
+  const [distributions, setDistributions] = useState<any[]>([]);
+  const [orgCurrency, setOrgCurrency] = useState("USD");
   const [loading, setLoading] = useState(true);
 
   // Load dashboard data — try summary endpoint, fall back to original pattern
@@ -38,7 +41,10 @@ export default function DashboardPage() {
       .catch(() => {});
     fetch("/api/org", { headers: h })
       .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.org) setOrg(data.org); })
+      .then(data => {
+        if (data?.org) setOrg(data.org);
+        if (data?.settings?.currency) setOrgCurrency(data.settings.currency);
+      })
       .catch(() => {});
 
     fetch("/api/dashboard/summary", { headers: h })
@@ -72,6 +78,16 @@ export default function DashboardPage() {
                   .catch(() => [])
               )
             ).then(results => setInvestors(results.flat()));
+
+            // Fetch distributions for all live properties
+            Promise.all(
+              liveProps.map((p: Property) =>
+                fetch(`/api/distributions?propertyId=${p.id}&limit=500`, { headers: h })
+                  .then(r => r.json())
+                  .then(d => d.distributions || [])
+                  .catch(() => [])
+              )
+            ).then(results => setDistributions(results.flat()));
           }
         }).catch(() => {});
       })
@@ -85,6 +101,14 @@ export default function DashboardPage() {
     const pending = properties.filter(p => p.status === "deploying").length;
     return { totalProperties: live.length, totalValue, totalInvestors, pending };
   }, [properties, investors]);
+
+  // YTD distributions sum
+  const distributionsYTD = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return distributions
+      .filter(d => d.paid_at && new Date(d.paid_at).getFullYear() === currentYear)
+      .reduce((sum, d) => sum + Number(d.amount_usd || 0), 0);
+  }, [distributions]);
 
   // Top investors by slices_owned (deduplicated by name, summed)
   const topInvestors = useMemo(() => {
@@ -216,7 +240,7 @@ export default function DashboardPage() {
         {/* Portfolio Value — Featured teal */}
         <div className="rounded-xl p-6 text-white" style={{ background: "linear-gradient(135deg, #17a2b8 0%, #138496 100%)", boxShadow: "0 1px 3px rgba(50,50,93,0.15)" }}>
           <div className="text-[13px] font-medium uppercase tracking-[0.5px] mb-2" style={{ color: "rgba(255,255,255,0.9)" }}>Portfolio Value</div>
-          <div className="text-[32px] font-bold leading-none">${stats.totalValue.toLocaleString()}</div>
+          <div className="text-[32px] font-bold leading-none">{formatCurrency(stats.totalValue, orgCurrency)}</div>
           <div className="text-[13px] mt-3 flex items-center gap-1" style={{ color: "rgba(255,255,255,0.9)" }}>
             <span className="font-medium">↑</span> {stats.totalProperties} active propert{stats.totalProperties !== 1 ? "ies" : "y"}
           </div>
@@ -244,7 +268,7 @@ export default function DashboardPage() {
         {/* Distributions */}
         <div className="glass rounded-xl p-6">
           <div className="text-[13px] font-medium uppercase tracking-[0.5px] mb-2" style={{ color: "#697386" }}>Distributions</div>
-          <div className="text-[32px] font-bold leading-none" style={{ color: "#1A1F36" }}>—</div>
+          <div className="text-[32px] font-bold leading-none" style={{ color: "#1A1F36" }}>{distributionsYTD > 0 ? formatCurrency(distributionsYTD, orgCurrency) : "—"}</div>
           <div className="text-[13px] mt-3" style={{ color: "#697386" }}>YTD</div>
         </div>
       </div>

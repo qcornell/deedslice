@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeedSlice Referral Program — Earn $100 Per Customer</title>
+  <meta name="description" content="Earn $100 USDC for every real estate operator you refer to DeedSlice. No cap. No risk. Get paid when they pay.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #07070c;
+      color: #e4e4e7;
+      line-height: 1.6;
+    }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(180deg, rgba(20, 184, 166, 0.08) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(20, 184, 166, 0.15);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(20, 184, 166, 0.12);
+      color: #14b8a6;
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 48px);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.1;
+    }
+    .hero h1 span { color: #14b8a6; }
+    .hero p {
+      font-size: 18px;
+      color: #a1a1aa;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+    .hero-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 16px 28px;
+    }
+    .hero-stat .amount {
+      font-size: 42px;
+      font-weight: 800;
+      color: #14b8a6;
+    }
+    .hero-stat .label {
+      text-align: left;
+      font-size: 14px;
+      color: #a1a1aa;
+    }
+    .hero-stat .label strong {
+      display: block;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    /* Section */
+    section { padding: 50px 20px; }
+    section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    /* How it works */
+    .steps {
+      display: grid;
+      gap: 20px;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+    }
+    .step h3 { color: #fff; font-size: 17px; margin-bottom: 4px; }
+    .step p { color: #a1a1aa; font-size: 14px; }
+
+    /* Math */
+    .math-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .math-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .math-card .num {
+      font-size: 32px;
+      font-weight: 800;
+      color: #14b8a6;
+    }
+    .math-card .desc {
+      font-size: 13px;
+      color: #a1a1aa;
+      margin-top: 4px;
+    }
+
+    /* What is DeedSlice */
+    .feature-list {
+      list-style: none;
+      margin-top: 16px;
+    }
+    .feature-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 15px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .feature-list li .icon { font-size: 18px; flex-shrink: 0; }
+
+    /* Who to target */
+    .target-list {
+      list-style: none;
+      margin-top: 16px;
+    }
+    .target-list li {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+    .target-list li strong { color: #14b8a6; }
+
+    /* Rules */
+    .rules {
+      background: rgba(20, 184, 166, 0.06);
+      border: 1px solid rgba(20, 184, 166, 0.15);
+      border-radius: 14px;
+      padding: 28px;
+      margin-top: 20px;
+    }
+    .rules h3 {
+      color: #14b8a6;
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+    .rules ul {
+      list-style: none;
+    }
+    .rules ul li {
+      padding: 6px 0;
+      font-size: 14px;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 60px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(20, 184, 166, 0.06) 100%);
+    }
+    .cta-section h2 {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .cta-section p {
+      color: #a1a1aa;
+      font-size: 16px;
+      margin-bottom: 28px;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+    .cta-btn:hover { transform: translateY(-2px); }
+
+    .footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #52525b;
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .footer a { color: #14b8a6; text-decoration: none; }
+
+    /* Pitch script section */
+    .pitch-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #d4d4d8;
+      line-height: 1.8;
+    }
+    .pitch-box .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #14b8a6;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">🌍 Referral Program</div>
+    <h1>Earn <span>$100</span> Per Customer</h1>
+    <p>Refer real estate operators to DeedSlice. When they sign up and pay, you get $100 in USDC. No cap. No risk.</p>
+    <div class="hero-stat">
+      <div class="amount">$100</div>
+      <div class="label">
+        <strong>Per Referral</strong>
+        Paid in USDC after first payment
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- HOW IT WORKS -->
+    <section>
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h3>Apply & Get Your Link</h3>
+            <p>DM us to join the program. You'll get a unique referral link and marketing materials to share.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h3>Share With Property Operators</h3>
+            <p>Talk to real estate syndicators, developers, and property managers in your network. Share the link, send the one-pager, show the demo video.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h3>They Sign Up & Pay</h3>
+            <p>When your referral creates an account and subscribes to the Operator plan ($299/mo), the clock starts.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <h3>You Get Paid</h3>
+            <p>After 30 days (to confirm they're a real customer), we send you $100 in USDC to your wallet. Done.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE MATH -->
+    <section>
+      <h2>The Math</h2>
+      <p style="color: #a1a1aa;">There's no cap on referrals. The more you close, the more you earn.</p>
+      <div class="math-grid">
+        <div class="math-card">
+          <div class="num">1/mo</div>
+          <div class="desc">$100/month<br>= $1,200/year</div>
+        </div>
+        <div class="math-card">
+          <div class="num">3/mo</div>
+          <div class="desc">$300/month<br>= $3,600/year</div>
+        </div>
+        <div class="math-card">
+          <div class="num">5/mo</div>
+          <div class="desc">$500/month<br>= $6,000/year</div>
+        </div>
+        <div class="math-card">
+          <div class="num">10/mo</div>
+          <div class="desc">$1,000/month<br>= $12,000/year</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT IS DEEDSLICE -->
+    <section>
+      <h2>What Is DeedSlice?</h2>
+      <p style="color: #a1a1aa; margin-bottom: 12px;">DeedSlice is real estate tokenization infrastructure. Property operators use it to tokenize properties, manage investors, and distribute returns — all from one dashboard.</p>
+      <ul class="feature-list">
+        <li><span class="icon">🏠</span> Tokenize any property in under 5 minutes — NFT deed + share tokens on Hedera blockchain</li>
+        <li><span class="icon">👥</span> Investor portal — investors sign up, see their holdings, track distributions</li>
+        <li><span class="icon">💰</span> Distribution management — auto-calculate splits, notify investors, record on-chain</li>
+        <li><span class="icon">🔒</span> Tamper-proof audit trail — every event recorded on Hedera Consensus Service</li>
+        <li><span class="icon">🏷️</span> White-label ready — operators deploy under their own brand and custom domain</li>
+        <li><span class="icon">📄</span> PDF certificates, document vault, compliance tools</li>
+      </ul>
+      <p style="color: #71717a; margin-top: 16px; font-size: 14px;">Competitors charge $40,000+ for this. DeedSlice is $299/month.</p>
+    </section>
+
+    <!-- WHO TO TARGET -->
+    <section>
+      <h2>Who Should You Talk To?</h2>
+      <ul class="target-list">
+        <li><strong>Real estate syndicators</strong> — people who pool investor money to buy properties. They NEED investor management tools.</li>
+        <li><strong>Property developers</strong> — building projects and raising capital from multiple investors.</li>
+        <li><strong>Real estate fund managers</strong> — managing portfolios of properties for investor groups.</li>
+        <li><strong>PropTech companies</strong> — real estate tech startups that want to add tokenization to their offering.</li>
+        <li><strong>Crypto-native RE operators</strong> — anyone in your country already talking about blockchain + real estate.</li>
+      </ul>
+    </section>
+
+    <!-- PITCH SCRIPT -->
+    <section>
+      <h2>What To Say</h2>
+      <p style="color: #a1a1aa;">Here's a simple script you can adapt for WhatsApp, email, or in-person conversations:</p>
+      <div class="pitch-box">
+        <div class="label">📋 Copy & Paste Pitch</div>
+        <p>Hi [Name],</p>
+        <br>
+        <p>I came across a platform that lets you tokenize real estate properties in minutes — no developers needed, no $40K+ setup fees.</p>
+        <br>
+        <p>It's called DeedSlice. Property operators use it to:</p>
+        <p>→ Tokenize properties on Hedera blockchain (NFT deed + share tokens)</p>
+        <p>→ Manage investors with a branded portal</p>
+        <p>→ Track everything with a tamper-proof audit trail</p>
+        <p>→ Distribute returns with one click</p>
+        <br>
+        <p>It's $299/month — compared to competitors like Blocksquare who charge $40,000+ upfront.</p>
+        <br>
+        <p>You can try it free (sandbox mode): https://deedslice.com</p>
+        <br>
+        <p>Would you be interested in a quick look?</p>
+      </div>
+    </section>
+
+    <!-- RULES -->
+    <section>
+      <h2>Program Rules</h2>
+      <div class="rules">
+        <h3>✅ Simple & Fair</h3>
+        <ul>
+          <li>💵 <span><strong>$100 per referral</strong> — paid after the customer's first 30 days on a paid plan ($299/mo Operator or higher)</span></li>
+          <li>🪙 <span><strong>Paid in USDC</strong> — sent to your wallet address. Near-zero fees, works worldwide.</span></li>
+          <li>🔗 <span><strong>Tracked by referral code</strong> — customer enters your code at signup. No confusion.</span></li>
+          <li>♾️ <span><strong>No cap</strong> — refer 1 customer or 100. You get $100 for each one.</span></li>
+          <li>⏰ <span><strong>30-day hold</strong> — we verify the customer is real and active before paying out.</span></li>
+          <li>🚫 <span><strong>No self-referrals</strong> — you can't refer yourself or fake accounts.</span></li>
+          <li>🌍 <span><strong>Open worldwide</strong> — anyone, anywhere can participate.</span></li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>Ready to Start Earning?</h2>
+    <p>DM us on Twitter or Telegram to get your referral link and materials.</p>
+    <a href="https://x.com/deedslice" class="cta-btn" target="_blank">DM @deedslice on X →</a>
+    <p style="color: #52525b; font-size: 13px; margin-top: 16px;">Or email: partners@deedslice.com</p>
+  </div>
+
+  <div class="footer">
+    <p><a href="https://deedslice.com">deedslice.com</a> · Real Estate Tokenization Infrastructure · Built on Hedera</p>
+  </div>
+
+</body>
+</html>

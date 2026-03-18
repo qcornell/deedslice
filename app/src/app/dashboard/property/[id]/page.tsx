@@ -11,6 +11,7 @@ const DistributionManager = dynamic(() => import("@/components/DistributionManag
 const InvestorProtectionPanel = dynamic(() => import("@/components/InvestorProtectionPanel"));
 const IssuerCertificationModal = dynamic(() => import("@/components/IssuerCertificationModal"));
 const NotifyInvestorsModal = dynamic(() => import("@/components/NotifyInvestorsModal"));
+import LegalTemplates from "@/components/LegalTemplates";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { HASHSCAN_BASE } from "@/lib/hedera/config";
@@ -713,6 +714,11 @@ export default function PropertyDetailPage() {
               .then((d) => setAuditEntries(d.auditEntries || []));
           }}
         />
+      </div>
+
+      {/* Legal Documents */}
+      <div className="mt-6">
+        <LegalTemplates propertyId={property.id} propertyName={property.name} session={session} />
       </div>
 
       {/* Shareable Investor Link */}
