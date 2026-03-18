@@ -57,6 +57,7 @@ export default function DashboardPage() {
         setProperties(data.properties || []);
         setInvestors(data.investors || []);
         setAuditEntries(data.auditEntries || []);
+        setDistributions(data.distributions || []);
       })
       .catch(() => {
         // Fallback: original pattern (properties + audit separately)
@@ -102,11 +103,14 @@ export default function DashboardPage() {
     return { totalProperties: live.length, totalValue, totalInvestors, pending };
   }, [properties, investors]);
 
-  // YTD distributions sum
+  // YTD distributions sum (use paid_at if available, fall back to created_at)
   const distributionsYTD = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return distributions
-      .filter(d => d.paid_at && new Date(d.paid_at).getFullYear() === currentYear)
+      .filter(d => {
+        const dateStr = d.paid_at || d.created_at;
+        return dateStr && new Date(dateStr).getFullYear() === currentYear;
+      })
       .reduce((sum, d) => sum + Number(d.amount_usd || 0), 0);
   }, [distributions]);
 

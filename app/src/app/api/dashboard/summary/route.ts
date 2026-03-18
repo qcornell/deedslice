@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
     // Build name lookup
     const nameMap = new Map(allProps.map((p: any) => [p.id, p.name]));
 
-    // Step 2: Fetch investors + audit in parallel (simple queries, no joins)
-    const [investorsRes, auditRes] = await Promise.all([
+    // Step 2: Fetch investors + audit + distributions in parallel
+    const [investorsRes, auditRes, distributionsRes] = await Promise.all([
       livePropertyIds.length > 0
         ? supabaseAdmin
             .from("ds_investors")
@@ -52,6 +52,14 @@ export async function GET(req: NextRequest) {
             .order("created_at", { ascending: false })
             .limit(5)
         : Promise.resolve({ data: [] }),
+
+      allPropertyIds.length > 0
+        ? supabaseAdmin
+            .from("ds_distributions")
+            .select("*")
+            .in("property_id", allPropertyIds)
+            .order("created_at", { ascending: false })
+        : Promise.resolve({ data: [] }),
     ]);
 
     // Attach property names to investors
@@ -61,11 +69,13 @@ export async function GET(req: NextRequest) {
     }));
 
     const auditEntries = auditRes.data || [];
+    const distributions = distributionsRes.data || [];
 
     return NextResponse.json({
       properties: allProps,
       investors,
       auditEntries,
+      distributions,
     });
   } catch (err) {
     console.error("Dashboard summary error:", err);
